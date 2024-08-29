@@ -165,8 +165,8 @@
       </div>
     </div>
     <script>
-    // Define questions with difficulty and explanations
-    const quizData = {
+      // Define questions with difficulty and explanations
+      const quizData = {
         // Structure your questions with difficulty and explanations
         business: [
           {
@@ -184,128 +184,10 @@
 
       // Global variables
       let currentDifficulty = "easy";
-      let questions = [];
-      let currentQuestion = 0;
       let currentTopic = "";
-      let currentQuestions = [];
-      let currentQuestionIndex = 0;
+      let questions = [];
       let score = 0;
-      let timer;
-
-      const topicButtons = document.querySelectorAll(".topic-btn");
-      const quizArea = document.getElementById("quiz-area");
-      const questionContainer = document.getElementById("question-container");
-      const optionsContainer = document.getElementById("options-container");
-      const nextButton = document.getElementById("next-btn");
-      const skipButton = document.getElementById("skip-btn");
-      const resultContainer = document.getElementById("result-container");
-      const scoreElement = document.getElementById("score");
-      const restartButton = document.getElementById("restart-btn");
-      const timerElement = document.getElementById("time");
-
-      topicButtons.forEach((button) => {
-        button.addEventListener("click", () => startQuiz(button.dataset.topic));
-      });
-
-      nextButton.addEventListener("click", nextQuestion);
-      skipButton.addEventListener("click", skipQuestion);
-      restartButton.addEventListener("click", restartQuiz);
-
-      function startQuiz(topic) {
-        currentTopic = topic;
-        currentQuestions = getRandomQuestions(quizData[topic], 10);
-        currentQuestionIndex = 0;
-        score = 0;
-        quizArea.style.display = "block";
-        document.getElementById("topic-selection").style.display = "none";
-        resultContainer.style.display = "none";
-        displayQuestion();
-      }
-
-      function getRandomQuestions(questions, count) {
-        const shuffled = [...questions].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
-      }
-
-      function displayQuestion() {
-        clearInterval(timer);
-        const question = currentQuestions[currentQuestionIndex];
-        questionContainer.textContent = question.question;
-        optionsContainer.innerHTML = "";
-
-        if (
-          question.type === "multiple-choice" ||
-          question.type === "true-false"
-        ) {
-          question.options.forEach((option) => {
-            const button = document.createElement("button");
-            button.textContent = option;
-            button.addEventListener("click", () => selectAnswer(option));
-            optionsContainer.appendChild(button);
-          });
-        } else if (question.type === "fill-in") {
-          const input = document.createElement("input");
-          input.type = "text";
-          input.id = "fill-in-answer";
-          optionsContainer.appendChild(input);
-
-          const submitButton = document.createElement("button");
-          submitButton.textContent = "Submit";
-          submitButton.addEventListener("click", () =>
-            selectAnswer(input.value)
-          );
-          optionsContainer.appendChild(submitButton);
-        }
-
-        startTimer();
-      }
-
-      function selectAnswer(answer) {
-        clearInterval(timer);
-        const question = currentQuestions[currentQuestionIndex];
-        if (answer.toLowerCase() === question.correctAnswer.toLowerCase()) {
-          score++;
-        }
-        nextQuestion();
-      }
-
-      function nextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < currentQuestions.length) {
-          displayQuestion();
-        } else {
-          showResult();
-        }
-      }
-
-      function skipQuestion() {
-        nextQuestion();
-      }
-
-      function startTimer() {
-        let timeLeft = 30;
-        timerElement.textContent = timeLeft;
-        timer = setInterval(() => {
-          timeLeft--;
-          timerElement.textContent = timeLeft;
-          if (timeLeft === 0) {
-            clearInterval(timer);
-            nextQuestion();
-          }
-        }, 1000);
-      }
-
-      function showResult() {
-        quizArea.style.display = "none";
-        resultContainer.style.display = "block";
-        scoreElement.textContent = score;
-      }
-
-      function restartQuiz() {
-        document.getElementById("topic-selection").style.display = "block";
-        resultContainer.style.display = "none";
-      }
-      
+      let currentQuestion = 0;
 
       // Event Listeners for difficulty and topics
       document.querySelectorAll(".difficulty-btn").forEach((button) => {
