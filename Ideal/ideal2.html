@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Q&A Quiz</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    #quiz-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    button {
+      background-color: #4caf50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #topic-selection,
+    #difficulty-selection {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #timer {
+      text-align: right;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    #question-container {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    #options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #explanation-container {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e8f5e9;
+      border-radius: 5px;
+      font-style: italic;
+    }
+
+    #next-btn,
+    #skip-btn {
+      margin-top: 20px;
+    }
+
+    #result-container,
+    #leaderboard-container {
+      text-align: center;
+    }
+
+    #leaderboard-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #leaderboard-list li {
+      background-color: #e8f5e9;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+  </style>
+  <body>
+    <div id="quiz-container">
+      <h1>Interactive Q&A Quiz</h1>
+      <div id="topic-selection">
+        <h2>Select a Topic:</h2>
+        <button class="topic-btn" data-topic="business">Business</button>
+        <button class="topic-btn" data-topic="technology">Technology</button>
+        <button class="topic-btn" data-topic="health">Health</button>
+        <button class="topic-btn" data-topic="history">History</button>
+        <button class="topic-btn" data-topic="geography">Geography</button>
+      </div>
+      <div id="difficulty-selection" style="display: none">
+        <h2>Select Difficulty:</h2>
+        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+      <div id="quiz-area" style="display: none">
+        <div id="timer">Time left: <span id="time">30</span>s</div>
+        <div id="question-container"></div>
+        <div id="options-container"></div>
+        <div id="explanation-container" style="display: none"></div>
+        <button id="next-btn">Next</button>
+        <button id="skip-btn">Skip</button>
+      </div>
+      <div id="result-container" style="display: none">
+        <h2>Quiz Completed!</h2>
+        <p>Your score: <span id="score"></span>/10</p>
+        <button id="restart-btn">Restart Quiz</button>
+      </div>
+      <div id="leaderboard-container" style="display: none">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard-list"></ul>
+      </div>
+    </div>
+    <script>
+      const quizData = {
+        business: {
+          easy: [
+            {
+              question: "What does ROI stand for?",
+              options: [
+                "Return on Investment",
+                "Rate of Inflation",
+                "Risk of Inventory",
+                "Retail Operations Index",
+              ],
+              correctAnswer: "Return on Investment",
+              explanation:
+                "ROI stands for Return on Investment. It's a performance measure used to evaluate the efficiency of an investment.",
+            },
+            {
+              question: "Which of these is not one of the 4 Ps of Marketing?",
+              options: ["Price", "Product", "Place", "Promotion", "People"],
+              correctAnswer: "People",
+              explanation:
+                "The 4 Ps of Marketing are Price, Product, Place, and Promotion. 'People' is often considered as the 5th P in an extended marketing mix.",
+            },
+            {
+              question: "What does B2B stand for in business?",
+              options: [
+                "Back to Business",
+                "Business to Business",
+                "Business to Buyer",
+                "Buyer to Business",
+              ],
+              correctAnswer: "Business to Business",
+              explanation:
+                "B2B stands for Business to Business. It refers to commerce transactions between businesses, such as between a manufacturer and a wholesaler, or between a wholesaler and a retailer.",
+            },
+          ],
+          medium: [
+            {
+              question: "What is the purpose of a SWOT analysis?",
+              options: [
+                "To analyze market trends",
+                "To evaluate Strengths, Weaknesses, Opportunities, and Threats",
+                "To calculate profit margins",
+                "To determine product pricing",
+              ],
+              correctAnswer:
+                "To evaluate Strengths, Weaknesses, Opportunities, and Threats",
+              explanation:
+                "SWOT analysis is a strategic planning technique used to help an organization identify strengths, weaknesses, opportunities, and threats related to business competition or project planning.",
+            },
+            {
+              question: "What does EBITDA stand for?",
+              options: [
+                "Earnings Before Interest, Taxes, Depreciation, and Amortization",
+                "Estimated Business Income Tax and Debt Assessment",
+                "Economic Balance in Trade and Domestic Affairs",
+                "Equity-Based Investment in Technological Development and Advancement",
+              ],
+              correctAnswer:
+                "Earnings Before Interest, Taxes, Depreciation, and Amortization",
+              explanation:
+                "EBITDA stands for Earnings Before Interest, Taxes, Depreciation, and Amortization. It's a measure of a company's overall financial performance and is used as an alternative to net income in some circumstances.",
+            },
+            {
+              question: "What is a hostile takeover?",
+              options: [
+                "When a company fires all its employees",
+                "When a company acquires another company against the wishes of the target company's management",
+                "When a company goes bankrupt",
+                "When a company changes its name and branding",
+              ],
+              correctAnswer:
+                "When a company acquires another company against the wishes of the target company's management",
+              explanation:
+                "A hostile takeover is the acquisition of one company by another corporation against the wishes of the former's management. An acquiring company can achieve a hostile takeover by going directly to the target company's shareholders or fighting to replace its management.",
+            },
+          ],
+          hard: [
+            {
+              question: "What is the Sarbanes-Oxley Act?",
+              options: [
+                "A tax reform law",
+                "An environmental protection act",
+                "A corporate governance law",
+                "An international trade agreement",
+              ],
+              correctAnswer: "A corporate governance law",
+              explanation:
+                "The Sarbanes-Oxley Act is a U.S. law that aims to protect investors by improving the accuracy and reliability of corporate disclosures. It was enacted in 2002 in response to major corporate and accounting scandals.",
+            },
+            {
+              question: "What is the efficient market hypothesis?",
+              options: [
+                "The idea that markets always produce at maximum efficiency",
+                "The theory that stock prices reflect all available information",
+                "A hypothesis about the most efficient way to structure a market",
+                "The concept that efficient markets lead to economic growth",
+              ],
+              correctAnswer:
+                "The theory that stock prices reflect all available information",
+              explanation:
+                "The efficient market hypothesis (EMH) is an investment theory stating that share prices reflect all information and consistent alpha generation is impossible. According to the EMH, stocks always trade at their fair value on stock exchanges, making it impossible for investors to either purchase undervalued stocks or sell stocks for inflated prices.",
+            },
+            {
+              question:
+                "What is the principal-agent problem in corporate governance?",
+              options: [
+                "When a company has too many principals and not enough agents",
+                "When agents act in their own interests rather than those of the principals",
+                "When principals micromanage their agents",
+                "When there's a disagreement between two principal shareholders",
+              ],
+              correctAnswer:
+                "When agents act in their own interests rather than those of the principals",
+              explanation:
+                "The principal-agent problem occurs when an agent (such as a company's executives) acts in its own best interest rather than those of its principals (the shareholders). This can lead to conflicts of interest and issues in corporate governance.",
+            },
+          ],
+        },
+        technology: {
+          easy: [
+            {
+              question: "What does CPU stand for?",
+              options: [
+                "Central Processing Unit",
+                "Computer Personal Unit",
+                "Central Processor Unifier",
+                "Central Process Utility",
+              ],
+              correctAnswer: "Central Processing Unit",
+              explanation:
+                "CPU stands for Central Processing Unit. It's the primary component of a computer that processes instructions from hardware and software.",
+            },
+            {
+              question: "Which of these is not a programming language?",
+              options: ["Java", "Python", "HTML", "Photoshop"],
+              correctAnswer: "Photoshop",
+              explanation:
+                "Photoshop is an image editing software, not a programming language. Java, Python, and HTML are all used in programming or web development.",
+            },
+            {
+              question: "What does 'URL' stand for?",
+              options: [
+                "Uniform Resource Locator",
+                "Universal Reference Link",
+                "Unified Resource Listing",
+                "Ultra Rapid Link",
+              ],
+              correctAnswer: "Uniform Resource Locator",
+              explanation:
+                "URL stands for Uniform Resource Locator. It's the address of a specific webpage or file on the Internet.",
+            },
+          ],
+          medium: [
+            {
+              question: "What is the purpose of SSL/TLS in web browsing?",
+              options: [
+                "To make websites load faster",
+                "To compress web content",
+                "To provide secure, encrypted communications",
+                "To translate websites into different languages",
+              ],
+              correctAnswer: "To provide secure, encrypted communications",
+              explanation:
+                "SSL (Secure Sockets Layer) and its successor TLS (Transport Layer Security) are protocols designed to provide secure, encrypted communications over a computer network, such as the internet.",
+            },
+            {
+              question: "What is a 'cookie' in terms of web browsing?",
+              options: [
+                "A type of computer virus",
+                "A small text file stored on your computer by websites",
+                "A programming language for websites",
+                "A type of wireless network",
+              ],
+              correctAnswer:
+                "A small text file stored on your computer by websites",
+              explanation:
+                "In web browsing, a cookie is a small piece of data stored on the user's computer by the web browser while browsing a website. Cookies are designed to remember information or to enable functionality for the website.",
+            },
+            {
+              question: "What is the difference between HTTP and HTTPS?",
+              options: [
+                "HTTP is faster",
+                "HTTPS is encrypted",
+                "HTTP is newer",
+                "HTTPS works only on mobile devices",
+              ],
+              correctAnswer: "HTTPS is encrypted",
+              explanation:
+                "The main difference between HTTP and HTTPS is that HTTPS (Hypertext Transfer Protocol Secure) uses SSL/TLS to encrypt normal HTTP requests and responses. This adds a layer of security to data in transit.",
+            },
+          ],
+          hard: [
+            {
+              question: "What is a blockchain in cryptocurrency?",
+              options: [
+                "A type of digital wallet",
+                "A centralized database of transactions",
+                "A decentralized, distributed ledger technology",
+                "A method of mining new coins",
+              ],
+              correctAnswer: "A decentralized, distributed ledger technology",
+              explanation:
+                "A blockchain is a decentralized, distributed ledger technology that records all transactions across a peer-to-peer network. It's the underlying technology behind cryptocurrencies like Bitcoin.",
+            },
+            {
+              question: "What is quantum computing?",
+              options: [
+                "Very fast traditional computing",
+                "Computing using light",
+                "Computing using quantum-mechanical phenomena",
+                "A theoretical form of computing that doesn't exist yet",
+              ],
+              correctAnswer: "Computing using quantum-mechanical phenomena",
+              explanation:
+                "Quantum computing is a type of computation that harnesses the collective properties of quantum states, such as superposition, interference, and entanglement, to perform calculations. It has the potential to solve certain problems much faster than classical computers.",
+            },
+            {
+              question: "What is the CAP theorem in distributed computing?",
+              options: [
+                "A theory about processor speed",
+                "A principle stating you can have at most two out of three: Consistency, Availability, and Partition tolerance",
+                "A law about computer memory usage",
+                "A theorem about the limits of artificial intelligence",
+              ],
+              correctAnswer:
+                "A principle stating you can have at most two out of three: Consistency, Availability, and Partition tolerance",
+              explanation:
+                "The CAP theorem, also known as Brewer's theorem, states that it is impossible for a distributed data store to simultaneously provide more than two out of the following three guarantees: Consistency, Availability, and Partition tolerance.",
+            },
+          ],
+        },
+        health: {
+          easy: [
+            {
+              question: "What is the normal resting heart rate for adults?",
+              options: [
+                "60-100 beats per minute",
+                "40-60 beats per minute",
+                "100-120 beats per minute",
+                "120-140 beats per minute",
+              ],
+              correctAnswer: "60-100 beats per minute",
+              explanation:
+                "A normal resting heart rate for adults ranges from 60 to 100 beats per minute. However, a lower heart rate at rest generally implies more efficient heart function and better cardiovascular fitness.",
+            },
+            {
+              question: "Which of these is not a macronutrient?",
+              options: ["Protein", "Carbohydrates", "Fats", "Vitamins"],
+              correctAnswer: "Vitamins",
+              explanation:
+                "Vitamins are micronutrients, not macronutrients. The three macronutrients are proteins, carbohydrates, and fats, which are needed in larger quantities in the diet.",
+            },
+            {
+              question: "What is the main function of red blood cells?",
+              options: [
+                "To fight infections",
+                "To carry oxygen",
+                "To clot blood",
+                "To produce antibodies",
+              ],
+              correctAnswer: "To carry oxygen",
+              explanation:
+                "The main function of red blood cells (erythrocytes) is to carry oxygen from the lungs to the body tissues and to transport carbon dioxide from the tissues back to the lungs.",
+            },
+          ],
+          medium: [
+            {
+              question: "What is the function of insulin in the body?",
+              options: [
+                "To break down fats",
+                "To regulate blood sugar levels",
+                "To strengthen bones",
+                "To aid in digestion",
+              ],
+              correctAnswer: "To regulate blood sugar levels",
+              explanation:
+                "Insulin is a hormone produced by the pancreas that allows your body to use sugar (glucose) from carbohydrates in the food that you eat for energy or to store glucose for future use. Insulin helps keeps your blood sugar level from getting too high or too low.",
+            },
+            {
+              question:
+                "What is the difference between an epidemic and a pandemic?",
+              options: [
+                "Epidemics are more severe",
+                "Pandemics are localized, epidemics are global",
+                "Epidemics are localized, pandemics are global",
+                "There is no difference",
+              ],
+              correctAnswer: "Epidemics are localized, pandemics are global",
+              explanation:
+                "An epidemic is an outbreak of disease that spreads quickly and affects many individuals at the same time within a community or region. A pandemic is an epidemic that has spread over multiple countries or continents, affecting a large number of people.",
+            },
+            {
+              question:
+                "What is the function of the limbic system in the brain?",
+              options: [
+                "Control of voluntary movement",
+                "Processing of visual information",
+                "Regulation of emotions and memory",
+                "Coordination of balance",
+              ],
+              correctAnswer: "Regulation of emotions and memory",
+              explanation:
+                "The limbic system is a set of structures in the brain that deals with emotions and memory. It regulates autonomic or endocrine function in response to emotional stimuli and also is involved in reinforcing behavior.",
+            },
+          ],
+          hard: [
+            {
+              question:
+                "What is the function of telomeres in cellular biology?",
+              options: [
+                "To produce energy",
+                "To protect chromosomes from deterioration",
+                "To facilitate cell division",
+                "To store genetic information",
+              ],
+              correctAnswer: "To protect chromosomes from deterioration",
+              explanation:
+                "Telomeres are the protective caps at the ends of chromosomes. They prevent chromosomes from losing base pair sequences at their ends and from fusing to each other. They are involved in the aging process and have been linked to cancer and other age-related diseases.",
+            },
+            {
+              question:
+                "What is the role of the Krebs cycle in cellular respiration?",
+              options: [
+                "To break down glucose",
+                "To produce ATP",
+                "To remove waste products",
+                "To synthesize proteins",
+              ],
+              correctAnswer: "To produce ATP",
+              explanation:
+                "The Krebs cycle, also known as the citric acid cycle or tricarboxylic acid (TCA) cycle, is a series of chemical reactions used by all aerobic organisms to release stored energy through the oxidation of acetyl-CoA derived from carbohydrates, fats, and proteins into ATP and carbon dioxide.",
+            },
+            {
+              question: "What is epigenetics?",
+              options: [
+                "The study of skin diseases",
+                "The study of genetic mutations",
+                "The study of how behaviors and environment can affect how genes work",
+                "The study of plant genetics",
+              ],
+              correctAnswer:
+                "The study of how behaviors and environment can affect how genes work",
+              explanation:
+                "Epigenetics is the study of how your behaviors and environment can cause changes that affect the way your genes work. Unlike genetic changes, epigenetic changes are reversible and do not change your DNA sequence, but they can change how your body reads a DNA sequence.",
+            },
+          ],
+        },
+        history: {
+          easy: [
+            {
+              question: "In which year did World War II end?",
+              options: ["1943", "1945", "1947", "1950"],
+              correctAnswer: "1945",
+              explanation:
+                "World War II ended in 1945, with Germany surrendering in May and Japan surrendering in August following the atomic bombings of Hiroshima and Nagasaki.",
+            },
+            {
+              question: "Who was the first President of the United States?",
+              options: [
+                "Thomas Jefferson",
+                "John Adams",
+                "George Washington",
+                "Benjamin Franklin",
+              ],
+              correctAnswer: "George Washington",
+              explanation:
+                "George Washington was the first President of the United States, serving from 1789 to 1797. He was also commander-in-chief of the Continental Army during the American Revolutionary War.",
+            },
+            {
+              question:
+                "In which year did Christopher Columbus first reach the Americas?",
+              options: ["1492", "1510", "1476", "1500"],
+              correctAnswer: "1492",
+              explanation:
+                "Christopher Columbus first reached the Americas in 1492, landing in the Bahamas. This voyage initiated the European exploration and colonization of the American continents.",
+            },
+          ],
+          medium: [
+            {
+              question: "What was the main cause of the French Revolution?",
+              options: [
+                "Foreign invasion",
+                "Natural disasters",
+                "Social and economic inequalities",
+                "Religious conflicts",
+              ],
+              correctAnswer: "Social and economic inequalities",
+              explanation:
+                "The main cause of the French Revolution was the social and economic inequalities in French society. The feudal system left the majority of the population poor and oppressed, while the nobility and clergy enjoyed privileges and wealth.",
+            },
+            {
+              question: "Who was Genghis Khan?",
+              options: [
+                "A Chinese emperor",
+                "The founder of the Mongol Empire",
+                "A Japanese shogun",
+                "An Indian maharaja",
+              ],
+              correctAnswer: "The founder of the Mongol Empire",
+              explanation:
+                "Genghis Khan was the founder and first Great Khan of the Mongol Empire, which became the largest contiguous empire in history after his death. He united many of the nomadic tribes of Northeast Asia and secured control through military campaigns.",
+            },
+            {
+              question: "What was the significance of the Magna Carta?",
+              options: [
+                "It ended the Roman Empire",
+                "It limited the power of the English monarchy",
+                "It established the United Nations",
+                "It declared American independence",
+              ],
+              correctAnswer: "It limited the power of the English monarchy",
+              explanation:
+                "The Magna Carta, signed in 1215, was a charter of rights agreed to by King John of England. It established the principle that everyone, including the king, was subject to the law, and it guaranteed the rights of individuals, the right to justice, and the right to a fair trial.",
+            },
+          ],
+          hard: [
+            {
+              question:
+                "What was the significance of the Treaty of Westphalia?",
+              options: [
+                "It ended World War I",
+                "It established the principle of state sovereignty",
+                "It created the United Nations",
+                "It divided Africa among European powers",
+              ],
+              correctAnswer:
+                "It established the principle of state sovereignty",
+              explanation:
+                "The Peace of Westphalia, concluded in 1648, ended the Thirty Years' War and the Eighty Years' War. It established the principle of state sovereignty in international law, which became a fundamental concept in modern international relations.",
+            },
+            {
+              question: "Who was Emmeline Pankhurst?",
+              options: [
+                "A famous novelist",
+                "A pioneering scientist",
+                "A leader of the women's suffrage movement",
+                "The first female Prime Minister of the UK",
+              ],
+              correctAnswer: "A leader of the women's suffrage movement",
+              explanation:
+                "Emmeline Pankhurst was a British political activist and leader of the British suffragette movement who helped women win the right to vote. She founded the Women's Social and Political Union (WSPU) in 1903.",
+            },
+            {
+              question:
+                "What was the significance of the Sykes-Picot Agreement?",
+              options: [
+                "It ended the Cold War",
+                "It divided the Middle East into spheres of influence",
+                "It established the European Union",
+                "It created the state of Israel",
+              ],
+              correctAnswer:
+                "It divided the Middle East into spheres of influence",
+              explanation:
+                "The Sykes-Picot Agreement was a secret 1916 agreement between Great Britain and France, with assent from Russia, to define their mutually agreed spheres of influence and control in Southwestern Asia. The agreement shaped the modern Middle East and its borders.",
+            },
+          ],
+        },
+        geography: {
+          easy: [
+            {
+              question: "What is the capital of France?",
+              options: ["London", "Berlin", "Madrid", "Paris"],
+              correctAnswer: "Paris",
+              explanation:
+                "Paris is the capital and most populous city of France. It's a major European city and a global center for art, fashion, gastronomy, and culture.",
+            },
+            {
+              question: "Which of these is not a continent?",
+              options: ["Africa", "Europe", "Australia", "Russia"],
+              correctAnswer: "Russia",
+              explanation:
+                "Russia is a country, not a continent. It's the largest country in the world by area, spanning Eastern Europe and Northern Asia.",
+            },
+            {
+              question: "What is the longest river in the world?",
+              options: ["Amazon", "Nile", "Yangtze", "Mississippi"],
+              correctAnswer: "Nile",
+              explanation:
+                "The Nile is the longest river in the world, stretching about 6,650 kilometers (4,132 miles) long. It flows northward through northeastern Africa to the Mediterranean Sea.",
+            },
+          ],
+          medium: [
+            {
+              question: "Which country has the most time zones?",
+              options: ["Russia", "United States", "France", "Australia"],
+              correctAnswer: "France",
+              explanation:
+                "France has the most time zones of any country, with 12 when including its overseas territories. Metropolitan France uses 1 time zone, but the country has territories around the world.",
+            },
+            {
+              question: "What is the driest place on Earth?",
+              options: [
+                "Sahara Desert",
+                "Atacama Desert",
+                "Death Valley",
+                "Antarctic Dry Valleys",
+              ],
+              correctAnswer: "Antarctic Dry Valleys",
+              explanation:
+                "The McMurdo Dry Valleys in Antarctica are the driest place on Earth. They have seen no rainfall for nearly 2 million years.",
+            },
+            {
+              question:
+                "Which mountain range stretches across seven countries in Europe?",
+              options: ["Andes", "Rockies", "Alps", "Himalayas"],
+              correctAnswer: "Alps",
+              explanation:
+                "The Alps stretch across Italy, France, Germany, Austria, Slovenia, Switzerland, and Liechtenstein. They're the highest and most extensive mountain range system that lies entirely in Europe.",
+            },
+          ],
+          hard: [
+            {
+              question: "What is a 'rain shadow'?",
+              options: [
+                "A type of cloud",
+                "An area of reduced rainfall on the lee side of a mountain",
+                "A meteorological instrument",
+                "A weather phenomenon in tropical regions",
+              ],
+              correctAnswer:
+                "An area of reduced rainfall on the lee side of a mountain",
+              explanation:
+                "A rain shadow is a dry area on the leeward side of a mountainous area. The mountains block the passage of rain-producing weather systems and cast a 'shadow' of dryness behind them.",
+            },
+            {
+              question: "What is the 'Ring of Fire'?",
+              options: [
+                "A volcanic region in Hawaii",
+                "A region of frequent wildfires in Australia",
+                "A horseshoe-shaped belt of volcanic arcs and oceanic trenches around the Pacific Ocean",
+                "A ring-shaped coral reef in the Indian Ocean",
+              ],
+              correctAnswer:
+                "A horseshoe-shaped belt of volcanic arcs and oceanic trenches around the Pacific Ocean",
+              explanation:
+                "The Ring of Fire is a path along the Pacific Ocean characterized by active volcanoes and frequent earthquakes. Its length is approximately 40,000 kilometers (24,900 miles).",
+            },
+            {
+              question: "What is the significance of the 'Tropic of Cancer'?",
+              options: [
+                "It's the equator",
+                "It's the northernmost circle of latitude on Earth where the Sun can be directly overhead",
+                "It's where the Earth's magnetic field is strongest",
+                "It's the boundary between the tropics and the Arctic Circle",
+              ],
+              correctAnswer:
+                "It's the northernmost circle of latitude on Earth where the Sun can be directly overhead",
+              explanation:
+                "The Tropic of Cancer is the most northerly circle of latitude on Earth at which the Sun can be directly overhead. This occurs on the June solstice, when the Northern Hemisphere is tilted toward the Sun to its maximum extent.",
+            },
+          ],
+        },
+      };
+      let currentTopic = "";
+      let currentDifficulty = "";
+      let currentQuestions = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let timer;
+
+      const topicButtons = document.querySelectorAll(".topic-btn");
+      const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+      const quizArea = document.getElementById("quiz-area");
+      const questionContainer = document.getElementById("question-container");
+      const optionsContainer = document.getElementById("options-container");
+      const explanationContainer = document.getElementById(
+        "explanation-container"
+      );
+      const nextButton = document.getElementById("next-btn");
+      const skipButton = document.getElementById("skip-btn");
+      const resultContainer = document.getElementById("result-container");
+      const scoreElement = document.getElementById("score");
+      const restartButton = document.getElementById("restart-btn");
+      const timerElement = document.getElementById("time");
+      const leaderboardContainer = document.getElementById(
+        "leaderboard-container"
+      );
+      const leaderboardList = document.getElementById("leaderboard-list");
+
+      topicButtons.forEach((button) => {
+        button.addEventListener("click", () =>
+          selectTopic(button.dataset.topic)
+        );
+      });
+
+      difficultyButtons.forEach((button) => {
+        button.addEventListener("click", () =>
+          startQuiz(button.dataset.difficulty)
+        );
+      });
+
+      nextButton.addEventListener("click", nextQuestion);
+      skipButton.addEventListener("click", skipQuestion);
+      restartButton.addEventListener("click", restartQuiz);
+
+      function selectTopic(topic) {
+        currentTopic = topic;
+        document.getElementById("topic-selection").style.display = "none";
+        document.getElementById("difficulty-selection").style.display = "block";
+      }
+
+      function startQuiz(difficulty) {
+        currentDifficulty = difficulty;
+        currentQuestions = getRandomQuestions(
+          quizData[currentTopic][difficulty],
+          10
+        );
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById("difficulty-selection").style.display = "none";
+        quizArea.style.display = "block";
+        displayQuestion();
+      }
+
+      function getRandomQuestions(questions, count) {
+        const shuffled = [...questions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+      }
+
+      function displayQuestion() {
+        clearInterval(timer);
+        const question = currentQuestions[currentQuestionIndex];
+        questionContainer.textContent = question.question;
+        optionsContainer.innerHTML = "";
+        explanationContainer.style.display = "none";
+
+        question.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.addEventListener("click", () => selectAnswer(option));
+          optionsContainer.appendChild(button);
+        });
+
+        startTimer();
+      }
+
+      function selectAnswer(answer) {
+        clearInterval(timer);
+        const question = currentQuestions[currentQuestionIndex];
+        if (answer === question.correctAnswer) {
+          score++;
+        }
+        showExplanation(question.explanation);
+      }
+
+      function showExplanation(explanation) {
+        explanationContainer.textContent = explanation;
+        explanationContainer.style.display = "block";
+        nextButton.style.display = "block";
+        skipButton.style.display = "none";
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < currentQuestions.length) {
+          displayQuestion();
+        } else {
+          showResult();
+        }
+      }
+
+      function skipQuestion() {
+        nextQuestion();
+      }
+
+      function startTimer() {
+        let timeLeft = 30;
+        timerElement.textContent = timeLeft;
+        timer = setInterval(() => {
+          timeLeft--;
+          timerElement.textContent = timeLeft;
+          if (timeLeft === 0) {
+            clearInterval(timer);
+            skipQuestion();
+          }
+        }, 1000);
+      }
+
+      function showResult() {
+        quizArea.style.display = "none";
+        resultContainer.style.display = "block";
+        scoreElement.textContent = score;
+        updateLeaderboard();
+        showLeaderboard();
+      }
+
+      function updateLeaderboard() {
+        const leaderboard =
+          JSON.parse(localStorage.getItem("quizLeaderboard")) || {};
+        if (!leaderboard[currentTopic]) {
+          leaderboard[currentTopic] = {};
+        }
+        if (!leaderboard[currentTopic][currentDifficulty]) {
+          leaderboard[currentTopic][currentDifficulty] = [];
+        }
+        leaderboard[currentTopic][currentDifficulty].push(score);
+        leaderboard[currentTopic][currentDifficulty].sort((a, b) => b - a);
+        leaderboard[currentTopic][currentDifficulty] = leaderboard[
+          currentTopic
+        ][currentDifficulty].slice(0, 5);
+        localStorage.setItem("quizLeaderboard", JSON.stringify(leaderboard));
+      }
+
+      function showLeaderboard() {
+        const leaderboard =
+          JSON.parse(localStorage.getItem("quizLeaderboard")) || {};
+        const topicLeaderboard =
+          leaderboard[currentTopic] &&
+          leaderboard[currentTopic][currentDifficulty];
+
+        leaderboardList.innerHTML = "";
+        if (topicLeaderboard && topicLeaderboard.length > 0) {
+          topicLeaderboard.forEach((score, index) => {
+            const li = document.createElement("li");
+            li.textContent = `#${index + 1}: ${score} points`;
+            leaderboardList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "No scores yet!";
+          leaderboardList.appendChild(li);
+        }
+        leaderboardContainer.style.display = "block";
+      }
+
+      function restartQuiz() {
+        document.getElementById("topic-selection").style.display = "block";
+        resultContainer.style.display = "none";
+        leaderboardContainer.style.display = "none";
+      }
+    </script>
+  </body>
+</html>
