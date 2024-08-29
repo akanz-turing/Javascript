@@ -7,14 +7,36 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f0f0f0;
+    body,
+    #quiz-container {
+      font-family: "Arial", sans-serif;
+      text-align: center;
+    }
+    #difficulty,
+    #leaderboard {
+      margin: 20px 0;
+    }
+    #explanation {
+      background: #e9f7ef;
+      border-left: 5px solid #16a085;
+      margin: 10px 0;
+      padding: 10px;
+      display: none;
+    }
+    #leaderboard table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #leaderboard th,
+    #leaderboard td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .difficulty-btn,
+    .topic-btn {
+      margin: 5px;
+      padding: 10px;
+      cursor: pointer;
     }
 
     #quiz-container {
@@ -99,9 +121,16 @@
   </style>
   <body>
     <div id="quiz-container">
-      <h1>Interactive Q&A Quiz</h1>
-      <div id="topic-selection">
+      <h1>Q&A Quiz</h1>
+      <div id="difficulty">
+        <h2>Choose Difficulty:</h2>
+        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+      </div>
+      <div id="topic-selection" style="display: none">
         <h2>Select a Topic:</h2>
+        <!-- Topic buttons here -->
         <button class="topic-btn" data-topic="business">Business</button>
         <button class="topic-btn" data-topic="technology">Technology</button>
         <button class="topic-btn" data-topic="health">Health</button>
@@ -109,111 +138,54 @@
         <button class="topic-btn" data-topic="geography">Geography</button>
       </div>
       <div id="quiz-area" style="display: none">
+        <!-- Quiz content here -->
         <div id="timer">Time left: <span id="time">30</span>s</div>
         <div id="question-container"></div>
         <div id="options-container"></div>
         <button id="next-btn">Next</button>
         <button id="skip-btn">Skip</button>
+        <div id="explanation"></div>
       </div>
       <div id="result-container" style="display: none">
+        <!-- Results here -->
         <h2>Quiz Completed!</h2>
         <p>Your score: <span id="score"></span>/10</p>
-        <button id="restart-btn">Restart Quiz</button>
+        <input
+          type="text"
+          id="playerName"
+          placeholder="Enter your name for leaderboard"
+          style="display: none"
+        />
+        <button id="submitName" style="display: none">Submit</button>
+      </div>
+      <div id="leaderboard" style="display: none">
+        <h2>Leaderboard</h2>
+        <table id="leaderboardTable"></table>
+        <button id="showLeaderboard">Show Leaderboard</button>
       </div>
     </div>
     <script>
-      const quizData = {
+    // Define questions with difficulty and explanations
+    const quizData = {
+        // Structure your questions with difficulty and explanations
         business: [
           {
             question: "What does ROI stand for?",
-            options: [
-              "Return on Investment",
-              "Rate of Inflation",
-              "Risk of Inventory",
-              "Retail Operations Index",
-            ],
+            options: ["Return on Investment", "Risk of Investment"],
             correctAnswer: "Return on Investment",
-            type: "multiple-choice",
+            difficulty: "easy",
+            explanation:
+              "ROI measures the efficiency of an investment or compares the efficiency of different investments.",
           },
-          {
-            question:
-              "A balance sheet shows a company's assets, liabilities, and equity at a specific point in time.",
-            options: ["True", "False"],
-            correctAnswer: "True",
-            type: "true-false",
-          },
-          // Add more business questions...
+          // Add more questions with difficulty and explanations
         ],
-        technology: [
-          {
-            question: "What does CPU stand for?",
-            options: [
-              "Central Processing Unit",
-              "Computer Personal Unit",
-              "Central Processor Unifier",
-              "Central Process Utility",
-            ],
-            correctAnswer: "Central Processing Unit",
-            type: "multiple-choice",
-          },
-          {
-            question: "HTML is a programming language.",
-            options: ["True", "False"],
-            correctAnswer: "False",
-            type: "true-false",
-          },
-          // Add more technology questions...
-        ],
-        health: [
-          {
-            question: "What is the normal resting heart rate for adults?",
-            options: [
-              "60-100 beats per minute",
-              "40-60 beats per minute",
-              "100-120 beats per minute",
-              "120-140 beats per minute",
-            ],
-            correctAnswer: "60-100 beats per minute",
-            type: "multiple-choice",
-          },
-          {
-            question: "Vitamin C is also known as _______.",
-            correctAnswer: "ascorbic acid",
-            type: "fill-in",
-          },
-          // Add more health questions...
-        ],
-        history: [
-          {
-            question: "In which year did World War II end?",
-            options: ["1943", "1945", "1947", "1950"],
-            correctAnswer: "1945",
-            type: "multiple-choice",
-          },
-          {
-            question: "The American Revolution began in the year _______.",
-            correctAnswer: "1775",
-            type: "fill-in",
-          },
-          // Add more history questions...
-        ],
-        geography: [
-          {
-            question: "What is the capital of France?",
-            options: ["London", "Berlin", "Madrid", "Paris"],
-            correctAnswer: "Paris",
-            type: "multiple-choice",
-          },
-          {
-            question: "The Amazon River is located primarily in Brazil.",
-            options: ["True", "False"],
-            correctAnswer: "True",
-            type: "true-false",
-          },
-          // Add more geography questions...
-        ],
+        // Other topics...
       };
 
+      // Global variables
+      let currentDifficulty = "easy";
+      let questions = [];
+      let currentQuestion = 0;
       let currentTopic = "";
       let currentQuestions = [];
       let currentQuestionIndex = 0;
@@ -333,6 +305,105 @@
         document.getElementById("topic-selection").style.display = "block";
         resultContainer.style.display = "none";
       }
+      
+
+      // Event Listeners for difficulty and topics
+      document.querySelectorAll(".difficulty-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          currentDifficulty = this.dataset.difficulty;
+          document.getElementById("difficulty").style.display = "none";
+          document.getElementById("topic-selection").style.display = "block";
+        });
+      });
+
+      // Function to filter questions by difficulty and topic
+      function filterQuestions(topic, difficulty) {
+        return quizData[topic].filter((q) => q.difficulty === difficulty);
+      }
+
+      // Start quiz function
+      function startQuiz(topic) {
+        currentTopic = topic;
+        questions = getRandomQuestions(
+          filterQuestions(topic, currentDifficulty),
+          10
+        );
+        currentQuestion = 0;
+        score = 0;
+        // Hide topic selection, show quiz area, etc.
+      }
+
+      // Display question, handle answers, and show explanations
+      function displayQuestion() {
+        // Logic to display question
+        let explanation = document.getElementById("explanation");
+        explanation.style.display = "block";
+        explanation.textContent = questions[currentQuestion].explanation;
+      }
+
+      // Handling next question and answer selection
+      function selectAnswer(answer) {
+        if (answer === questions[currentQuestion].correctAnswer) {
+          score++;
+        }
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          displayQuestion();
+        } else {
+          showResults();
+        }
+      }
+
+      // Leaderboard functionality
+      function updateLeaderboard(name, newScore) {
+        let leaderboard = JSON.parse(
+          localStorage.getItem("quizLeaderboard") || "[]"
+        );
+        leaderboard.push({ name, score: newScore });
+        leaderboard.sort((a, b) => b.score - a.score).splice(5); // Keep top 5
+        localStorage.setItem("quizLeaderboard", JSON.stringify(leaderboard));
+      }
+
+      function showResults() {
+        // Display results and show input for name submission
+        document.getElementById("result-container").style.display = "block";
+        document.getElementById("playerName").style.display = "block";
+        document.getElementById("submitName").style.display = "block";
+        document.getElementById("submitName").onclick = function () {
+          let playerName = document.getElementById("playerName").value;
+          if (playerName) {
+            updateLeaderboard(playerName, score);
+            document.getElementById("result-container").style.display = "none";
+            showLeaderboard();
+          }
+        };
+      }
+
+      function showLeaderboard() {
+        let leaderboard = JSON.parse(
+          localStorage.getItem("quizLeaderboard") || "[]"
+        );
+        let table = document.getElementById("leaderboardTable");
+        table.innerHTML = "<tr><th>Name</th><th>Score</th></tr>";
+        leaderboard.forEach((item) => {
+          let row = table.insertRow();
+          row.insertCell(0).textContent = item.name;
+          row.insertCell(1).textContent = item.score;
+        });
+        document.getElementById("leaderboard").style.display = "block";
+      }
+
+      // Initialize quiz
+      document
+        .getElementById("showLeaderboard")
+        .addEventListener("click", showLeaderboard);
+
+      // Add event listeners for topic selection
+      document.querySelectorAll(".topic-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          startQuiz(this.dataset.topic);
+        });
+      });
     </script>
   </body>
 </html>

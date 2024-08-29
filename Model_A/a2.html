@@ -83,6 +83,30 @@
     #result-container {
       text-align: center;
     }
+    #difficulty-selection {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    #leaderboard {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    #leaderboard ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    #leaderboard li {
+        padding: 5px 0;
+    }
+    
+    .explanation {
+        font-size: 16px;
+        color: #666;
+        margin-top: 10px;
+    }
 
     @keyframes fadeIn {
       from {
@@ -99,27 +123,38 @@
   </style>
   <body>
     <div id="quiz-container">
-      <h1>Interactive Q&A Quiz</h1>
-      <div id="topic-selection">
-        <h2>Select a Topic:</h2>
-        <button class="topic-btn" data-topic="business">Business</button>
-        <button class="topic-btn" data-topic="technology">Technology</button>
-        <button class="topic-btn" data-topic="health">Health</button>
-        <button class="topic-btn" data-topic="history">History</button>
-        <button class="topic-btn" data-topic="geography">Geography</button>
-      </div>
-      <div id="quiz-area" style="display: none">
-        <div id="timer">Time left: <span id="time">30</span>s</div>
-        <div id="question-container"></div>
-        <div id="options-container"></div>
-        <button id="next-btn">Next</button>
-        <button id="skip-btn">Skip</button>
-      </div>
-      <div id="result-container" style="display: none">
-        <h2>Quiz Completed!</h2>
-        <p>Your score: <span id="score"></span>/10</p>
-        <button id="restart-btn">Restart Quiz</button>
-      </div>
+        <h1>Interactive Q&A Quiz</h1>
+        <div id="difficulty-selection">
+            <h2>Select Difficulty:</h2>
+            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+        <div id="topic-selection">
+            <h2>Select a Topic:</h2>
+            <button class="topic-btn" data-topic="business">Business</button>
+            <button class="topic-btn" data-topic="technology">Technology</button>
+            <button class="topic-btn" data-topic="health">Health</button>
+            <button class="topic-btn" data-topic="history">History</button>
+            <button class="topic-btn" data-topic="geography">Geography</button>
+        </div>
+        <div id="quiz-area" style="display: none;">
+            <div id="timer">Time left: <span id="time">30</span>s</div>
+            <div id="question-container"></div>
+            <div id="options-container"></div>
+            <div class="explanation" id="explanation-container"></div>
+            <button id="next-btn">Next</button>
+            <button id="skip-btn">Skip</button>
+        </div>
+        <div id="result-container" style="display: none;">
+            <h2>Quiz Completed!</h2>
+            <p>Your score: <span id="score"></span>/10</p>
+            <button id="restart-btn">Restart Quiz</button>
+            <div id="leaderboard">
+                <h2>Leaderboard:</h2>
+                <ul id="leaderboard-list"></ul>
+            </div>
+        </div>
     </div>
     <script>
       const quizData = {
@@ -297,15 +332,6 @@
         nextQuestion();
       }
 
-      function nextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < currentQuestions.length) {
-          displayQuestion();
-        } else {
-          showResult();
-        }
-      }
-
       function skipQuestion() {
         nextQuestion();
       }
@@ -323,16 +349,54 @@
         }, 1000);
       }
 
-      function showResult() {
-        quizArea.style.display = "none";
-        resultContainer.style.display = "block";
-        scoreElement.textContent = score;
-      }
-
       function restartQuiz() {
         document.getElementById("topic-selection").style.display = "block";
         resultContainer.style.display = "none";
       }
+      const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+        let difficultyLevel = 'medium'; // Default difficulty level
+
+        difficultyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                difficultyLevel = button.dataset.difficulty;
+                document.getElementById('difficulty-selection').style.display = 'none';
+                document.getElementById('topic-selection').style.display = 'block';
+            });
+        });
+
+        function nextQuestion() {
+            const explanationContainer = document.getElementById('explanation-container');
+            const currentQuestion = currentQuestions[currentQuestionIndex];
+            explanationContainer.textContent = currentQuestion.explanation || "No explanation provided.";
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                displayQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizArea.style.display = 'none';
+            resultContainer.style.display = 'block';
+            const leaderboardList = document.getElementById('leaderboard-list');
+            const storedLeaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            
+            scoreElement.textContent = score;
+            storedLeaderboard.push({difficulty: difficultyLevel, score: score, topic: currentTopic});
+            storedLeaderboard.sort((a, b) => b.score - a.score);
+            storedLeaderboard.splice(5); // Keep only top 5 scores
+            
+            leaderboardList.innerHTML = '';
+            storedLeaderboard.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Topic: ${item.topic}, Difficulty: ${item.difficulty}, Score: ${item.score}`;
+                leaderboardList.appendChild(listItem);
+            });
+
+            localStorage.setItem('leaderboard', JSON.stringify(storedLeaderboard));
+        }
+        // You'll need to add explanations to each question in your quizData for the explanation feature to work properly.
     </script>
   </body>
 </html>

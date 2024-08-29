@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q&A Application</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <!-- Using Vue for simplicity -->
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f4f4f4;
+        margin: 0;
+      }
+      .quiz-container {
+        width: 600px;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+      .question {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+      .options button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+      }
+      .timer {
+        text-align: center;
+        font-size: 24px;
+        color: #ff5733;
+      }
+      .result {
+        text-align: center;
+        font-size: 20px;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .fade {
+        animation: fade 0.5s forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="quiz-container">
+      <h1>Q&A Quiz</h1>
+      <div v-if="!quizEnded">
+        <p class="question">{{ currentQuestion.text }}</p>
+        <div class="options">
+          <button
+            v-for="(option, index) in currentQuestion.options"
+            :key="index"
+            @click="checkAnswer(option.isCorrect)"
+          >
+            {{ option.text }}
+          </button>
+        </div>
+        <p class="timer">Time Left: {{ timer }} seconds</p>
+        <button @click="skipQuestion">Skip</button>
+      </div>
+      <div v-else class="result fade">
+        <p>Your Score: {{ score }} / {{ questions.length }}</p>
+      </div>
+    </div>
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          questions: [
+            // Example questions for different domains
+            {
+              domain: "business",
+              type: "multiple",
+              text: "What does CEO stand for?",
+              options: [
+                { text: "Chief Executive Officer", isCorrect: true },
+                { text: "Chief Economic Officer", isCorrect: false },
+                { text: "Central Executive Organizer", isCorrect: false },
+              ],
+            },
+            {
+              domain: "technology",
+              type: "truefalse",
+              text: "Is JavaScript a case-sensitive language?",
+              options: [
+                { text: "True", isCorrect: true },
+                { text: "False", isCorrect: false },
+              ],
+            },
+          ],
+          currentQuestionIndex: 0,
+          timer: 30,
+          score: 0,
+          quizEnded: false,
+          intervalId: null,
+        },
+        computed: {
+          currentQuestion() {
+            return this.questions[this.currentQuestionIndex];
+          },
+        },
+        methods: {
+          startTimer() {
+            this.intervalId = setInterval(() => {
+              if (this.timer > 0) {
+                this.timer--;
+              } else {
+                this.skipQuestion();
+              }
+            }, 1000);
+          },
+          checkAnswer(isCorrect) {
+            if (isCorrect) this.score++;
+            this.skipQuestion();
+          },
+          skipQuestion() {
+            clearInterval(this.intervalId);
+            this.timer = 30;
+            if (this.currentQuestionIndex < this.questions.length - 1) {
+              this.currentQuestionIndex++;
+              this.startTimer();
+            } else {
+              this.quizEnded = true;
+            }
+          },
+        },
+        mounted() {
+          this.startTimer();
+        },
+      });
+    </script>
+  </body>
+</html>
