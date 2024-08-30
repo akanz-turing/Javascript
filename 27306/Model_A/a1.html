@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Learning Game</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .flip {
+        transform: rotateY(180deg);
+        transition: transform 0.5s;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div id="usernameSection" class="mb-6">
+        <input
+          id="username"
+          class="w-full p-2 border rounded"
+          type="text"
+          placeholder="Enter your username"
+        />
+        <button
+          onclick="startGame()"
+          class="mt-2 bg-blue-500 text-white p-2 rounded"
+        >
+          Start Game
+        </button>
+      </div>
+      <div id="gameSection" class="hidden">
+        <div class="text-center mb-4">
+          <h2 id="word" class="text-2xl font-bold"></h2>
+          <div id="timer" class="text-xl text-red-500"></div>
+        </div>
+        <div id="options" class="grid grid-cols-2 gap-4"></div>
+        <div id="score" class="mt-4 text-center text-lg"></div>
+      </div>
+      <div id="endSection" class="hidden text-center">
+        <h2 class="text-2xl">Game Over!</h2>
+        <p id="finalScore"></p>
+      </div>
+    </div>
+
+    <script>
+      const words = [
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        // Add more words here
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+      ];
+
+      let currentWord = 0,
+        score = 0,
+        timer,
+        username;
+
+      function startGame() {
+        username = document.getElementById("username").value;
+        if (!username) return;
+        document.getElementById("usernameSection").classList.add("hidden");
+        document.getElementById("gameSection").classList.remove("hidden");
+        loadWord();
+      }
+
+      function loadWord() {
+        if (currentWord >= words.length) {
+          endGame();
+          return;
+        }
+        clearInterval(timer);
+        document.getElementById("timer").textContent = "10";
+        timer = setInterval(() => {
+          let time = parseInt(document.getElementById("timer").textContent) - 1;
+          document.getElementById("timer").textContent = time;
+          if (time === 0) nextWord();
+        }, 1000);
+
+        const wordData = words[currentWord];
+        document.getElementById("word").textContent = wordData.word;
+        let options = shuffleArray([...wordData.options]);
+        document.getElementById("options").innerHTML = options
+          .map(
+            (option) =>
+              `<button onclick="selectAnswer(this, '${
+                option === wordData.synonym
+              }')" class="bg-gray-200 hover:bg-gray-300 p-2 rounded">${option}</button>`
+          )
+          .join("");
+      }
+
+      function selectAnswer(elem, isCorrect) {
+        clearInterval(timer);
+        if (isCorrect === "true") {
+          score++;
+          elem.classList.add("bg-green-500");
+        } else {
+          elem.classList.add("bg-red-500");
+          // Highlight correct answer
+          document
+            .querySelector(`button:contains(${words[currentWord].synonym})`)
+            .classList.add("bg-green-500");
+        }
+        elem.parentElement
+          .querySelectorAll("button")
+          .forEach((button) => (button.disabled = true));
+        setTimeout(nextWord, 1500);
+      }
+
+      function nextWord() {
+        currentWord++;
+        loadWord();
+      }
+
+      function endGame() {
+        document.getElementById("gameSection").classList.add("hidden");
+        document.getElementById("endSection").classList.remove("hidden");
+        document.getElementById(
+          "finalScore"
+        ).textContent = `${username}, your score is ${score} out of ${words.length}!`;
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+    </script>
+  </body>
+</html>
