@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .flip {
+            transition: 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .front, .back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .front {
+            z-index: 2;
+            transform: rotateY(0deg);
+        }
+        .back {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex justify-center items-center">
+    <div class="container mx-auto p-4 pt-6 md:p-6 lg:p-12">
+        <div id="welcome-screen" class="text-center">
+            <input type="text" id="username" placeholder="Enter your name" class="px-4 py-2 border rounded">
+            <button onclick="startGame()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Start Game</button>
+        </div>
+        <div id="game-screen" class="hidden">
+            <h2 class="text-2xl font-bold mb-2" id="timer"></h2>
+            <div class="flip">
+                <div class="front">
+                    <h1 class="text-3xl font-bold" id="word"></h1>
+                </div>
+                <div class="back hidden">
+                    <h1 class="text-3xl font-bold" id="result"></h1>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4" id="options"></div>
+        </div>
+        <div id="score-screen" class="hidden text-center">
+            <h1 class="text-3xl font-bold">Score: <span id="player-name"></span> - <span id="score"></span>/10</h1>
+        </div>
+    </div>
+    <script>
+        const words = [
+            {word: "happy", synonym: "joyful", options: ["sad", "angry", "joyful", "tired"]},
+            {word: "big", synonym: "large", options: ["small", "large", "fast", "slow"]},
+            // Add more words here...
+        ];
+        let currentWordIndex = 0;
+        let score = 0;
+        let playerName;
+        let timerInterval;
+
+        function startGame() {
+            playerName = document.getElementById('username').value;
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            if (currentWordIndex < words.length) {
+                let currentWord = words[currentWordIndex];
+                document.getElementById('word').innerText = currentWord.word;
+                shuffleArray(currentWord.options);
+                let optionsHtml = '';
+                currentWord.options.forEach((option, index) => {
+                    optionsHtml += `<button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow" onclick="checkAnswer(this, '${option}', '${currentWord.synonym}')">${option}</button>`;
+                });
+                document.getElementById('options').innerHTML = optionsHtml;
+                startTimer();
+            } else {
+                endGame();
+            }
+        }
+
+        function startTimer() {
+            let timeLeft = 10;
+            document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft -= 1;
+                document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(element, selected, correct) {
+            clearInterval(timerInterval);
+            if (selected === correct) {
+                element.classList.add('bg-green-500');
+                score++;
+            } else {
+                element.classList.add('bg-red-500');
+                document.querySelectorAll('#options button').forEach(btn => {
+                    if (btn.innerText === correct) {
+                        btn.classList.add('bg-green-500');
+                    }
+                });
+            }
+            flipCard();
+            setTimeout(() => {
+                currentWordIndex++;
+                showNextQuestion();
+            }, 1500);
+        }
+
+        function flipCard() {
+            const flipContainer = document.querySelector('.flip');
+            flipContainer.classList.add('flipped');
+            setTimeout(() => flipContainer.classList.remove('flipped'), 600);
+        }
+
+        function endGame() {
+            document.getElementById('player-name').innerText = playerName;
+            document.getElementById('score').innerText = score;
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('score-screen').classList.remove('hidden');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+    </script>
+</body>
+</html>
