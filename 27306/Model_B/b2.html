@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Word Learning Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div id="game-container" class="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+    <!-- Game UI Here -->
+    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-600">Advanced Word Learning Game</h1>
+    
+    <div id="setup-screen" class="mb-6">
+        <input type="text" id="username-input" placeholder="Enter your username" class="mb-2 w-full px-4 py-2 border rounded-md">
+        <select id="difficulty" class="mb-4 w-full px-4 py-2 border rounded-md">
+            <option value="easy">Easy (1 point)</option>
+            <option value="medium">Medium (2 points)</option>
+            <option value="hard">Hard (3 points)</option>
+        </select>
+        <button id="start-game" class="w-full bg-indigo-600 text-white py-2 rounded-md">Start Game</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="flex justify-between mb-4">
+            <button id="skip-question" class="bg-yellow-500 text-white px-3 py-1 rounded">Skip</button>
+            <div id="timer" class="text-lg font-semibold">10s</div>
+        </div>
+        <div id="word" class="text-2xl font-bold mb-4"></div>
+        <div id="options" class="grid grid-cols-2 gap-4"></div>
+        <p id="explanation" class="mt-4 text-gray-700 hidden"></p>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2 class="text-2xl font-bold mb-2">Game Over!</h2>
+        <p id="final-score"></p>
+        <button id="play-again" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Play Again</button>
+        <button id="reset-highscore" class="bg-red-500 text-white py-2 px-4 rounded ml-2">Reset High Score</button>
+    </div>
+
+    <div id="highscore" class="mt-6 text-center">
+        <h3 class="text-xl">High Score</h3>
+        <p id="highscore-display"></p>
+    </div>
+</div>
+
+<script>
+    const words = {
+        'easy': [
+            {word: "Happy", options: ["Joyful", "Sad", "Angry", "Tired"], correct: 0, explanation: "Joyful means full of happiness and joy."},
+            //... more easy words
+        ],
+        'medium': [
+            {word: "Eloquent", options: ["Articulate", "Incoherent", "Silent", "Rude"], correct: 0, explanation: "Eloquent people express themselves clearly and effectively."},
+            //... more medium words
+        ],
+        'hard': [
+            {word: "Ephemeral", options: ["Eternal", "Temporary", "Permanent", "Fixed"], correct: 1, explanation: "Ephemeral refers to things that last for a very short time."},
+            //... more hard words
+        ]
+    };
+
+    let currentQuestion = 0, score = 0, difficulty = 'easy', pointWeight = 1;
+    const highScores = JSON.parse(localStorage.getItem('highScores')) || {};
+
+    function startGame() {
+        const username = document.getElementById('username-input').value;
+        if (!username) return alert('Please enter a username.');
+        difficulty = document.getElementById('difficulty').value;
+        pointWeight = {'easy': 1, 'medium': 2, 'hard': 3}[difficulty];
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        loadQuestion();
+        updateHighScoreDisplay();
+    }
+
+    function loadQuestion() {
+            if (currentQuestion >= words.length) {
+                endGame();
+                return;
+            }
+
+            const question = words[currentQuestion];
+            questionNumber.textContent = `Question ${currentQuestion + 1}/${words.length}`;
+            wordElement.textContent = question.word;
+            optionsElement.innerHTML = "";
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.classList.add("bg-white", "border", "border-gray-300", "rounded-md", "py-2", "px-4", "hover:bg-gray-100", "transition", "duration-300");
+                button.addEventListener("click", () => selectAnswer(index));
+                optionsElement.appendChild(button);
+            });
+
+            startTimer();
+        }
+
+    function skipQuestion() {
+        currentQuestion++;
+        loadQuestion();
+    }
+
+    function endGame() {
+        // Display score, check if it's a high score, and save if necessary
+        if (!highScores[difficulty] || score > highScores[difficulty].score) {
+            highScores[difficulty] = {username: document.getElementById('username-input').value, score: score};
+            localStorage.setItem('highScores', JSON.stringify(highScores));
+        }
+        document.getElementById('final-score').textContent = `Your Score: ${score}. High Score: ${highScores[difficulty].score} by ${highScores[difficulty].username}`;
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+    }
+
+    function resetHighScore() {
+        highScores[difficulty] = {username: 'Nobody', score: 0};
+        localStorage.setItem('highScores', JSON.stringify(highScores));
+        updateHighScoreDisplay();
+    }
+
+    function updateHighScoreDisplay() {
+        const highscoreDisplay = document.getElementById('highscore-display');
+        highscoreDisplay.textContent = `High Score for ${difficulty}: ${highScores[difficulty] ? highScores[difficulty].score : 0} by ${highScores[difficulty] ? highScores[difficulty].username : 'Nobody'}`;
+    }
+
+    // Event Listeners
+    document.getElementById('start-game').addEventListener('click', startGame);
+    document.getElementById('skip-question').addEventListener('click', skipQuestion);
+    document.getElementById('play-again').addEventListener('click', () => location.reload()); // Simple reload for play again
+    document.getElementById('reset-highscore').addEventListener('click', resetHighScore);
+
+    // Initialization
+    updateHighScoreDisplay();
+</script>
+</body>
+</html>
