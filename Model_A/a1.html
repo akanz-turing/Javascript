@@ -3,154 +3,190 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Q&A Application</title>
+    <title>Word Learning Game</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
-    <!-- Using Vue for simplicity -->
     <style>
-      body {
-        font-family: "Roboto", sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f4f4f4;
-        margin: 0;
-      }
-      .quiz-container {
-        width: 600px;
-        background: white;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
-      .question {
-        font-size: 1.2em;
-        margin-bottom: 20px;
-      }
-      .options button {
-        display: block;
-        width: 100%;
-        margin: 10px 0;
-        padding: 10px;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-      }
-      .timer {
-        text-align: center;
-        font-size: 24px;
-        color: #ff5733;
-      }
-      .result {
-        text-align: center;
-        font-size: 20px;
-      }
-      @keyframes fade {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      .fade {
-        animation: fade 0.5s forwards;
+      .flip {
+        transform: rotateY(180deg);
+        transition: transform 0.5s;
       }
     </style>
   </head>
-  <body>
-    <div id="app" class="quiz-container">
-      <h1>Q&A Quiz</h1>
-      <div v-if="!quizEnded">
-        <p class="question">{{ currentQuestion.text }}</p>
-        <div class="options">
-          <button
-            v-for="(option, index) in currentQuestion.options"
-            :key="index"
-            @click="checkAnswer(option.isCorrect)"
-          >
-            {{ option.text }}
-          </button>
-        </div>
-        <p class="timer">Time Left: {{ timer }} seconds</p>
-        <button @click="skipQuestion">Skip</button>
+  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div id="usernameSection" class="mb-6">
+        <input
+          id="username"
+          class="w-full p-2 border rounded"
+          type="text"
+          placeholder="Enter your username"
+        />
+        <button
+          onclick="startGame()"
+          class="mt-2 bg-blue-500 text-white p-2 rounded"
+        >
+          Start Game
+        </button>
       </div>
-      <div v-else class="result fade">
-        <p>Your Score: {{ score }} / {{ questions.length }}</p>
+      <div id="gameSection" class="hidden">
+        <div class="text-center mb-4">
+          <h2 id="word" class="text-2xl font-bold"></h2>
+          <div id="timer" class="text-xl text-red-500"></div>
+        </div>
+        <div id="options" class="grid grid-cols-2 gap-4"></div>
+        <div id="score" class="mt-4 text-center text-lg"></div>
+      </div>
+      <div id="endSection" class="hidden text-center">
+        <h2 class="text-2xl">Game Over!</h2>
+        <p id="finalScore"></p>
       </div>
     </div>
+
     <script>
-      new Vue({
-        el: "#app",
-        data: {
-          questions: [
-            // Example questions for different domains
-            {
-              domain: "business",
-              type: "multiple",
-              text: "What does CEO stand for?",
-              options: [
-                { text: "Chief Executive Officer", isCorrect: true },
-                { text: "Chief Economic Officer", isCorrect: false },
-                { text: "Central Executive Organizer", isCorrect: false },
-              ],
-            },
-            {
-              domain: "technology",
-              type: "truefalse",
-              text: "Is JavaScript a case-sensitive language?",
-              options: [
-                { text: "True", isCorrect: true },
-                { text: "False", isCorrect: false },
-              ],
-            },
-          ],
-          currentQuestionIndex: 0,
-          timer: 30,
-          score: 0,
-          quizEnded: false,
-          intervalId: null,
+      const words = [
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
         },
-        computed: {
-          currentQuestion() {
-            return this.questions[this.currentQuestionIndex];
-          },
+        // Add more words here
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
         },
-        methods: {
-          startTimer() {
-            this.intervalId = setInterval(() => {
-              if (this.timer > 0) {
-                this.timer--;
-              } else {
-                this.skipQuestion();
-              }
-            }, 1000);
-          },
-          checkAnswer(isCorrect) {
-            if (isCorrect) this.score++;
-            this.skipQuestion();
-          },
-          skipQuestion() {
-            clearInterval(this.intervalId);
-            this.timer = 30;
-            if (this.currentQuestionIndex < this.questions.length - 1) {
-              this.currentQuestionIndex++;
-              this.startTimer();
-            } else {
-              this.quizEnded = true;
-            }
-          },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
         },
-        mounted() {
-          this.startTimer();
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
         },
-      });
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+        {
+          word: "Eloquent",
+          synonym: "Articulate",
+          options: ["Silent", "Verbose", "Articulate", "Mute"],
+        },
+      ];
+
+      let currentWord = 0,
+        score = 0,
+        timer,
+        username;
+
+      function startGame() {
+        username = document.getElementById("username").value;
+        if (!username) return;
+        document.getElementById("usernameSection").classList.add("hidden");
+        document.getElementById("gameSection").classList.remove("hidden");
+        loadWord();
+      }
+
+      function loadWord() {
+        if (currentWord >= words.length) {
+          endGame();
+          return;
+        }
+        clearInterval(timer);
+        document.getElementById("timer").textContent = "10";
+        timer = setInterval(() => {
+          let time = parseInt(document.getElementById("timer").textContent) - 1;
+          document.getElementById("timer").textContent = time;
+          if (time === 0) nextWord();
+        }, 1000);
+
+        const wordData = words[currentWord];
+        document.getElementById("word").textContent = wordData.word;
+        let options = shuffleArray([...wordData.options]);
+        document.getElementById("options").innerHTML = options
+          .map(
+            (option) =>
+              `<button onclick="selectAnswer(this, '${
+                option === wordData.synonym
+              }')" class="bg-gray-200 hover:bg-gray-300 p-2 rounded">${option}</button>`
+          )
+          .join("");
+      }
+
+      function selectAnswer(elem, isCorrect) {
+        clearInterval(timer);
+        if (isCorrect === "true") {
+          score++;
+          elem.classList.add("bg-green-500");
+        } else {
+          elem.classList.add("bg-red-500");
+          // Highlight correct answer
+          document
+            .querySelector(`button:contains(${words[currentWord].synonym})`)
+            .classList.add("bg-green-500");
+        }
+        elem.parentElement
+          .querySelectorAll("button")
+          .forEach((button) => (button.disabled = true));
+        setTimeout(nextWord, 1500);
+      }
+
+      function nextWord() {
+        currentWord++;
+        loadWord();
+      }
+
+      function endGame() {
+        document.getElementById("gameSection").classList.add("hidden");
+        document.getElementById("endSection").classList.remove("hidden");
+        document.getElementById(
+          "finalScore"
+        ).textContent = `${username}, your score is ${score} out of ${words.length}!`;
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
     </script>
   </body>
 </html>
