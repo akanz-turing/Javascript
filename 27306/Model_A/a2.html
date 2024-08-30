@@ -3,25 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word Learning Game</title>
+    <title>Enhanced Word Learning Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div id="game-container" class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h1 class="text-3xl font-bold mb-6 text-center text-indigo-600">Word Learning Game</h1>
-        
-        <div id="username-screen" class="mb-6">
+        <h1 class="text-3xl font-bold mb-6 text-center text-indigo-600">Enhanced Word Learning Game</h1>
+
+        <div id="settings-screen" class="mb-6">
             <input type="text" id="username-input" placeholder="Enter your username" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div class="flex justify-center mt-4">
+                <label class="mr-4">Difficulty:</label>
+                <select id="difficulty-select" class="px-4 py-2 rounded-md">
+                    <option value="easy">Easy (1 point)</option>
+                    <option value="medium" selected>Medium (2 points)</option>
+                    <option value="hard">Hard (3 points)</option>
+                </select>
+            </div>
             <button id="start-game" class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">Start Game</button>
         </div>
 
         <div id="game-screen" class="hidden">
             <div class="flex justify-between items-center mb-4">
                 <div id="question-number" class="text-lg font-semibold">Question 1/10</div>
+                <button id="skip-question" class="text-sm text-blue-600 hover:underline">Skip</button>
                 <div id="timer" class="text-lg font-semibold">10s</div>
             </div>
             <div id="word" class="text-2xl font-bold mb-4 text-center"></div>
             <div id="options" class="grid grid-cols-2 gap-4"></div>
+            <div id="answer-explanation" class="text-center text-sm text-gray-600 hidden"></div>
         </div>
 
         <div id="result-screen" class="hidden text-center">
@@ -30,43 +40,56 @@
             <p id="final-score" class="text-xl mb-4"></p>
             <button id="play-again" class="bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300">Play Again</button>
         </div>
+
+        <div id="high-scores-screen" class="hidden">
+            <h2 class="text-2xl font-bold mb-4">High Scores</h2>
+            <ul id="high-scores-list"></ul>
+            <button id="reset-high-scores" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-300">Reset High Scores</button>
+        </div>
     </div>
 
     <script>
+        const difficulties = {
+            easy: 1,
+            medium: 2,
+            hard: 3
+        };
+
         const words = [
-            { word: "Happy", options: ["Joyful", "Sad", "Angry", "Tired"], correct: 0 },
-            { word: "Big", options: ["Huge", "Small", "Tiny", "Little"], correct: 0 },
-            { word: "Fast", options: ["Slow", "Quick", "Steady", "Lazy"], correct: 1 },
-            { word: "Brave", options: ["Cowardly", "Fearless", "Timid", "Shy"], correct: 1 },
-            { word: "Clever", options: ["Smart", "Dumb", "Foolish", "Ignorant"], correct: 0 },
-            { word: "Easy", options: ["Difficult", "Simple", "Hard", "Complicated"], correct: 1 },
-            { word: "Rich", options: ["Wealthy", "Poor", "Broke", "Needy"], correct: 0 },
-            { word: "Strong", options: ["Weak", "Powerful", "Feeble", "Fragile"], correct: 1 },
-            { word: "Beautiful", options: ["Ugly", "Pretty", "Plain", "Unattractive"], correct: 1 },
-            { word: "Loud", options: ["Quiet", "Noisy", "Silent", "Soft"], correct: 1 }
+            { word: "Happy", options: ["Joyful", "Sad", "Angry", "Tired"], correct: 0, explanation: "Joyful means full of happiness and joy." },
+            // Add more words with explanations here...
         ];
 
         let currentQuestion = 0;
         let score = 0;
         let timer;
         let username = "";
+        let difficulty = "medium";
 
         const gameContainer = document.getElementById("game-container");
-        const usernameScreen = document.getElementById("username-screen");
+        const settingsScreen = document.getElementById("settings-screen");
         const gameScreen = document.getElementById("game-screen");
         const resultScreen = document.getElementById("result-screen");
+        const highScoresScreen = document.getElementById("high-scores-screen");
         const usernameInput = document.getElementById("username-input");
+        const difficultySelect = document.getElementById("difficulty-select");
         const startGameButton = document.getElementById("start-game");
         const questionNumber = document.getElementById("question-number");
         const timerElement = document.getElementById("timer");
         const wordElement = document.getElementById("word");
         const optionsElement = document.getElementById("options");
+        const answerExplanation = document.getElementById("answer-explanation");
+        const skipQuestionButton = document.getElementById("skip-question");
         const playerNameElement = document.getElementById("player-name");
         const finalScoreElement = document.getElementById("final-score");
         const playAgainButton = document.getElementById("play-again");
+        const highScoresList = document.getElementById("high-scores-list");
+        const resetHighScoresButton = document.getElementById("reset-high-scores");
 
         startGameButton.addEventListener("click", startGame);
         playAgainButton.addEventListener("click", resetGame);
+        skipQuestionButton.addEventListener("click", skipQuestion);
+        resetHighScoresButton.addEventListener("click", resetHighScores);
 
         function startGame() {
             username = usernameInput.value.trim();
@@ -74,7 +97,8 @@
                 alert("Please enter a username!");
                 return;
             }
-            usernameScreen.classList.add("hidden");
+            difficulty = difficultySelect.value;
+            settingsScreen.classList.add("hidden");
             gameScreen.classList.remove("hidden");
             loadQuestion();
         }
@@ -98,6 +122,7 @@
                 optionsElement.appendChild(button);
             });
 
+            answerExplanation.classList.add("hidden");
             startTimer();
         }
 
@@ -121,19 +146,23 @@
 
             const question = words[currentQuestion];
             const buttons = optionsElement.getElementsByTagName("button");
+            let correct = question.correct;
 
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].disabled = true;
-                if (i === question.correct) {
+                if (i === correct) {
                     buttons[i].classList.add("bg-green-500", "text-white");
                 } else if (i === selectedIndex) {
                     buttons[i].classList.add("bg-red-500", "text-white");
                 }
             }
 
-            if (selectedIndex === question.correct) {
-                score++;
+            if (selectedIndex === correct) {
+                score += difficulties[difficulty];
             }
+
+            answerExplanation.textContent = question.explanation;
+            answerExplanation.classList.remove("hidden");
 
             currentQuestion++;
 
@@ -146,33 +175,56 @@
             }, 1500);
         }
 
+        function skipQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
         function endGame() {
             gameScreen.classList.add("hidden");
             resultScreen.classList.remove("hidden");
             playerNameElement.textContent = `Player: ${username}`;
-            finalScoreElement.textContent = `Final Score: ${score}/${words.length}`;
+            finalScoreElement.textContent = `Final Score: ${score}/${words.length * difficulties[difficulty]}`;
+
+            updateHighScores();
+            showHighScores();
+        }
+
+        function updateHighScores() {
+            const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+            highScores.push({ username, score, difficulty });
+            highScores.sort((a, b) => b.score - a.score);
+            highScores.splice(5); // Keep only top 5 scores
+            localStorage.setItem("highScores", JSON.stringify(highScores));
+        }
+
+        function showHighScores() {
+            const highScores = JSON.parse(localStorage.getItem("highScores")) || [];
+            highScoresList.innerHTML = "";
+            highScores.forEach((entry, index) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `#${index + 1} - ${entry.username} (${entry.difficulty}): ${entry.score}`;
+                highScoresList.appendChild(listItem);
+            });
+
+            resultScreen.classList.add("hidden");
+            highScoresScreen.classList.remove("hidden");
+        }
+
+        function resetHighScores() {
+            localStorage.removeItem("highScores");
+            highScoresList.innerHTML = "";
+            highScoresScreen.classList.add("hidden");
+            resultScreen.classList.remove("hidden");
         }
 
         function resetGame() {
             currentQuestion = 0;
             score = 0;
             resultScreen.classList.add("hidden");
-            usernameScreen.classList.remove("hidden");
+            settingsScreen.classList.remove("hidden");
             usernameInput.value = "";
         }
-
-        // Add flip animation
-        const style = document.createElement("style");
-        style.textContent = `
-            @keyframes flip {
-                0% { transform: perspective(400px) rotateY(0); }
-                100% { transform: perspective(400px) rotateY(180deg); }
-            }
-            .animate-flip {
-                animation: flip 0.5s ease-out;
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
