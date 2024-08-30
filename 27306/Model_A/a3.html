@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Word Learning Game with Multiplayer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div id="game-container" class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h1 class="text-3xl font-bold mb-6 text-center text-indigo-600">Advanced Word Learning Game</h1>
+        
+        <!-- Username and Difficulty Selection Screen -->
+        <div id="username-difficulty-screen" class="mb-6">
+            <input type="text" id="username-input" placeholder="Enter your username" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+            <select id="difficulty" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+            </select>
+            <button id="start-game" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">Start Game</button>
+            <button id="toggle-multiplayer" class="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600 transition duration-300 mt-4">Toggle Multiplayer</button>
+        </div>
+
+        <!-- Multiplayer Screen -->
+        <div id="multiplayer-screen" class="hidden mb-6">
+            <input type="text" id="player1-input" placeholder="Player 1 Username" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+            <input type="text" id="player2-input" placeholder="Player 2 Username" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4">
+            <button id="start-multiplayer" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300">Start Multiplayer Game</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <!-- Game UI elements -->
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center">
+            <!-- Results UI elements -->
+        </div>
+
+    </div>
+
+    <script>
+        // Constants and variables
+        const achievements = {
+            'Vocabulary Virtuoso': { condition: 'score100Hard', description: 'Get 100% on hard mode' }
+            // Add more achievements here
+        };
+
+        let isMultiplayer = false;
+        let currentPlayer = 0; // 0 for single player or player 1, 1 for player 2
+        let playerUsernames = ['', ''];
+
+        // Game setup functions
+        document.getElementById('toggle-multiplayer').addEventListener('click', toggleMultiplayer);
+        document.getElementById('start-multiplayer').addEventListener('click', startMultiplayer);
+
+        function toggleMultiplayer() {
+            const multiplayerScreen = document.getElementById('multiplayer-screen');
+            const usernameDifficultyScreen = document.getElementById('username-difficulty-screen');
+            multiplayerScreen.classList.toggle('hidden');
+            if (!multiplayerScreen.classList.contains('hidden')) {
+                isMultiplayer = true;
+            } else {
+                isMultiplayer = false;
+            }
+        }
+
+        function startMultiplayer() {
+            playerUsernames[0] = document.getElementById('player1-input').value.trim();
+            playerUsernames[1] = document.getElementById('player2-input').value.trim();
+            if (playerUsernames[0] === '' || playerUsernames[1] === '') {
+                alert('Please enter usernames for both players!');
+                return;
+            }
+            // Initialize game for multiplayer
+            startGame();
+        }
+
+        function startGame() {
+            if (isMultiplayer) {
+                // Set up game for two players
+            } else {
+                // Set up game for single player
+            }
+            // Load first question or initialize multiplayer game state
+        }
+
+        // Game logic functions
+        function loadQuestion() {
+            // Load next question logic
+        }
+
+        function selectAnswer(index) {
+            // Handle answer selection logic
+            if (isMultiplayer) {
+                // Switch players after each question in multiplayer mode
+                currentPlayer = 1 - currentPlayer; // Switch between 0 and 1
+            }
+        }
+
+        function checkAchievements() {
+            // Check if any achievements have been unlocked
+            // For example:
+            if (score === words.length && difficulty === 'hard') {
+                unlockAchievement('Vocabulary Virtuoso');
+            }
+        }
+
+        function unlockAchievement(achievementName) {
+            // Unlock and notify the achievement
+            alert(`Congratulations! You've unlocked the achievement: ${achievements[achievementName].description}`);
+        }
+
+        function endGame() {
+            // Display final results, check for achievements, etc.
+        }
+
+        // Add event listeners, initialize game state, and setup multiplayer if necessary
+    </script>
+</body>
+</html>
