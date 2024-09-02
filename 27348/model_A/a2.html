@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cryptocurrency Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+    <style>
+      /* Existing CSS remains the same */
+      .summary {
+        background: #2c2f36;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+      }
+      .indicators {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+      }
+      .indicator-button {
+        background: #333;
+        border: none;
+        padding: 5px 10px;
+        color: #fff;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      .indicator-button.active {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard" id="dashboard">
+      <!-- Dynamic content will be inserted here -->
+    </div>
+
+    <script>
+      const cryptos = [
+        { id: "bitcoin", name: "Bitcoin", symbol: "BTC", color: "#F7931A" },
+        { id: "ethereum", name: "Ethereum", symbol: "ETH", color: "#627EEA" },
+        { id: "solana", name: "Solana", symbol: "SOL", color: "#00FFA3" },
+        { id: "binancecoin", name: "BNB", symbol: "BNB", color: "#F3BA2F" },
+        {
+          id: "avalanche-2",
+          name: "Avalanche",
+          symbol: "AVAX",
+          color: "#E84142",
+        },
+      ];
+
+      const cache = {};
+      const indicators = { ma: true, rsi: true, macd: true };
+      const indicatorFunctions = {
+        ma: calculateMovingAverage,
+        rsi: calculateRSI,
+        macd: calculateMACD,
+      };
+
+      async function fetchData(id, days) {
+        const cacheKey = `${id}_${days}`;
+        if (cache[cacheKey]) return cache[cacheKey];
+        const data = await fetchCryptoData(id, days);
+        cache[cacheKey] = data;
+        setTimeout(() => {
+          delete cache[cacheKey];
+        }, 300000); // Cache for 5 minutes
+        return data;
+      }
+
+      function calculateMovingAverage(prices, days) {
+        return prices.map((price, index, array) => {
+          const start = Math.max(0, index - days + 1);
+          const slice = array.slice(start, index + 1);
+          const sum = slice.reduce((a, b) => a + b[1], 0);
+          return sum / slice.length;
+        });
+      }
+
+      function calculateRSI(prices, days) {
+        const changes = prices.map((price, index, array) => {
+          if (index === 0) return 0;
+          return price[1] - array[index - 1][1];
+        });
+
+        const avgGain =
+          changes
+            .slice(-days)
+            .filter((x) => x > 0)
+            .reduce((a, b) => a + b, 0) / days;
+        const avgLoss =
+          -changes
+            .slice(-days)
+            .filter((x) => x < 0)
+            .reduce((a, b) => a + b, 0) / days;
+        const rs = avgGain / avgLoss;
+        return 100 - 100 / (1 + rs);
+      }
+
+      function calculateMACD(prices) {
+        const shortMA = calculateMovingAverage(prices, 12);
+        const longMA = calculateMovingAverage(prices, 26);
+        const macd = shortMA.map((short, i) => short - longMA[i]);
+        const signal = calculateMovingAverage(macd, 9);
+        return { macd, signal, divergence: macd.map((m, i) => m - signal[i]) };
+      }
+
+      function updateIndicators(chart, crypto, data) {
+        Object.keys(indicators).forEach((indicator) => {
+          if (indicators[indicator]) {
+            const result = indicatorFunctions[indicator](data.prices);
+            chart.data.datasets.push({
+              label: indicator,
+              data: result,
+              borderColor: crypto.color,
+              borderWidth: 1,
+              fill: false,
+            });
+          }
+        });
+        chart.update();
+      }
+
+      function updateChart(crypto, days) {
+        fetchData(crypto.id, days).then((data) => {
+          const labels = data.prices.map(([timestamp]) => moment(timestamp));
+          const prices = data.prices.map(([_, price]) => price);
+
+          const ctx = document
+            .getElementById(`${crypto.id}-chart`)
+            .getContext("2d");
+          const existingChart = window[`${crypto.id}Chart`];
+          if (existingChart) existingChart.destroy();
+
+          const chart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: crypto.name,
+                  data: prices,
+                  borderColor: crypto.color,
+                  fill: false,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                x: { type: "time" },
+                y: { position: "left" },
+              },
+            },
+          });
+
+          updateIndicators(chart, crypto, data);
+          window[`${crypto.id}Chart`] = chart;
+        });
+      }
+
+      function initDashboard() {
+        cryptos.forEach((crypto) => {
+          const cryptoCard = document.createElement("div");
+          cryptoCard.className = "crypto-card";
+          cryptoCard.innerHTML = `
+                    <div class="crypto-header">${crypto.name} <span class="crypto-symbol">${crypto.symbol}</span></div>
+                    <div class="indicators">
+                        <button class="indicator-button active" data-indicator="ma">MA</button>
+                        <button class="indicator-button active" data-indicator="rsi">RSI</button>
+                        <button class="indicator-button active" data-indicator="macd">MACD</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="${crypto.id}-chart"></canvas>
+                    </div>
+                    <div class="summary">
+                        <p>Current Price: <span id="${crypto.id}-current-price"></span></p>
+                        <p>Price Change (1M): <span id="${crypto.id}-price-change"></span></p>
+                    </div>
+                `;
+          document.getElementById("dashboard").appendChild(cryptoCard);
+
+          const indicatorsButtons =
+            cryptoCard.querySelectorAll(".indicator-button");
+          indicatorsButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+              indicators[button.dataset.indicator] =
+                !indicators[button.dataset.indicator];
+              button.classList.toggle("active");
+              updateChart(crypto, 30); // Default to 1 month for simplicity
+            });
+          });
+
+          updateChart(crypto, 30); // Default update with 1 month of data
+        });
+      }
+
+      window.addEventListener("load", initDashboard);
+    </script>
+  </body>
+</html>

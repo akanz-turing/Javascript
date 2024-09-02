@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Crypto Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #1a1a1a;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 20px;
+      }
+      .crypto-card {
+        background: #2c2c2c;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .chart-container {
+        width: 100%;
+        height: 300px;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .indicators {
+        margin-top: 10px;
+      }
+      .summary {
+        margin-top: 20px;
+        font-size: 0.9em;
+      }
+      .comparison-button {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dashboard"></div>
+    <button id="compareBtn" style="display: none">Compare Cryptos</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@0.5.7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+    <script>
+      // Cache for API calls
+      const cache = {};
+
+      // Function to fetch data with caching
+      async function fetchWithCache(url, cacheKey, maxAgeInMinutes = 5) {
+        if (
+          cache[cacheKey] &&
+          Date.now() - cache[cacheKey].timestamp < maxAgeInMinutes * 60000
+        ) {
+          return cache[cacheKey].data;
+        }
+        const response = await fetch(url);
+        const data = await response.json();
+        cache[cacheKey] = { data, timestamp: Date.now() };
+        return data;
+      }
+
+      const cryptos = [
+        "bitcoin",
+        "ethereum",
+        "solana",
+        "binancecoin",
+        "avalanche-2",
+      ];
+      const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#F0B90B", "#E84142"];
+
+      function createCryptoCard(crypto, color) {
+        const card = document.createElement("div");
+        card.className = "crypto-card";
+        card.innerHTML = `
+            <h2>${crypto}</h2>
+            <div class="controls">
+                <select class="timeframe">
+                    <option value="1">1 Day</option>
+                    <option value="7">1 Week</option>
+                    <option value="30" selected>1 Month</option>
+                    <option value="365">1 Year</option>
+                </select>
+            </div>
+            <div class="chart-container"><canvas id="${crypto}-chart"></canvas></div>
+            <div class="indicators">
+                <label><input type="checkbox" class="indicator" data-indicator="SMA"> SMA</label>
+                <label><input type="checkbox" class="indicator" data-indicator="RSI"> RSI</label>
+                <label><input type="checkbox" class="indicator" data-indicator="MACD"> MACD</label>
+            </div>
+            <div class="summary"></div>
+        `;
+        document.getElementById("dashboard").appendChild(card);
+
+        // Chart setup would go here with options for indicators
+      }
+
+      function setupCharts() {
+        cryptos.forEach((crypto, index) => {
+          createCryptoCard(crypto, colors[index]);
+          // Here you would initialize charts, setup event listeners for timeframe changes,
+          // and indicators toggling, then fetch and display data
+        });
+      }
+
+      function calculateIndicators(data) {
+        // Implement SMA, RSI, MACD calculations here
+        // This is a placeholder for actual logic
+        return {
+          SMA: [], // Simple Moving Average
+          RSI: [], // Relative Strength Index
+          MACD: {
+            // Moving Average Convergence Divergence
+            macdLine: [],
+            signalLine: [],
+            histogram: [],
+          },
+        };
+      }
+
+      function updateSummary(card, data) {
+        // Update summary with key statistics like current price, volume, market cap, etc.
+      }
+
+      document.getElementById("compareBtn").onclick = function () {
+        // Logic for overlaying multiple cryptocurrencies on a single chart
+      };
+
+      // Initialize the dashboard
+      setupCharts();
+
+      // Show compare button when more than one crypto is selected for comparison
+      // This would require additional logic not implemented here
+      document.getElementById("compareBtn").style.display = "block";
+    </script>
+  </body>
+</html>
