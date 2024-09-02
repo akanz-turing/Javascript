@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Dashboard</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Custom CSS will go here */
+      body {
+        background-color: #1a1a1a;
+        color: #ffffff;
+      }
+
+      .chart-container {
+        background: #2a2a2a;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px 0;
+      }
+
+      select,
+      input,
+      button {
+        margin: 10px 0;
+        background-color: #3a3a3a;
+        color: white;
+        border: none;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 5px 10px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #5a5a5a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1>Cryptocurrency Trend Dashboard</h1>
+      <select id="cryptoSelect" multiple class="form-control"></select>
+      <input type="date" id="startDate" /> to <input type="date" id="endDate" />
+      <button onclick="updateCharts()">Update</button>
+      <!-- Charts will be dynamically inserted here -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // JavaScript will go here
+      $(document).ready(function () {
+        const cryptoList = [
+          "bitcoin",
+          "ethereum",
+          "solana",
+          "binancecoin",
+          "avalanche",
+        ];
+        cryptoList.forEach((crypto) => {
+          $("#cryptoSelect").append(new Option(crypto, crypto));
+        });
+
+        function fetchCryptoData(crypto, startDate, endDate) {
+          // Constructing the URL for CoinGecko API
+          const url = `https://api.coingecko.com/api/v3/coins/${crypto}/market_chart/range?vs_currency=usd&from=${startDate}&to=${endDate}`;
+          return $.ajax({
+            url: url,
+            method: "GET",
+          });
+        }
+
+        function createChart(canvasId, label, data, type = "line") {
+          new Chart(document.getElementById(canvasId), {
+            type: type,
+            data: {
+              labels: data.labels,
+              datasets: [
+                {
+                  label: label,
+                  data: data.values,
+                  borderColor: "rgba(75, 192, 192, 1)",
+                  fill: type === "area",
+                },
+              ],
+            },
+            options: {
+              scales: {
+                x: { display: true, title: { display: true, text: "Date" } },
+                y: { display: true, title: { display: true, text: label } },
+              },
+            },
+          });
+        }
+
+        window.updateCharts = function () {
+          const selectedCryptos = $("#cryptoSelect").val();
+          const startDate = new Date($("#startDate").val()).getTime() / 1000;
+          const endDate = new Date($("#endDate").val()).getTime() / 1000;
+
+          selectedCryptos.forEach((crypto) => {
+            fetchCryptoData(crypto, startDate, endDate).then((data) => {
+              // Here, process data to create charts for price, volume, market cap, etc.
+              // This would involve mapping API data to chart data format
+              createChart(crypto + "Price", "Price", {
+                labels: data.prices.map((p) =>
+                  new Date(p[0]).toLocaleDateString()
+                ),
+                values: data.prices.map((p) => p[1]),
+              });
+              // Similarly, create other charts for volume, market cap, and price change percentage
+            });
+          });
+        };
+
+        // Initial data fetch or default charts can be set here
+      });
+    </script>
+  </body>
+</html>
