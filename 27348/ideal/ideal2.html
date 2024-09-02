@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Cryptocurrency Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #0c0e12;
+        color: #fff;
+      }
+      .dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .crypto-card {
+        background-color: #1e2026;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .crypto-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .crypto-name {
+        font-size: 24px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+      }
+      .crypto-symbol {
+        color: #5d6069;
+        margin-left: 10px;
+      }
+      .crypto-price {
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .price-change {
+        font-size: 14px;
+        color: #ff4d4d;
+      }
+      .price-change.positive {
+        color: #00ff7f;
+      }
+      .chart-container {
+        position: relative;
+        height: 400px;
+        width: 100%;
+      }
+      .time-range,
+      .indicator-toggles {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
+      .time-range button,
+      .indicator-toggles button {
+        background-color: #2c2f36;
+        border: none;
+        color: #fff;
+        padding: 5px 10px;
+        margin-left: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .time-range button.active,
+      .indicator-toggles button.active {
+        background-color: #3861fb;
+      }
+      .crypto-summary {
+        background-color: #2c2f36;
+        border-radius: 5px;
+        padding: 10px;
+        margin-top: 20px;
+      }
+      .comparison-chart {
+        background-color: #1e2026;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 40px;
+      }
+      .crypto-selector {
+        margin-bottom: 20px;
+      }
+      .crypto-selector label {
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dashboard" id="dashboard">
+      <!-- Cryptocurrency cards will be dynamically inserted here -->
+    </div>
+
+    <script>
+      const cryptos = [
+        { id: "bitcoin", name: "Bitcoin", symbol: "BTC", color: "#F7931A" },
+        { id: "ethereum", name: "Ethereum", symbol: "ETH", color: "#627EEA" },
+        { id: "solana", name: "Solana", symbol: "SOL", color: "#00FFA3" },
+        { id: "binancecoin", name: "BNB", symbol: "BNB", color: "#F3BA2F" },
+        {
+          id: "avalanche-2",
+          name: "Avalanche",
+          symbol: "AVAX",
+          color: "#E84142",
+        },
+      ];
+
+      function cacheData(key, data, expirationMinutes = 5) {
+        const now = new Date();
+        const item = {
+          value: data,
+          expiry: now.getTime() + expirationMinutes * 60000,
+        };
+        localStorage.setItem(key, JSON.stringify(item));
+      }
+
+      function getCachedData(key) {
+        const itemStr = localStorage.getItem(key);
+        if (!itemStr) return null;
+
+        const item = JSON.parse(itemStr);
+        const now = new Date();
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key);
+          return null;
+        }
+        return item.value;
+      }
+
+      async function fetchCryptoData(id, days) {
+        const cacheKey = `${id}-${days}`;
+        const cachedData = getCachedData(cacheKey);
+        if (cachedData) return cachedData;
+
+        const response = await fetch(
+          `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`
+        );
+        const data = await response.json();
+        cacheData(cacheKey, data);
+        return data;
+      }
+
+      function calculateSMA(data, period) {
+        const sma = [];
+        for (let i = period - 1; i < data.length; i++) {
+          const slice = data.slice(i - period + 1, i + 1);
+          const average = slice.reduce((sum, value) => sum + value, 0) / period;
+          sma.push(average);
+        }
+        return sma;
+      }
+
+      function calculateRSI(data, period = 14) {
+        let gains = 0;
+        let losses = 0;
+        const rsi = [];
+
+        for (let i = 1; i < data.length; i++) {
+          const difference = data[i] - data[i - 1];
+          if (difference > 0) {
+            gains += difference;
+          } else {
+            losses -= difference;
+          }
+
+          if (i >= period) {
+            const avgGain = gains / period;
+            const avgLoss = losses / period;
+            const rs = avgGain / avgLoss;
+            const rsiValue = 100 - 100 / (1 + rs);
+            rsi.push(rsiValue);
+
+            gains -=
+              data[i - period + 1] - data[i - period] > 0
+                ? data[i - period + 1] - data[i - period]
+                : 0;
+            losses -=
+              data[i - period + 1] - data[i - period] < 0
+                ? data[i - period] - data[i - period + 1]
+                : 0;
+          } else {
+            rsi.push(null);
+          }
+        }
+        return rsi;
+      }
+
+      function calculateMACD(
+        data,
+        shortPeriod = 12,
+        longPeriod = 26,
+        signalPeriod = 9
+      ) {
+        const shortEMA = calculateEMA(data, shortPeriod);
+        const longEMA = calculateEMA(data, longPeriod);
+        const macdLine = shortEMA.map((value, index) => value - longEMA[index]);
+        const signalLine = calculateEMA(macdLine, signalPeriod);
+        const histogram = macdLine.map(
+          (value, index) => value - signalLine[index]
+        );
+
+        return { macdLine, signalLine, histogram };
+      }
+
+      function calculateEMA(data, period) {
+        const k = 2 / (period + 1);
+        const ema = [data[0]];
+        for (let i = 1; i < data.length; i++) {
+          ema.push(data[i] * k + ema[i - 1] * (1 - k));
+        }
+        return ema;
+      }
+
+      function createChart(ctx, labels, data, color, indicators) {
+        const datasets = [
+          {
+            label: "Price",
+            data: data,
+            borderColor: color,
+            backgroundColor: `${color}33`,
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: true,
+          },
+        ];
+
+        if (indicators.includes("SMA")) {
+          const sma = calculateSMA(data, 20);
+          datasets.push({
+            label: "SMA (20)",
+            data: sma,
+            borderColor: "#FF6384",
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false,
+          });
+        }
+
+        if (indicators.includes("RSI")) {
+          const rsi = calculateRSI(data);
+          datasets.push({
+            label: "RSI (14)",
+            data: rsi,
+            borderColor: "#36A2EB",
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false,
+            yAxisID: "rsi",
+          });
+        }
+
+        if (indicators.includes("MACD")) {
+          const macd = calculateMACD(data);
+          datasets.push({
+            label: "MACD Line",
+            data: macd.macdLine,
+            borderColor: "#FFCE56",
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false,
+            yAxisID: "macd",
+          });
+          datasets.push({
+            label: "Signal Line",
+            data: macd.signalLine,
+            borderColor: "#4BC0C0",
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false,
+            yAxisID: "macd",
+          });
+        }
+
+        return new Chart(ctx, {
+          type: "line",
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            tooltips: {
+              mode: "index",
+              intersect: false,
+            },
+            scales: {
+              xAxes: [
+                {
+                  type: "time",
+                  time: {
+                    unit: "day",
+                    displayFormats: {
+                      day: "MMM D",
+                    },
+                  },
+                  gridLines: {
+                    display: false,
+                  },
+                  ticks: {
+                    fontColor: "#888",
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: {
+                    color: "rgba(255,255,255,0.1)",
+                  },
+                  ticks: {
+                    fontColor: "#888",
+                  },
+                },
+                {
+                  id: "rsi",
+                  position: "right",
+                  gridLines: {
+                    drawOnChartArea: false,
+                  },
+                  ticks: {
+                    fontColor: "#888",
+                    min: 0,
+                    max: 100,
+                  },
+                },
+                {
+                  id: "macd",
+                  position: "right",
+                  gridLines: {
+                    drawOnChartArea: false,
+                  },
+                  ticks: {
+                    fontColor: "#888",
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+
+      function createCryptoCard(crypto) {
+        const card = document.createElement("div");
+        card.className = "crypto-card";
+        card.innerHTML = `
+                <div class="crypto-header">
+                    <div class="crypto-name">
+                        ${crypto.name} <span class="crypto-symbol">${crypto.symbol}</span>
+                    </div>
+                    <div class="crypto-price">
+                        <span id="${crypto.id}-price"></span>
+                        <span id="${crypto.id}-price-change" class="price-change"></span>
+                    </div>
+                </div>
+                <div class="time-range">
+                    <button data-days="1">1D</button>
+                    <button data-days="7">1W</button>
+                    <button data-days="30" class="active">1M</button>
+                    <button data-days="365">1Y</button>
+                    <button data-days="max">All</button>
+                </div>
+                <div class="indicator-toggles">
+                    <button data-indicator="SMA">SMA</button>
+                    <button data-indicator="RSI">RSI</button>
+                    <button data-indicator="MACD">MACD</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="${crypto.id}-chart"></canvas>
+                </div>
+                <div class="crypto-summary" id="${crypto.id}-summary"></div>
+            `;
+        document.getElementById("dashboard").appendChild(card);
+
+        card.querySelectorAll(".time-range button").forEach((button) => {
+          button.addEventListener("click", () => {
+            card
+              .querySelectorAll(".time-range button")
+              .forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+            updateCryptoData(crypto, button.dataset.days);
+          });
+        });
+
+        card.querySelectorAll(".indicator-toggles button").forEach((button) => {
+          button.addEventListener("click", () => {
+            button.classList.toggle("active");
+            updateCryptoData(
+              crypto,
+              card.querySelector(".time-range button.active").dataset.days
+            );
+          });
+        });
+      }
+
+      function createSummarySection(crypto, data) {
+        const summary = document.getElementById(`${crypto.id}-summary`);
+        const latestPrice = data.prices[data.prices.length - 1][1];
+        const marketCap = data.market_caps[data.market_caps.length - 1][1];
+        const volume = data.total_volumes[data.total_volumes.length - 1][1];
+
+        summary.innerHTML = `
+                <h3>Key Statistics</h3>
+                <p>Current Price: $${latestPrice.toFixed(2)}</p>
+                <p>Market Cap: $${formatNumber(marketCap)}</p>
+                <p>24h Volume: $${formatNumber(volume)}</p>
+            `;
+      }
+
+      function formatNumber(num) {
+        return num.toLocaleString("en-US", { maximumFractionDigits: 0 });
+      }
+
+      async function updateCryptoData(crypto, days) {
+        const data = await fetchCryptoData(crypto.id, days);
+
+        const ctx = document
+          .getElementById(`${crypto.id}-chart`)
+          .getContext("2d");
+        const labels = data.prices.map((p) => new Date(p[0]));
+        const prices = data.prices.map((p) => p[1]);
+
+        const cryptoCard = document
+          .getElementById(`${crypto.id}-chart`)
+          .closest(".crypto-card");
+        const activeIndicators = Array.from(
+          cryptoCard.querySelectorAll(".indicator-toggles button.active")
+        ).map((button) => button.dataset.indicator);
+
+        if (window[`${crypto.id}Chart`]) {
+          window[`${crypto.id}Chart`].destroy();
+        }
+        window[`${crypto.id}Chart`] = createChart(
+          ctx,
+          labels,
+          prices,
+          crypto.color,
+          activeIndicators
+        );
+
+        const latestPrice = prices[prices.length - 1];
+        document.getElementById(
+          `${crypto.id}-price`
+        ).textContent = `$${latestPrice.toFixed(2)}`;
+
+        const priceChange = ((latestPrice - prices[0]) / prices[0]) * 100;
+        const priceChangeElement = document.getElementById(
+          `${crypto.id}-price-change`
+        );
+        priceChangeElement.textContent = `${
+          priceChange >= 0 ? "+" : ""
+        }${priceChange.toFixed(2)}%`;
+        priceChangeElement.className = `price-change ${
+          priceChange >= 0 ? "positive" : ""
+        }`;
+
+        createSummarySection(crypto, data);
+      }
+
+      function createComparisonChart() {
+        const container = document.createElement("div");
+        container.className = "comparison-chart";
+        container.innerHTML = `
+                <h2>Cryptocurrency Comparison</h2>
+                <div class="crypto-selector"></div>
+                <canvas id="comparison-chart"></canvas>
+            `;
+        document.getElementById("dashboard").appendChild(container);
+        createComparisonSelector();
+        initComparisonChart();
+      }
+
+      function createComparisonSelector() {
+        const selector = document.querySelector(".crypto-selector");
+        cryptos.forEach((crypto) => {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `compare-${crypto.id}`;
+          checkbox.addEventListener("change", updateComparisonChart);
+          const label = document.createElement("label");
+          label.htmlFor = `compare-${crypto.id}`;
+          label.textContent = crypto.name;
+          selector.appendChild(checkbox);
+          selector.appendChild(label);
+        });
+      }
+
+      function initComparisonChart() {
+        const ctx = document
+          .getElementById("comparison-chart")
+          .getContext("2d");
+        window.comparisonChart = new Chart(ctx, {
+          type: "line",
+          data: { datasets: [] },
+          options: {
+            responsive: true,
+            scales: {
+              x: { type: "time", time: { unit: "day" } },
+              y: { type: "linear", display: true, position: "left" },
+            },
+          },
+        });
+      }
+
+      async function updateComparisonChart() {
+        const selectedCryptos = Array.from(
+          document.querySelectorAll(".crypto-selector input:checked")
+        ).map((checkbox) => checkbox.id.replace("compare-", ""));
+
+        const datasets = await Promise.all(
+          selectedCryptos.map(async (id) => {
+            const data = await fetchCryptoData(id, 30);
+            return {
+              label: cryptos.find((c) => c.id === id).name,
+              data: data.prices.map((p) => ({ x: new Date(p[0]), y: p[1] })),
+              borderColor: cryptos.find((c) => c.id === id).color,
+              fill: false,
+            };
+          })
+        );
+
+        window.comparisonChart.data.datasets = datasets;
+        window.comparisonChart.update();
+      }
+
+      function initDashboard() {
+        cryptos.forEach(createCryptoCard);
+        cryptos.forEach((crypto) => updateCryptoData(crypto, 30)); // Initial update with 30 days of data
+        createComparisonChart();
+      }
+
+      window.addEventListener("load", initDashboard);
+    </script>
+  </body>
+</html>
