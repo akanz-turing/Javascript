@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Card Game</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f7f7f7;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .game-container {
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .setup-form, .game-info {
+    margin-bottom: 20px;
+  }
+
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    margin: auto;
+  }
+
+  .card {
+    aspect-ratio: 1 / 1; /* Ensures cards are square */
+    background-color: #3498db;
+    border-radius: 5px;
+    font-size: calc(10px + 2vmin); /* Responsive font size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+
+  @media (max-width: 600px) {
+    .card {
+      font-size: calc(8px + 2vmin);
+    }
+  }
+
+  /* Existing card flip styles remain unchanged */
+  body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            perspective: 1000px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+        .card.flip {
+            transform: rotateY(180deg);
+        }
+        .card .front, .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card .back {
+            transform: rotateY(180deg);
+            background: #2196F3;
+            color: white;
+        }
+</style>
+</head>
+<body>
+<div class="game-container">
+  <h1>Memory Card Game</h1>
+  <div class="setup-form">
+    <input type="text" id="player1" placeholder="Player 1 Name" required>
+    <input type="text" id="player2" placeholder="Player 2 Name" required>
+    <input type="number" id="gridSize" min="4" max="8" step="2" value="4" required>
+    <button id="setupBtn">Setup Game</button>
+  </div>
+  <div class="game-info">
+    <div id="currentPlayer">Current Player: <span id="playerName"></span></div>
+    <div id="score">Score: 0</div>
+  </div>
+  <div class="game-board"></div>
+</div>
+<script>
+  // JavaScript will be updated here
+  document.addEventListener('DOMContentLoaded', function() {
+  const gameBoard = document.querySelector('.game-board');
+  const setupBtn = document.getElementById('setupBtn');
+  const playerNames = {1: document.getElementById('player1'), 2: document.getElementById('player2')};
+  const gridSizeInput = document.getElementById('gridSize');
+  let currentPlayer = 1;
+  let scores = {1: 0, 2: 0};
+  let gameSize;
+
+  // Function to initialize game settings
+  function setupGame() {
+    gameSize = parseInt(gridSizeInput.value, 10);
+    if (gameSize % 2 !== 0 || gameSize < 4 || gameSize > 8) {
+      alert('Please enter an even number between 4 and 8.');
+      return;
+    }
+    
+    // Setup game with new parameters
+    startGame();
+  }
+
+  function startGame() {
+    // Reset game state, initialize cards based on gameSize, etc.
+    // This function now needs to adapt to different grid sizes
+    gameBoard.style.gridTemplateColumns = `repeat(${gameSize/2}, 1fr)`;
+    // ... rest of startGame logic with adaptations for variable grid size
+  }
+
+  function switchPlayer() {
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+    document.getElementById('playerName').textContent = playerNames[currentPlayer].value;
+  }
+
+  function endGame() {
+    // Determine winner, update leaderboard
+    let winner = scores[1] > scores[2] ? playerNames[1].value : playerNames[2].value;
+    if (scores[1] === scores[2]) winner = "It's a tie!";
+    
+    alert(`Game Over! Winner: ${winner}`);
+    updateLeaderboard(playerNames[1].value, scores[1], playerNames[2].value, scores[2]);
+  }
+
+  function updateLeaderboard(player1, score1, player2, score2) {
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    leaderboard.push({player1, score1, player2, score2, date: new Date().toLocaleString()});
+    localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+  }
+
+  // Event Listener for setup button
+  setupBtn.addEventListener('click', setupGame);
+
+  // Add functionality for showing leaderboard and reset it
+  // This could be done with additional buttons in the UI
+});
+
+</script>
+</body>
+</html>
