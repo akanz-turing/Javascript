@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anagrams Game</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 flex flex-col items-center p-4">
+    <!-- Game Title -->
+    <h1 class="text-4xl font-bold mb-4">Anagrams Challenge</h1>
+
+    <!-- Game Area -->
+    <div id="gameArea" class="w-full max-w-lg bg-white p-6 rounded shadow-lg">
+      <div id="wordDisplay" class="text-3xl text-center mb-4"></div>
+      <input
+        id="userGuess"
+        type="text"
+        class="w-full p-2 border rounded mb-2"
+        placeholder="Enter your guess"
+      />
+      <button
+        id="submitGuess"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Submit
+      </button>
+      <div id="timer" class="text-xl mt-3">
+        Time: <span id="timeLeft">60</span>s
+      </div>
+      <div id="score" class="text-xl">
+        Score: <span id="currentScore">0</span>
+      </div>
+    </div>
+
+    <!-- Categories and Difficulty -->
+    <div class="mt-4">
+      <select id="categorySelect" class="p-2 border rounded">
+        <option value="random">Random</option>
+        <option value="sports">Sports</option>
+        <option value="food">Food</option>
+        <option value="technology">Technology</option>
+      </select>
+      <select id="difficultySelect" class="p-2 border rounded ml-2">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="mt-5 w-full max-w-lg"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.1/howler.min.js"></script>
+    <script>
+      // Game logic will go here
+      const game = {
+        timeLeft: 60,
+        score: 0,
+        currentWord: "",
+        wordsAPI: "https://api.datamuse.com/words?sp=", // Example API, might need adjustment
+        init() {
+          document
+            .getElementById("submitGuess")
+            .addEventListener("click", this.checkWord.bind(this));
+          this.fetchWord("random", "medium");
+          this.startTimer();
+        },
+        fetchWord(category, difficulty) {
+          // Fetch word logic, set currentWord
+        },
+        checkWord() {
+          // Check if the guessed word is correct
+          const guess = document.getElementById("userGuess").value;
+          if (guess === this.currentWord) {
+            this.score++;
+            this.updateDisplay();
+            this.fetchWord();
+          } else {
+            // Handle incorrect guess
+          }
+        },
+        startTimer() {
+          const timer = setInterval(() => {
+            this.timeLeft--;
+            if (this.timeLeft <= 0) {
+              clearInterval(timer);
+              // End game logic
+            } else {
+              document.getElementById("timeLeft").textContent = this.timeLeft;
+            }
+          }, 1000);
+        },
+        updateDisplay() {
+          document.getElementById("currentScore").textContent = this.score;
+          document.getElementById("wordDisplay").textContent = this.currentWord
+            .split("")
+            .sort(() => 0.5 - Math.random())
+            .join("");
+        },
+        // Additional methods for leaderboard, sound effects, etc.
+      };
+
+      game.init();
+    </script>
+  </body>
+</html>

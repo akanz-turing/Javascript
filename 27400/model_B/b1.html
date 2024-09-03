@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anagrams Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Additional custom styles can go here */
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl text-center mb-4">Anagrams Challenge</h1>
+        <div id="gameArea" class="bg-white p-6 rounded-lg shadow-lg">
+            <!-- Game UI will be dynamically inserted here -->
+        </div>
+        <div id="leaderboard" class="mt-8">
+            <h2 class="text-2xl mb-2">Leaderboard</h2>
+            <!-- Leaderboard content -->
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <script>
+        // JavaScript code here
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameArea = document.getElementById('gameArea');
+            let currentWord, timer, score = 0, timeLeft = 60;
+            const wordsAPI = '...'; // Placeholder for API endpoint or local word list
+
+            function fetchWord(category = 'random') {
+                // Fetch word logic here, possibly using fetch API or local list
+                // For now, simulate with a placeholder
+                return Promise.resolve({ word: 'example', category: category });
+            }
+
+            function scrambleWord(word) {
+                return word.split('').sort(() => 0.5 - Math.random()).join('');
+            }
+
+            function startGame() {
+                fetchWord().then(data => {
+                    currentWord = data.word;
+                    gameArea.innerHTML = `
+                        <div class="text-center">
+                            <p class="text-lg mb-4">Unscramble: <span id="scrambledWord" class="text-2xl font-bold">${scrambleWord(currentWord)}</span></p>
+                            <input type="text" id="guess" class="p-2 border-2 border-gray-300 rounded" placeholder="Your guess...">
+                            <button onclick="checkGuess()" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Submit</button>
+                            <p class="mt-4">Time: <span id="timer">60</span>s | Score: <span id="score">0</span></p>
+                        </div>
+                    `;
+                    startTimer();
+                });
+            }
+
+            function startTimer() {
+                timer = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById('timer').textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        alert('Time\'s up! Next word...');
+                        startGame();
+                    }
+                }, 1000);
+            }
+
+            function checkGuess() {
+                const guess = document.getElementById('guess').value;
+                if (guess.toLowerCase() === currentWord) {
+                    score += Math.max(10, 100 - (60 - timeLeft) * 10);
+                    document.getElementById('score').textContent = score;
+                    clearInterval(timer);
+                    gsap.to("#scrambledWord", {duration: 0.5, scale: 1.2, onComplete: startGame});
+                } else {
+                    alert('Try again!');
+                }
+            }
+
+            function updateLeaderboard() {
+                // Implement leaderboard update logic
+            }
+
+            // Initialize game
+            startGame();
+            // TODO: Implement category selection, difficulty levels, daily challenge, and leaderboard functionality
+        });
+    </script>
+</body>
+</html>
