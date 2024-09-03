@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word-Finding Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #9370db;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+    </style>
+  </head>
+  <body class="h-screen flex items-center justify-center font-sans">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-6 relative">
+      <button
+        id="restart-button"
+        class="absolute top-2 left-2 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+      </button>
+      <div
+        id="timer"
+        class="absolute top-2 right-2 bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold"
+      >
+        01:00
+      </div>
+      <h1 class="text-3xl font-bold text-center mb-4">How to play:</h1>
+      <p class="text-center mb-4">
+        Combine letters to make words. Make as many words as you can in 60
+        seconds
+      </p>
+      <div id="letter-tiles" class="flex justify-center mb-4 space-x-2"></div>
+      <button
+        id="start-button"
+        class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded mb-4"
+      >
+        Start
+      </button>
+      <div id="word-input" class="flex justify-center mb-4 space-x-2"></div>
+      <button
+        id="enter-button"
+        class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded mb-4 opacity-50 cursor-not-allowed"
+        disabled
+      >
+        ENTER
+      </button>
+      <div
+        id="score-display"
+        class="bg-white p-4 rounded-lg shadow mb-4 flex items-center"
+      >
+        <img
+          src="https://placekitten.com/50/50"
+          alt="Player"
+          class="rounded-full mr-4"
+        />
+        <div>
+          <p class="font-semibold">WORDS: <span id="word-count">0</span></p>
+          <p class="text-2xl font-bold">SCORE: <span id="score">0000</span></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const letterTiles = document.getElementById("letter-tiles");
+      const wordInput = document.getElementById("word-input");
+      const enterButton = document.getElementById("enter-button");
+      const startButton = document.getElementById("start-button");
+      const restartButton = document.getElementById("restart-button");
+      const timerDisplay = document.getElementById("timer");
+      const wordCountDisplay = document.getElementById("word-count");
+      const scoreDisplay = document.getElementById("score");
+
+      let letters = "";
+      let currentWord = "";
+      let score = 0;
+      let wordCount = 0;
+      let timeLeft = 60;
+      let gameInterval;
+      let gameActive = false;
+      let usedWords = new Set();
+
+      async function getRandomLetters() {
+        const response = await fetch(
+          "https://random-word-api.herokuapp.com/word?length=6"
+        );
+        const [word] = await response.json();
+        return word.toUpperCase();
+      }
+
+      async function isValidWord(word) {
+        if (word.length < 3 || word.length > 6 || usedWords.has(word))
+          return false;
+        const response = await fetch(
+          `https://api.datamuse.com/words?sp=${word.toLowerCase()}&max=1`
+        );
+        const data = await response.json();
+        return data.length > 0 && data[0].word.toUpperCase() === word;
+      }
+
+      function createTile(letter, container, isInput = false) {
+        const tile = document.createElement("div");
+        tile.className = `w-12 h-12 bg-yellow-200 rounded-lg shadow-md flex items-center justify-center text-2xl font-bold ${
+          isInput ? "bg-gray-200" : ""
+        }`;
+        tile.textContent = letter;
+        tile.addEventListener("click", () => {
+          if (!isInput && gameActive) {
+            const inputTile = createTile(letter, wordInput, true);
+            currentWord += letter;
+            tile.classList.add("invisible");
+            updateEnterButton();
+          }
+        });
+        container.appendChild(tile);
+        return tile;
+      }
+
+      function updateEnterButton() {
+        if (currentWord.length >= 3) {
+          enterButton.disabled = false;
+          enterButton.classList.remove("opacity-50", "cursor-not-allowed");
+        } else {
+          enterButton.disabled = true;
+          enterButton.classList.add("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      async function startGame() {
+        letters = await getRandomLetters();
+        letterTiles.innerHTML = "";
+        wordInput.innerHTML = "";
+        currentWord = "";
+        score = 0;
+        wordCount = 0;
+        timeLeft = 60;
+        usedWords.clear();
+        updateScore();
+        updateTimer();
+
+        letters.split("").forEach((letter) => createTile(letter, letterTiles));
+
+        startButton.style.display = "none";
+        gameActive = true;
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(updateTimer, 1000);
+        updateEnterButton();
+      }
+
+      function updateTimer() {
+        if (timeLeft > 0) {
+          timeLeft--;
+          timerDisplay.textContent =
+            timeLeft < 10 ? `00:0${timeLeft}` : `00:${timeLeft}`;
+        } else {
+          endGame();
+        }
+      }
+
+      function endGame() {
+        clearInterval(gameInterval);
+        gameActive = false;
+        alert(`Game Over! Your score: ${score}`);
+        startButton.style.display = "block";
+        startButton.textContent = "Start";
+        updateEnterButton();
+      }
+
+      function updateScore() {
+        scoreDisplay.textContent = score.toString().padStart(4, "0");
+        wordCountDisplay.textContent = wordCount;
+      }
+
+      async function submitWord() {
+        if (currentWord.length >= 3 && (await isValidWord(currentWord))) {
+          const wordScore = [0, 0, 0, 100, 400, 1200, 2000][currentWord.length];
+          score += wordScore;
+          wordCount++;
+          usedWords.add(currentWord);
+          updateScore();
+        }
+        wordInput.innerHTML = "";
+        letterTiles.innerHTML = "";
+        currentWord = "";
+        letters.split("").forEach((letter) => createTile(letter, letterTiles));
+        updateEnterButton();
+      }
+
+      startButton.addEventListener("click", startGame);
+      restartButton.addEventListener("click", startGame);
+      enterButton.addEventListener("click", submitWord);
+    </script>
+  </body>
+</html>
