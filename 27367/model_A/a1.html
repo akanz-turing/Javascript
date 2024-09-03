@@ -49,7 +49,7 @@
         }
 
         function fetchWeatherData(lat, lon) {
-          const apiKey = "0cfaf9ddcbee8289631b227e58e00e64";
+          const apiKey = "c69cf29b76da3e62f695cdf7be199eea";
           const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
           fetch(currentWeatherUrl)
             .then((response) => response.json())

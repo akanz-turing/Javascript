@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <style>
+        /* Additional custom styles if needed */
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div id="app" class="container mx-auto p-4">
+    <header class="text-center mb-4">
+        <h1 class="text-3xl font-bold">Weather Forecast Dashboard</h1>
+        <select id="citySelect" class="mt-2 p-2 border rounded"></select>
+    </header>
+
+    <div id="forecast" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+    <div id="charts" class="mt-8">
+        <canvas id="tempChart"></canvas>
+        <canvas id="precipChart"></canvas>
+        <canvas id="windChart"></canvas>
+    </div>
+
+    <div id="compare" class="mt-8">
+        <h2 class="text-2xl">Compare Cities</h2>
+        <select id="compareCity1" class="p-2 border rounded"></select>
+        <select id="compareCity2" class="p-2 border rounded"></select>
+        <canvas id="comparisonChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const apiKey = 'c69cf29b76da3e62f695cdf7be199eea'; // Replace with your OpenWeatherMap API key
+    const cities = ['New York', 'London', 'Tokyo', 'Sydney']; // Example list
+    let currentCity = 'Auto-detect';
+    let weatherData = {};
+    
+    // Populate city dropdowns
+    function populateCityDropdowns() {
+        const citySelect = document.getElementById('citySelect');
+        const compareSelects = [document.getElementById('compareCity1'), document.getElementById('compareCity2')];
+        cities.forEach(city => {
+            let option = new Option(city, city);
+            citySelect.appendChild(option);
+            compareSelects.forEach(select => select.appendChild(option.cloneNode(true)));
+        });
+    }
+
+    // Get user's location
+    function getUserLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition, showError);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        fetchWeatherData(`lat=${position.coords.latitude}&lon=${position.coords.longitude}`);
+    }
+
+    function showError(error) {
+        switch(error.code) {
+            case error.PERMISSION_DENIED:
+                console.log("User denied the request for Geolocation.");
+                break;
+            default:
+                console.log("An unknown error occurred.");
+        }
+        // Default to a known city if geolocation fails
+        fetchWeatherData('New York');
+    }
+
+    // Fetch weather data
+    function fetchWeatherData(query) {
+        axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${query}&appid=${apiKey}&units=metric`)
+            .then(response => {
+                weatherData = response.data;
+                updateUI();
+            });
+    }
+
+    // Update UI with fetched data
+    function updateUI() {
+        // Update forecast display
+        // Create charts with Chart.js
+        // This would involve parsing weatherData and creating datasets for each chart
+    }
+
+    // Event listeners for city selection
+    document.getElementById('citySelect').addEventListener('change', function(e) {
+        fetchWeatherData(e.target.value);
+    });
+
+    // Initialize
+    populateCityDropdowns();
+    getUserLocation();
+</script>
+
+</body>
+</html>
