@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Forecast Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 h-screen flex flex-col">
+    <header class="bg-blue-500 p-4 text-white">
+      <h1 class="text-lg">Weather Forecast Dashboard</h1>
+      <select id="citySelect" class="p-2 rounded"></select>
+    </header>
+    <main class="p-4 flex-grow">
+      <section id="forecast" class="mb-4"></section>
+      <section id="charts" class="mb-4"></section>
+      <section id="historicalData"></section>
+    </main>
+    <footer class="bg-gray-200 p-2 text-center">
+      Powered by OpenWeatherMap
+    </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const citySelect = document.getElementById("citySelect");
+        const forecastSection = document.getElementById("forecast");
+        const chartsSection = document.getElementById("charts");
+        const historicalDataSection = document.getElementById("historicalData");
+
+        // Geolocation to get user's current location
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(setPosition, showError);
+        } else {
+          alert("Geolocation not supported");
+        }
+
+        function setPosition(position) {
+          const { latitude, longitude } = position.coords;
+          fetchWeatherData(latitude, longitude);
+        }
+
+        function showError(error) {
+          alert(`Error: ${error.message}`);
+          // Default to a known city if geolocation fails
+          fetchWeatherData(37.7749, -122.4194); // San Francisco
+        }
+
+        function fetchWeatherData(lat, lon) {
+          const apiKey = "0cfaf9ddcbee8289631b227e58e00e64";
+          const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+          fetch(currentWeatherUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              displayForecast(data.list);
+              displayCharts(data.list);
+              fetchHistoricalData(lat, lon);
+            });
+        }
+
+        function displayForecast(forecastList) {
+          // Loop through forecast data and create HTML elements
+          const html = forecastList
+            .map((day) => {
+              return `
+                <div class="day-forecast p-4 bg-white rounded shadow-md mb-2">
+                    <h3>${new Date(day.dt * 1000).toLocaleDateString()}</h3>
+                    <p>Temp: ${day.main.temp}°C</p>
+                    <p>Rain: ${day.rain ? day.rain["3h"] : 0} mm</p>
+                    <p>Wind: ${day.wind.speed} m/s</p>
+                </div>
+            `;
+            })
+            .join("");
+          forecastSection.innerHTML = html;
+        }
+
+        function displayCharts(forecastList) {
+          const labels = forecastList.map((day) =>
+            new Date(day.dt * 1000).toLocaleTimeString("en", {
+              weekday: "short",
+            })
+          );
+          const temperatures = forecastList.map((day) => day.main.temp);
+          const precipitation = forecastList.map((day) =>
+            day.rain ? day.rain["3h"] : 0
+          );
+          const windSpeeds = forecastList.map((day) => day.wind.speed);
+
+          const chartHtml = `
+            <canvas id="tempChart"></canvas>
+            <canvas id="precipChart"></canvas>
+            <canvas id="windChart"></canvas>
+        `;
+
+          chartsSection.innerHTML = chartHtml;
+          const ctxTemp = document.getElementById("tempChart").getContext("2d");
+          const ctxPrecip = document
+            .getElementById("precipChart")
+            .getContext("2d");
+          const ctxWind = document.getElementById("windChart").getContext("2d");
+
+          new Chart(ctxTemp, {
+            type: "line",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Temperature (°C)",
+                  data: temperatures,
+                  backgroundColor: "rgba(255, 99, 132, 0.2)",
+                  borderColor: "rgba(255, 99, 132, 1)",
+                  borderWidth: 1,
+                },
+              ],
+            },
+          });
+
+          // Similarly for precipitation and wind speed
+        }
+
+        function fetchHistoricalData(lat, lon) {
+          // Fetch historical data from OpenWeatherMap or another source
+          // Display this data in the historicalDataSection
+        }
+      });
+    </script>
+  </body>
+</html>
