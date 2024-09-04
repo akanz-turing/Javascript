@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSI Layer Visualizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Arial', sans-serif; }
+        .layer {
+            border: 2px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .layer:hover { background-color: #f8f9fa; }
+        .progress-bar { width: 100%; background-color: #e9ecef; }
+        .progress { height: 20px; }
+        .chart-container { width: 100%; height: 200px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mt-5">OSI Layer Interactive Visualizer</h1>
+    <div id="progress" class="progress">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+    </div>
+    
+    <!-- OSI Layers Visualization -->
+    <div id="osiLayers"></div>
+
+    <!-- Sidebar for Q&A and explanations -->
+    <div id="sidebar" class="position-fixed top-0 end-0 bg-light p-3" style="width: 300px; height: 100vh; display: none;">
+        <h4 id="layerTitle"></h4>
+        <p id="layerExplanation"></p>
+        <div id="quizArea"></div>
+        <button id="closeSidebar" class="btn btn-secondary">Close</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const layers = ['Physical', 'Data Link', 'Network', 'Transport', 'Session', 'Presentation', 'Application'];
+    const osiLayersDiv = document.getElementById('osiLayers');
+    const sidebar = document.getElementById('sidebar');
+    const quizArea = document.getElementById('quizArea');
+    const layerTitle = document.getElementById('layerTitle');
+    const layerExplanation = document.getElementById('layerExplanation');
+    const progressBar = document.querySelector('.progress-bar');
+
+    let currentLayer = 0;
+
+    // Function to render layers
+    function renderLayers() {
+        layers.forEach((layer, index) => {
+            let div = document.createElement('div');
+            div.className = 'layer';
+            div.innerHTML = `<h3>${layer}</h3><p>Click to learn more</p>`;
+            div.onclick = () => showLayerInfo(index);
+            osiLayersDiv.appendChild(div);
+        });
+    }
+
+    // Function to show sidebar with layer info
+    function showLayerInfo(index) {
+        currentLayer = index;
+        layerTitle.textContent = layers[index];
+        layerExplanation.textContent = `Explanation for ${layers[index]} layer...`;
+        quizArea.innerHTML = ''; // Clear previous quiz
+        // Add quiz or interactive elements here
+        sidebar.style.display = 'block';
+        updateProgress();
+    }
+
+    // Function to update learning progress
+    function updateProgress() {
+        let progress = ((currentLayer + 1) / layers.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.textContent = `${Math.round(progress)}%`;
+    }
+
+    // Close sidebar
+    document.getElementById('closeSidebar').addEventListener('click', () => {
+        sidebar.style.display = 'none';
+    });
+
+    // Chart rendering (example for Transport layer)
+    function renderChart() {
+        new Chart(document.getElementById('chart'), {
+            type: 'bar',
+            data: {
+                labels: ['TCP', 'UDP'],
+                datasets: [{
+                    label: 'Data Packets',
+                    data: [120, 90],
+                    backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                    borderColor: ['rgb(54, 162, 235)', 'rgb(255, 99, 132)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    renderLayers();
+    renderChart(); // Call this for each layer with different data as needed
+</script>
+
+</body>
+</html>

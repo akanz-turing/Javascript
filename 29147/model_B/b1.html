@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Protocol Visualizer</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+<style>
+body { font-family: 'Arial', sans-serif; background: #f4f4f9; color: #333; }
+.container { max-width: 1200px; margin: auto; padding: 20px; }
+.layer, .protocol { background: white; border-radius: 8px; margin: 10px 0; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+#visualizer { display: flex; flex-direction: column; align-items: center; }
+.chart-container { width: 80%; height: 200px; margin: 20px 0; }
+@media (max-width: 768px) {
+    .container { padding: 10px; }
+    .chart-container { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Network Protocol Visualizer</h1>
+    <div id="visualizer">
+        <!-- OSI Layers will be dynamically added here -->
+    </div>
+    <div class="chart-container">
+        <canvas id="dataFlowChart"></canvas>
+    </div>
+    <div id="quiz-section">
+        <!-- Q&A will be dynamically generated here -->
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const layers = ['Physical', 'Data Link', 'Network', 'Transport', 'Session', 'Presentation', 'Application'];
+    const protocols = {
+        'Network': 'IP', 
+        'Transport': 'TCP', 
+        'Application': 'HTTP, DNS'
+    };
+
+    const visualizer = document.getElementById('visualizer');
+    const chartCtx = document.getElementById('dataFlowChart').getContext('2d');
+    
+    // Create OSI layer elements
+    layers.forEach(layer => {
+        let div = document.createElement('div');
+        div.className = 'layer';
+        div.innerHTML = `<h2>${layer} Layer</h2><p>Here's what happens...</p>`;
+        div.onclick = () => showLayerDetails(layer, protocols[layer]);
+        visualizer.appendChild(div);
+    });
+
+    function showLayerDetails(layer, protocol) {
+        alert(`In the ${layer} layer, ${protocol || 'data'} is handled like this...`);
+        // Here you would expand with more details, perhaps show a modal or expand the div
+    }
+
+    // Initialize Chart
+    new Chart(chartCtx, {
+        type: 'line',
+        data: {
+            labels: layers,
+            datasets: [{
+                label: 'Data Size Through Layers',
+                data: [100, 98, 95, 90, 85, 80, 75], // Example data
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Q&A Section (basic implementation)
+    const quizSection = document.getElementById('quiz-section');
+    const qa = {
+        'What does the Network layer handle?': 'IP routing',
+        'Which protocol is used in the Transport layer?': 'TCP'
+    };
+    
+    for(let [question, answer] of Object.entries(qa)) {
+        let qDiv = document.createElement('div');
+        qDiv.innerHTML = `<p>${question} <button onclick="alert('Correct answer: ${answer}')">Reveal Answer</button></p>`;
+        quizSection.appendChild(qDiv);
+    }
+});
+</script>
+</body>
+</html>

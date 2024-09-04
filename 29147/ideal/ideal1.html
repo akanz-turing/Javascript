@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSI Network Protocol Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4 max-w-4xl">
+        <h1 class="text-3xl font-bold mb-4">Network Protocol Visualizer</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">OSI Layer Simulation</h2>
+                <canvas id="osiChart" width="400" height="200"></canvas>
+                <div class="mt-4 flex justify-between items-center">
+                    <button id="nextStepBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                        Next Step
+                    </button>
+                    <div class="flex items-center">
+                        <span class="mr-2">Direction:</span>
+                        <span id="directionIndicator" class="text-green-500">▼</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Layer Information</h2>
+                <h3 id="currentLayerName" class="text-lg font-medium mb-2"></h3>
+                <p id="layerExplanation" class="mb-4"></p>
+                <div id="qaSection" class="mb-4">
+                    <h4 class="font-semibold mb-2">Q&A Session</h4>
+                    <div id="question" class="mb-2"></div>
+                    <div id="answerOptions" class="space-y-2"></div>
+                    <button id="submitAnswer" class="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Submit Answer</button>
+                    <div id="feedback" class="mt-2 hidden"></div>
+                </div>
+                <button id="showMoreInfoBtn" class="text-blue-500 hover:text-blue-600">
+                    Show More Info
+                </button>
+                <div id="moreInfo" class="hidden mt-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
+                    <p class="font-bold">Did you know?</p>
+                    <p>The OSI model helps in understanding how data is transmitted between devices on a network. Each layer has a specific role in the communication process.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const OSILayers = [
+            { name: 'Application', color: '#FF6B6B' },
+            { name: 'Presentation', color: '#4ECDC4' },
+            { name: 'Session', color: '#45B7D1' },
+            { name: 'Transport', color: '#FFA07A' },
+            { name: 'Network', color: '#98D8C8' },
+            { name: 'Data Link', color: '#F9ED69' },
+            { name: 'Physical', color: '#F08A5D' },
+        ];
+
+        const explanations = {
+            'Application': 'Provides network services directly to end-users or applications.',
+            'Presentation': 'Translates data between the application layer and the network format.',
+            'Session': 'Manages communication sessions between applications.',
+            'Transport': 'Ensures reliable data transfer between hosts.',
+            'Network': 'Routes data packets between different networks.',
+            'Data Link': 'Handles data transfer between adjacent network nodes.',
+            'Physical': 'Transmits raw bit stream over the physical medium.'
+        };
+
+        const qaData = {
+            'Application': {
+                question: 'Which of the following is NOT typically associated with the Application layer?',
+                options: ['HTTP', 'FTP', 'IP addressing', 'SMTP'],
+                correctAnswer: 2,
+                explanation: 'IP addressing is typically associated with the Network layer, not the Application layer.'
+            },
+            'Presentation': {
+                question: 'What is the main function of the Presentation layer?',
+                options: ['Data compression', 'Data encryption', 'Data formatting', 'All of the above'],
+                correctAnswer: 3,
+                explanation: 'The Presentation layer is responsible for data compression, encryption, and formatting to ensure that data from the application layer of one system can be read by the application layer of another.'
+            },
+            'Session': {
+                question: 'Which of these is a responsibility of the Session layer?',
+                options: ['Routing', 'Data encryption', 'Authentication', 'Physical addressing'],
+                correctAnswer: 2,
+                explanation: 'The Session layer is responsible for establishing, maintaining, and terminating sessions between applications. Authentication is often handled at this layer.'
+            },
+            'Transport': {
+                question: 'Which protocol operates at the Transport layer?',
+                options: ['HTTP', 'IP', 'TCP', 'Ethernet'],
+                correctAnswer: 2,
+                explanation: 'TCP (Transmission Control Protocol) operates at the Transport layer, providing reliable, ordered, and error-checked delivery of data between applications running on hosts.'
+            },
+            'Network': {
+                question: 'What is the primary function of the Network layer?',
+                options: ['Data encryption', 'Routing', 'Session management', 'Data compression'],
+                correctAnswer: 1,
+                explanation: 'The primary function of the Network layer is routing, which involves determining the best path for data to travel from source to destination across potentially multiple networks.'
+            },
+            'Data Link': {
+                question: 'What does the Data Link layer primarily deal with?',
+                options: ['IP addresses', 'MAC addresses', 'Port numbers', 'Domain names'],
+                correctAnswer: 1,
+                explanation: 'The Data Link layer primarily deals with MAC (Media Access Control) addresses, which are used for communication between network interfaces on the same network segment.'
+            },
+            'Physical': {
+                question: 'What does the Physical layer define?',
+                options: ['Logical addressing', 'Routing protocols', 'Data encryption methods', 'Physical network hardware'],
+                correctAnswer: 3,
+                explanation: 'The Physical layer defines the physical network hardware, including specifications for cables, connectors, voltages, and other physical aspects of data transmission.'
+            }
+        };
+
+        let currentLayer = 0;
+        let direction = 'down';
+        let chart;
+
+        function initializeChart() {
+            const ctx = document.getElementById('osiChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: OSILayers.map(layer => layer.name),
+                    datasets: [{
+                        data: OSILayers.map((_, index) => index === currentLayer ? 100 : 0),
+                        backgroundColor: OSILayers.map(layer => layer.color)
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            chart.data.datasets[0].data = OSILayers.map((_, index) => index === currentLayer ? 100 : 0);
+            chart.update();
+        }
+
+        function updateLayerInfo() {
+            const currentLayerName = OSILayers[currentLayer].name;
+            document.getElementById('currentLayerName').textContent = currentLayerName + ' Layer';
+            document.getElementById('layerExplanation').textContent = explanations[currentLayerName];
+            updateQASection(currentLayerName);
+        }
+
+        function updateQASection(layerName) {
+            const qa = qaData[layerName];
+            document.getElementById('question').textContent = qa.question;
+            const answerOptionsElement = document.getElementById('answerOptions');
+            answerOptionsElement.innerHTML = '';
+            qa.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'w-full text-left px-4 py-2 bg-gray-200 rounded hover:bg-gray-300';
+                button.onclick = () => selectAnswer(index);
+                answerOptionsElement.appendChild(button);
+            });
+            document.getElementById('submitAnswer').style.display = 'inline-block';
+            document.getElementById('feedback').className = 'mt-2 hidden';
+            document.getElementById('feedback').textContent = '';
+        }
+
+        let selectedAnswerIndex = -1;
+
+        function selectAnswer(index) {
+            selectedAnswerIndex = index;
+            const buttons = document.getElementById('answerOptions').getElementsByTagName('button');
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].className = i === index 
+                    ? 'w-full text-left px-4 py-2 bg-blue-200 rounded hover:bg-blue-300'
+                    : 'w-full text-left px-4 py-2 bg-gray-200 rounded hover:bg-gray-300';
+            }
+        }
+
+        function submitAnswer() {
+            const qa = qaData[OSILayers[currentLayer].name];
+            const feedbackElement = document.getElementById('feedback');
+            if (selectedAnswerIndex === qa.correctAnswer) {
+                feedbackElement.textContent = 'Correct! ' + qa.explanation;
+                feedbackElement.className = 'mt-2 text-green-600';
+            } else {
+                feedbackElement.textContent = 'Incorrect. ' + qa.explanation;
+                feedbackElement.className = 'mt-2 text-red-600';
+            }
+            feedbackElement.classList.remove('hidden');
+            document.getElementById('submitAnswer').style.display = 'none';
+        }
+
+        function initializeSimulator() {
+            initializeChart();
+            updateLayerInfo();
+
+            document.getElementById('nextStepBtn').addEventListener('click', () => {
+                if (direction === 'down') {
+                    if (currentLayer < OSILayers.length - 1) {
+                        currentLayer++;
+                    } else {
+                        direction = 'up';
+                    }
+                } else {
+                    if (currentLayer > 0) {
+                        currentLayer--;
+                    } else {
+                        direction = 'down';
+                        currentLayer = 0;
+                    }
+                }
+                updateChart();
+                updateLayerInfo();
+                document.getElementById('directionIndicator').textContent = direction === 'down' ? '▼' : '▲';
+                document.getElementById('directionIndicator').className = direction === 'down' ? 'text-green-500' : 'text-red-500';
+            });
+
+            document.getElementById('showMoreInfoBtn').addEventListener('click', () => {
+                const moreInfo = document.getElementById('moreInfo');
+                const btn = document.getElementById('showMoreInfoBtn');
+                if (moreInfo.classList.contains('hidden')) {
+                    moreInfo.classList.remove('hidden');
+                    btn.textContent = 'Hide More Info';
+                } else {
+                    moreInfo.classList.add('hidden');
+                    btn.textContent = 'Show More Info';
+                }
+            });
+
+            document.getElementById('submitAnswer').addEventListener('click', submitAnswer);
+        }
+
+        // Check if Chart is available, if not, wait for it to load
+        if (typeof Chart === 'undefined') {
+            window.addEventListener('load', initializeSimulator);
+        } else {
+            initializeSimulator();
+        }
+    </script>
+</body>
+</html>
