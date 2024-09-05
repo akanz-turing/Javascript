@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Four in a Row</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+  </head>
+  <body class="bg-gray-100 flex justify-center items-center h-screen">
+    <div class="container mx-auto p-4">
+      <h1 class="text-4xl text-center mb-4">Four in a Row</h1>
+
+      <!-- Player Names Form -->
+      <div id="playerForm" class="mb-4">
+        <input
+          id="player1"
+          class="p-2 m-2"
+          type="text"
+          placeholder="Player 1 (Red)"
+        />
+        <input
+          id="player2"
+          class="p-2 m-2"
+          type="text"
+          placeholder="Player 2 (Yellow)"
+        />
+        <button
+          onclick="startGame()"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Start Game
+        </button>
+      </div>
+
+      <!-- Game Board -->
+      <div
+        id="gameBoard"
+        class="grid grid-cols-7 gap-2 w-full max-w-lg hidden"
+      ></div>
+
+      <!-- Current Player Indicator -->
+      <div id="turnIndicator" class="text-center mt-4 hidden"></div>
+
+      <!-- Custom Modal for Game Results -->
+      <div
+        id="gameResult"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center"
+      >
+        <div
+          class="bg-white p-8 rounded shadow-lg text-center animate__animated animate__bounceIn"
+        >
+          <h2 id="winnerMessage" class="text-2xl"></h2>
+          <button
+            onclick="location.reload()"
+            class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Play Again
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const board = Array(6)
+        .fill()
+        .map(() => Array(7).fill(0));
+      let currentPlayer = 1;
+      let playerNames = { 1: "Red", 2: "Yellow" };
+
+      function startGame() {
+        const p1 = document.getElementById("player1").value || "Player 1";
+        const p2 = document.getElementById("player2").value || "Player 2";
+        playerNames = { 1: p1, 2: p2 };
+        document.getElementById("playerForm").classList.add("hidden");
+        document.getElementById("gameBoard").classList.remove("hidden");
+        document.getElementById("turnIndicator").classList.remove("hidden");
+        updateTurnIndicator();
+        createBoard();
+      }
+
+      function createBoard() {
+        const gameBoard = document.getElementById("gameBoard");
+        for (let row = 0; row < 6; row++) {
+          for (let col = 0; col < 7; col++) {
+            let cell = document.createElement("div");
+            cell.className =
+              "w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center cursor-pointer";
+            cell.onclick = () => dropPiece(col);
+            cell.setAttribute("data-col", col);
+            cell.setAttribute("data-row", row);
+            gameBoard.appendChild(cell);
+          }
+        }
+      }
+
+      function dropPiece(col) {
+        for (let row = 5; row >= 0; row--) {
+          if (board[row][col] === 0) {
+            board[row][col] = currentPlayer;
+            const cell = document.querySelector(
+              `[data-col="$ {col}"][data-row=" ${row}"]`
+            );
+            const piece = document.createElement("div");
+            piece.className = `w-14 h-14 rounded-full <INLINE_MATH>{currentPlayer === 1 ? 'bg-red-500' : 'bg-yellow-500'} animate__animated animate__slideInDown`;
+            cell.appendChild(piece);
+            if (checkWin(row, col)) {
+              document.getElementById("gameResult").classList.remove("hidden");
+              document.getElementById(
+                "winnerMessage"
+              ).innerText = `</INLINE_MATH>{playerNames[currentPlayer]} wins!`;
+            } else if (isBoardFull()) {
+              document.getElementById("gameResult").classList.remove("hidden");
+              document.getElementById("winnerMessage").innerText =
+                "It's a draw!";
+            } else {
+              currentPlayer = currentPlayer === 1 ? 2 : 1;
+              updateTurnIndicator();
+            }
+            break;
+          }
+        }
+      }
+
+      function checkWin(row, col) {
+        const directions = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1], // horizontal, vertical, diagonal, anti-diagonal
+        ];
+        for (let dir of directions) {
+          let count = 1;
+          // Check both sides of the direction
+          for (let i = -1; i <= 1; i += 2) {
+            for (let j = 1; j < 4; j++) {
+              let newRow = row + dir[0] * j * i;
+              let newCol = col + dir[1] * j * i;
+              if (
+                newRow < 0 ||
+                newRow >= 6 ||
+                newCol < 0 ||
+                newCol >= 7 ||
+                board[newRow][newCol] !== currentPlayer
+              )
+                break;
+              count++;
+            }
+          }
+          if (count >= 4) return true;
+        }
+        return false;
+      }
+
+      function isBoardFull() {
+        return board.every((row) => row.every((cell) => cell !== 0));
+      }
+
+      function updateTurnIndicator() {
+        document.getElementById(
+          "turnIndicator"
+        ).innerHTML = `Current Turn: <span class="$ {currentPlayer === 1 ? 'text-red-500' : 'text-yellow-500'}"> ${playerNames[currentPlayer]}</span>`;
+      }
+    </script>
+  </body>
+</html>
