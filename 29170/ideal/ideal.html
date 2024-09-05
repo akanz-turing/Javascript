@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Periodic Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+      <h1 class="text-3xl font-bold mb-4">Interactive Periodic Table</h1>
+
+      <div class="flex space-x-4 mb-4">
+        <button
+          id="filterMetal"
+          class="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Filter Metals
+        </button>
+        <button
+          id="filterGas"
+          class="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Filter Gases
+        </button>
+        <button
+          id="toggleQuiz"
+          class="px-4 py-2 bg-purple-500 text-white rounded"
+        >
+          Toggle Quiz Mode
+        </button>
+        <button
+          id="toggleDarkMode"
+          class="px-4 py-2 bg-gray-500 text-white rounded"
+        >
+          Toggle Dark Mode
+        </button>
+      </div>
+
+      <div id="periodicTable" class="grid grid-cols-18 gap-1"></div>
+
+      <div id="elementInfo" class="mt-4 p-4 border rounded hidden"></div>
+
+      <div id="quizSection" class="mt-4 hidden">
+        <h2 class="text-2xl font-bold">Quiz Mode</h2>
+        <p>Quiz content would go here...</p>
+      </div>
+
+      <div class="mt-4">
+        <canvas id="trendChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <script>
+      const periodicTableData = [
+        {
+          symbol: "H",
+          name: "Hydrogen",
+          atomicNumber: 1,
+          atomicMass: 1.008,
+          group: "Nonmetal",
+          state: "Gas",
+        },
+        {
+          symbol: "He",
+          name: "Helium",
+          atomicNumber: 2,
+          atomicMass: 4.003,
+          group: "Noble Gas",
+          state: "Gas",
+        },
+        // Add more elements here...
+      ];
+
+      const periodicTable = document.getElementById("periodicTable");
+      const elementInfo = document.getElementById("elementInfo");
+      const quizSection = document.getElementById("quizSection");
+
+      function createPeriodicTable() {
+        periodicTableData.forEach((element) => {
+          const elementDiv = document.createElement("div");
+          elementDiv.className =
+            "p-2 border rounded cursor-pointer hover:bg-gray-200";
+          elementDiv.innerHTML = `
+                    <div class="text-xs">${element.atomicNumber}</div>
+                    <div class="text-xl font-bold">${element.symbol}</div>
+                    <div class="text-xs">${element.name}</div>
+                `;
+          elementDiv.addEventListener("click", () => showElementInfo(element));
+          periodicTable.appendChild(elementDiv);
+        });
+      }
+
+      function showElementInfo(element) {
+        elementInfo.innerHTML = `
+                <h2 class="text-2xl font-bold">${element.name}</h2>
+                <p>Symbol: ${element.symbol}</p>
+                <p>Atomic Number: ${element.atomicNumber}</p>
+                <p>Atomic Mass: ${element.atomicMass}</p>
+                <p>Group: ${element.group}</p>
+                <p>State: ${element.state}</p>
+            `;
+        elementInfo.classList.remove("hidden");
+      }
+
+      document
+        .getElementById("filterMetal")
+        .addEventListener("click", () => filterElements("Metal"));
+      document
+        .getElementById("filterGas")
+        .addEventListener("click", () => filterElements("Gas"));
+
+      function filterElements(filterType) {
+        const elements = periodicTable.children;
+        for (let element of elements) {
+          const elementData = periodicTableData.find(
+            (e) => e.symbol === element.querySelector(".text-xl").textContent
+          );
+          if (
+            elementData.group.includes(filterType) ||
+            elementData.state === filterType
+          ) {
+            element.classList.add("bg-yellow-200");
+          } else {
+            element.classList.remove("bg-yellow-200");
+          }
+        }
+      }
+
+      document.getElementById("toggleQuiz").addEventListener("click", () => {
+        quizSection.classList.toggle("hidden");
+      });
+
+      document
+        .getElementById("toggleDarkMode")
+        .addEventListener("click", () => {
+          document.body.classList.toggle("bg-gray-900");
+          document.body.classList.toggle("text-white");
+        });
+
+      // Create trend chart
+      const ctx = document.getElementById("trendChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: periodicTableData.slice(0, 10).map((e) => e.symbol),
+          datasets: [
+            {
+              label: "Atomic Mass",
+              data: periodicTableData.slice(0, 10).map((e) => e.atomicMass),
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+
+      createPeriodicTable();
+    </script>
+  </body>
+</html>
