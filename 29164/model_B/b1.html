@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geography Quiz</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <style>
+      #map {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 p-4">
+    <div class="container mx-auto">
+      <h1 class="text-4xl font-bold text-center mb-4">Geography Quiz</h1>
+      <div id="quiz-container" class="bg-white p-6 rounded-lg shadow-md">
+        <!-- Map Section -->
+        <div id="map" class="mb-4"></div>
+
+        <!-- Quiz Controls -->
+        <div id="quiz-controls" class="mb-4">
+          <select id="quiz-type" class="p-2 border rounded">
+            <option value="capital">Country to Capital</option>
+            <option value="country">Capital to Country</option>
+            <option value="landmark">Landmark Identification</option>
+          </select>
+          <button
+            id="start-quiz"
+            class="bg-blue-500 text-white p-2 rounded ml-2"
+          >
+            Start Quiz
+          </button>
+        </div>
+
+        <!-- Quiz Question -->
+        <div id="question" class="text-xl mb-2"></div>
+
+        <!-- Options or Map Interaction -->
+        <div id="options" class="flex flex-wrap gap-2 mb-4"></div>
+
+        <!-- Score and Progress -->
+        <div class="flex justify-between">
+          <div>Score: <span id="score">0</span></div>
+          <div>Progress: <span id="progress">0/10</span></div>
+        </div>
+      </div>
+
+      <!-- Leaderboard placeholder -->
+      <div
+        id="leaderboard"
+        class="mt-4 bg-white p-6 rounded-lg shadow-md hidden"
+      >
+        <h2 class="text-2xl font-bold mb-2">Leaderboard</h2>
+        <!-- Leaderboard content would go here -->
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script>
+      // Initialize map
+      const map = L.map("map").setView([0, 0], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
+
+      // Quiz logic would go here
+      let quizData = []; // This would be populated with quiz questions
+      let currentQuestion = 0;
+      let score = 0;
+
+      document
+        .getElementById("start-quiz")
+        .addEventListener("click", startQuiz);
+
+      function startQuiz() {
+        const quizType = document.getElementById("quiz-type").value;
+        // Fetch or set up quizData based on quizType
+        // Here we would implement the logic to load questions, show them, handle answers, etc.
+        showQuestion();
+      }
+
+      function showQuestion() {
+        if (currentQuestion < quizData.length) {
+          const question = quizData[currentQuestion];
+          document.getElementById("question").innerText = question.text;
+          // Here you would populate options or enable map interaction based on the quiz type
+        } else {
+          endQuiz();
+        }
+      }
+
+      function endQuiz() {
+        document.getElementById(
+          "quiz-container"
+        ).innerHTML = `<h2>Quiz Completed! Your score is ${score}</h2>`;
+        // Optionally show detailed results or leaderboard
+      }
+
+      // Map interaction would need to be set up here, for example:
+      map.on("click", function (e) {
+        // Logic to check if the clicked location is correct for the current question
+      });
+
+      // Note: This is a basic structure. You'll need to implement:
+      // - Fetching quiz data
+      //- More detailed quiz logic (correct answer checking, progress update, etc.)
+      // - Map interaction for different quiz types
+      // - Leaderboard functionality
+    </script>
+  </body>
+</html>

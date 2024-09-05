@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geography Quiz App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-4">Geography Quiz</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Map Container -->
+        <div id="map" class="h-96 bg-white rounded shadow"></div>
+
+        <!-- Quiz Container -->
+        <div class="bg-white p-4 rounded shadow">
+          <h2 class="text-xl font-semibold mb-4">Current Question</h2>
+          <div id="question" class="mb-4"></div>
+          <div id="options" class="space-y-2"></div>
+          <button
+            id="submit"
+            class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Submit Answer
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress and Score -->
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Progress</h2>
+        <div class="flex justify-between items-center">
+          <div id="progress-bar" class="w-3/4 bg-gray-200 rounded-full h-2.5">
+            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+          </div>
+          <div id="score" class="font-bold">Score: 0</div>
+        </div>
+      </div>
+
+      <!-- Quiz Mode Selection -->
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Select Quiz Mode</h2>
+        <select id="quiz-mode" class="w-full p-2 border rounded">
+          <option value="country-capital">Country to Capital</option>
+          <option value="capital-country">Capital to Country</option>
+          <option value="landmark">Landmark Identification</option>
+        </select>
+      </div>
+
+      <!-- Region Selection -->
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Select Region</h2>
+        <select id="region" class="w-full p-2 border rounded">
+          <option value="world">World</option>
+          <option value="africa">Africa</option>
+          <option value="asia">Asia</option>
+          <option value="europe">Europe</option>
+          <option value="north-america">North America</option>
+          <option value="south-america">South America</option>
+          <option value="oceania">Oceania</option>
+        </select>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Leaderboard</h2>
+        <ul id="leaderboard" class="list-disc pl-5"></ul>
+      </div>
+
+      <!-- Achievements -->
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Achievements</h2>
+        <div
+          id="achievements"
+          class="grid grid-cols-2 md:grid-cols-4 gap-4"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      // Quiz data (this would ideally come from a backend API)
+      const quizData = {
+        "country-capital": [
+          {
+            question: "What is the capital of France?",
+            answer: "Paris",
+            options: ["London", "Berlin", "Paris", "Madrid"],
+            coordinates: [48.8566, 2.3522],
+          },
+          {
+            question: "What is the capital of Japan?",
+            answer: "Tokyo",
+            options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+            coordinates: [35.6762, 139.6503],
+          },
+          // Add more questions...
+        ],
+        "capital-country": [
+          {
+            question: "Which country has Cairo as its capital?",
+            answer: "Egypt",
+            options: ["Morocco", "Egypt", "Libya", "Sudan"],
+            coordinates: [30.0444, 31.2357],
+          },
+          {
+            question: "Which country has Canberra as its capital?",
+            answer: "Australia",
+            options: [
+              "New Zealand",
+              "Australia",
+              "Indonesia",
+              "Papua New Guinea",
+            ],
+            coordinates: [-35.2809, 149.13],
+          },
+          // Add more questions...
+        ],
+        landmark: [
+          {
+            question: "In which country is the Eiffel Tower located?",
+            answer: "France",
+            options: ["Italy", "France", "Spain", "Germany"],
+            coordinates: [48.8584, 2.2945],
+          },
+          {
+            question: "Where can you find the Great Wall?",
+            answer: "China",
+            options: ["Japan", "South Korea", "China", "Mongolia"],
+            coordinates: [40.4319, 116.5704],
+          },
+          // Add more questions...
+        ],
+      };
+
+      // Initialize variables
+      let currentQuiz = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let map;
+      let marker;
+
+      // Initialize map
+      function initMap() {
+        map = L.map("map").setView([0, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+      }
+
+      // Start quiz
+      function startQuiz() {
+        const mode = document.getElementById("quiz-mode").value;
+        const region = document.getElementById("region").value;
+        currentQuiz = quizData[mode].filter(
+          (q) => q.region === region || region === "world"
+        );
+        currentQuestionIndex = 0;
+        score = 0;
+        loadQuestion();
+        updateProgress();
+      }
+
+      // Load question
+      function loadQuestion() {
+        const question = currentQuiz[currentQuestionIndex];
+        document.getElementById("question").textContent = question.question;
+        const optionsContainer = document.getElementById("options");
+        optionsContainer.innerHTML = "";
+        question.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.className = "w-full p-2 bg-gray-200 rounded hover:bg-gray-300";
+          button.onclick = () => selectOption(option);
+          optionsContainer.appendChild(button);
+        });
+
+        // Update map
+        if (marker) map.removeLayer(marker);
+        map.setView(question.coordinates, 5);
+        marker = L.marker(question.coordinates).addTo(map);
+      }
+
+      // Select option
+      function selectOption(option) {
+        const buttons = document.querySelectorAll("#options button");
+        buttons.forEach((button) => {
+          button.classList.remove("bg-blue-500", "text-white");
+          if (button.textContent === option) {
+            button.classList.add("bg-blue-500", "text-white");
+          }
+        });
+      }
+
+      // Check answer
+      function checkAnswer() {
+        const selectedButton = document.querySelector(
+          "#options button.bg-blue-500"
+        );
+        if (!selectedButton) return;
+
+        const userAnswer = selectedButton.textContent;
+        const correctAnswer = currentQuiz[currentQuestionIndex].answer;
+
+        if (userAnswer === correctAnswer) {
+          score++;
+          // Visual feedback for correct answer
+          selectedButton.classList.add("bg-green-500");
+        } else {
+          // Visual feedback for incorrect answer
+          selectedButton.classList.add("bg-red-500");
+          document
+            .querySelector(`#options button:contains('${correctAnswer}')`)
+            .classList.add("bg-green-500");
+        }
+
+        setTimeout(() => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < currentQuiz.length) {
+            loadQuestion();
+          } else {
+            endQuiz();
+          }
+          updateProgress();
+        }, 1000);
+      }
+
+      // Update progress
+      function updateProgress() {
+        const progressBar = document.querySelector("#progress-bar > div");
+        const progress = (currentQuestionIndex / currentQuiz.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        document.getElementById("score").textContent = `Score: ${score}`;
+      }
+
+      // End quiz
+      function endQuiz() {
+        alert(`Quiz completed! Your score: ${score}/${currentQuiz.length}`);
+        updateLeaderboard();
+        checkAchievements();
+      }
+
+      // Update leaderboard
+      function updateLeaderboard() {
+        const leaderboard = JSON.parse(
+          localStorage.getItem("leaderboard") || "[]"
+        );
+        leaderboard.push({ score, date: new Date().toISOString() });
+        leaderboard.sort((a, b) => b.score - a.score);
+        localStorage.setItem(
+          "leaderboard",
+          JSON.stringify(leaderboard.slice(0, 10))
+        );
+        showLeaderboard();
+      }
+
+      // Show leaderboard
+      function showLeaderboard() {
+        const leaderboard = JSON.parse(
+          localStorage.getItem("leaderboard") || "[]"
+        );
+        const leaderboardElement = document.getElementById("leaderboard");
+        leaderboardElement.innerHTML = "";
+        leaderboard.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.textContent = `#${index + 1}: Score ${entry.score} - ${new Date(
+            entry.date
+          ).toLocaleDateString()}`;
+          leaderboardElement.appendChild(li);
+        });
+      }
+
+      // Check achievements
+      function checkAchievements() {
+        const achievements = JSON.parse(
+          localStorage.getItem("achievements") || "{}"
+        );
+        const mode = document.getElementById("quiz-mode").value;
+        const region = document.getElementById("region").value;
+
+        if (score === currentQuiz.length) {
+          achievements[`${mode}-${region}`] = true;
+          localStorage.setItem("achievements", JSON.stringify(achievements));
+        }
+
+        showAchievements();
+      }
+
+      // Show achievements
+      function showAchievements() {
+        const achievements = JSON.parse(
+          localStorage.getItem("achievements") || "{}"
+        );
+        const achievementsElement = document.getElementById("achievements");
+        achievementsElement.innerHTML = "";
+
+        Object.keys(achievements).forEach((key) => {
+          const [mode, region] = key.split("-");
+          const div = document.createElement("div");
+          div.className = "bg-yellow-200 p-2 rounded text-center";
+          div.textContent = `${mode} ${region} Master`;
+          achievementsElement.appendChild(div);
+        });
+      }
+
+      // Event listeners
+      document.getElementById("submit").addEventListener("click", checkAnswer);
+      document
+        .getElementById("quiz-mode")
+        .addEventListener("change", startQuiz);
+      document.getElementById("region").addEventListener("change", startQuiz);
+
+      // Initialize the app
+      initMap();
+      startQuiz();
+      showLeaderboard();
+      showAchievements();
+    </script>
+  </body>
+</html>
