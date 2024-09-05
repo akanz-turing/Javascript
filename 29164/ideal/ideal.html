@@ -1,293 +1,649 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geography Quiz App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-4">Geography Quiz</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div id="map" class="h-96 bg-white rounded shadow"></div>
-            
-            <div class="bg-white p-4 rounded shadow">
-                <h2 class="text-xl font-semibold mb-4">Current Question</h2>
-                <div id="question" class="mb-4"></div>
-                <div id="options" class="space-y-2"></div>
-                <button id="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit Answer</button>
-            </div>
-        </div>
-        
-        <div class="mt-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Progress</h2>
-            <div class="flex justify-between items-center">
-                <div id="progress-bar" class="w-3/4 bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                </div>
-                <div id="score" class="font-bold">Score: 0</div>
-            </div>
-        </div>
-        
-        <div class="mt-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Select Quiz Mode</h2>
-            <select id="quiz-mode" class="w-full p-2 border rounded">
-                <option value="country-capital">Country to Capital</option>
-                <option value="capital-country">Capital to Country</option>
-                <option value="landmark">Landmark Identification</option>
-            </select>
-        </div>
+      <h1 class="text-3xl font-bold mb-4">Geography Quiz</h1>
 
-        <div class="mt-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Select Region</h2>
-            <select id="region" class="w-full p-2 border rounded">
-                <option value="world">World</option>
-                <option value="africa">Africa</option>
-                <option value="asia">Asia</option>
-                <option value="europe">Europe</option>
-                <option value="north-america">North America</option>
-                <option value="south-america">South America</option>
-                <option value="oceania">Oceania</option>
-            </select>
-        </div>
-        
-        <div class="mt-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Leaderboard</h2>
-            <ul id="leaderboard" class="list-disc pl-5"></ul>
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="map" class="h-96 bg-white rounded shadow"></div>
 
-        <div class="mt-8 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Achievements</h2>
-            <div id="achievements" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+        <div class="bg-white p-4 rounded shadow">
+          <h2 class="text-xl font-semibold mb-4">Current Question</h2>
+          <div id="question" class="mb-4"></div>
+          <div id="options" class="space-y-2"></div>
+          <button
+            id="submit"
+            class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Submit Answer
+          </button>
         </div>
+      </div>
+
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Progress</h2>
+        <div class="flex justify-between items-center">
+          <div id="progress-bar" class="w-3/4 bg-gray-200 rounded-full h-2.5">
+            <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+          </div>
+          <div id="score" class="font-bold">Score: 0</div>
+        </div>
+      </div>
+
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Select Quiz Mode</h2>
+        <select id="quiz-mode" class="w-full p-2 border rounded">
+          <option value="country-capital">Country to Capital</option>
+          <option value="capital-country">Capital to Country</option>
+          <option value="landmark">Landmark Identification</option>
+        </select>
+      </div>
+
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Select Region</h2>
+        <select id="region" class="w-full p-2 border rounded">
+          <option value="world">World</option>
+          <option value="africa">Africa</option>
+          <option value="asia">Asia</option>
+          <option value="europe">Europe</option>
+          <option value="north-america">North America</option>
+          <option value="south-america">South America</option>
+          <option value="oceania">Oceania</option>
+        </select>
+      </div>
+
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Leaderboard</h2>
+        <ul id="leaderboard" class="list-disc pl-5"></ul>
+      </div>
+
+      <div class="mt-8 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Achievements</h2>
+        <div
+          id="achievements"
+          class="grid grid-cols-2 md:grid-cols-4 gap-4"
+        ></div>
+      </div>
+
+      <div class="mt-8">
+        <button
+          id="reset-game"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Reset Game
+        </button>
+      </div>
     </div>
 
     <script>
-        const quizData = {
-            'country-capital': {
-                world: [
-                    { question: 'What is the capital of France?', answer: 'Paris', options: ['London', 'Berlin', 'Paris', 'Madrid'], coordinates: [48.8566, 2.3522] },
-                    { question: 'What is the capital of Japan?', answer: 'Tokyo', options: ['Seoul', 'Beijing', 'Tokyo', 'Bangkok'], coordinates: [35.6762, 139.6503] },
-                    { question: 'What is the capital of Brazil?', answer: 'Brasília', options: ['Rio de Janeiro', 'São Paulo', 'Brasília', 'Buenos Aires'], coordinates: [-15.7801, -47.9292] },
-                ],
-                africa: [
-                    { question: 'What is the capital of Egypt?', answer: 'Cairo', options: ['Alexandria', 'Cairo', 'Luxor', 'Giza'], coordinates: [30.0444, 31.2357] },
-                    { question: 'What is the capital of South Africa?', answer: 'Pretoria', options: ['Cape Town', 'Johannesburg', 'Pretoria', 'Durban'], coordinates: [-25.7479, 28.2293] },
-                ],
-                asia: [
-                    { question: 'What is the capital of China?', answer: 'Beijing', options: ['Shanghai', 'Hong Kong', 'Beijing', 'Guangzhou'], coordinates: [39.9042, 116.4074] },
-                    { question: 'What is the capital of India?', answer: 'New Delhi', options: ['Mumbai', 'Kolkata', 'New Delhi', 'Bangalore'], coordinates: [28.6139, 77.2090] },
-                ],
-                europe: [
-                    { question: 'What is the capital of Germany?', answer: 'Berlin', options: ['Munich', 'Hamburg', 'Berlin', 'Frankfurt'], coordinates: [52.5200, 13.4050] },
-                    { question: 'What is the capital of Spain?', answer: 'Madrid', options: ['Barcelona', 'Seville', 'Madrid', 'Valencia'], coordinates: [40.4168, -3.7038] },
-                ],
-                'north-america': [
-                    { question: 'What is the capital of Canada?', answer: 'Ottawa', options: ['Toronto', 'Vancouver', 'Ottawa', 'Montreal'], coordinates: [45.4215, -75.6972] },
-                    { question: 'What is the capital of Mexico?', answer: 'Mexico City', options: ['Guadalajara', 'Monterrey', 'Mexico City', 'Cancún'], coordinates: [19.4326, -99.1332] },
-                ],
-                'south-america': [
-                    { question: 'What is the capital of Argentina?', answer: 'Buenos Aires', options: ['Córdoba', 'Rosario', 'Buenos Aires', 'Mendoza'], coordinates: [-34.6037, -58.3816] },
-                    { question: 'What is the capital of Peru?', answer: 'Lima', options: ['Cusco', 'Arequipa', 'Lima', 'Trujillo'], coordinates: [-12.0464, -77.0428] },
-                ],
-                oceania: [
-                    { question: 'What is the capital of Australia?', answer: 'Canberra', options: ['Sydney', 'Melbourne', 'Canberra', 'Perth'], coordinates: [-35.2809, 149.1300] },
-                    { question: 'What is the capital of New Zealand?', answer: 'Wellington', options: ['Auckland', 'Christchurch', 'Wellington', 'Hamilton'], coordinates: [-41.2866, 174.7756] },
-                ],
+      const quizData = {
+        "country-capital": {
+          world: [
+            {
+              question: "What is the capital of France?",
+              answer: "Paris",
+              options: ["London", "Berlin", "Paris", "Madrid"],
+              coordinates: [48.8566, 2.3522],
             },
-            'capital-country': {
-                // Similar structure for capital-country questions
+            {
+              question: "What is the capital of Japan?",
+              answer: "Tokyo",
+              options: ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+              coordinates: [35.6762, 139.6503],
             },
-            'landmark': {
-                // Similar structure for landmark questions
-            }
-        };
+            {
+              question: "What is the capital of Brazil?",
+              answer: "Brasília",
+              options: [
+                "Rio de Janeiro",
+                "São Paulo",
+                "Brasília",
+                "Buenos Aires",
+              ],
+              coordinates: [-15.7801, -47.9292],
+            },
+          ],
+          africa: [
+            {
+              question: "What is the capital of Egypt?",
+              answer: "Cairo",
+              options: ["Alexandria", "Cairo", "Luxor", "Giza"],
+              coordinates: [30.0444, 31.2357],
+            },
+            {
+              question: "What is the capital of South Africa?",
+              answer: "Pretoria",
+              options: ["Cape Town", "Johannesburg", "Pretoria", "Durban"],
+              coordinates: [-25.7479, 28.2293],
+            },
+          ],
+          asia: [
+            {
+              question: "What is the capital of China?",
+              answer: "Beijing",
+              options: ["Shanghai", "Hong Kong", "Beijing", "Guangzhou"],
+              coordinates: [39.9042, 116.4074],
+            },
+            {
+              question: "What is the capital of India?",
+              answer: "New Delhi",
+              options: ["Mumbai", "Kolkata", "New Delhi", "Bangalore"],
+              coordinates: [28.6139, 77.209],
+            },
+          ],
+          europe: [
+            {
+              question: "What is the capital of Germany?",
+              answer: "Berlin",
+              options: ["Munich", "Hamburg", "Berlin", "Frankfurt"],
+              coordinates: [52.52, 13.405],
+            },
+            {
+              question: "What is the capital of Spain?",
+              answer: "Madrid",
+              options: ["Barcelona", "Seville", "Madrid", "Valencia"],
+              coordinates: [40.4168, -3.7038],
+            },
+          ],
+          "north-america": [
+            {
+              question: "What is the capital of Canada?",
+              answer: "Ottawa",
+              options: ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+              coordinates: [45.4215, -75.6972],
+            },
+            {
+              question: "What is the capital of Mexico?",
+              answer: "Mexico City",
+              options: ["Guadalajara", "Monterrey", "Mexico City", "Cancún"],
+              coordinates: [19.4326, -99.1332],
+            },
+          ],
+          "south-america": [
+            {
+              question: "What is the capital of Argentina?",
+              answer: "Buenos Aires",
+              options: ["Córdoba", "Rosario", "Buenos Aires", "Mendoza"],
+              coordinates: [-34.6037, -58.3816],
+            },
+            {
+              question: "What is the capital of Peru?",
+              answer: "Lima",
+              options: ["Cusco", "Arequipa", "Lima", "Trujillo"],
+              coordinates: [-12.0464, -77.0428],
+            },
+          ],
+          oceania: [
+            {
+              question: "What is the capital of Australia?",
+              answer: "Canberra",
+              options: ["Sydney", "Melbourne", "Canberra", "Perth"],
+              coordinates: [-35.2809, 149.13],
+            },
+            {
+              question: "What is the capital of New Zealand?",
+              answer: "Wellington",
+              options: ["Auckland", "Christchurch", "Wellington", "Hamilton"],
+              coordinates: [-41.2866, 174.7756],
+            },
+          ],
+        },
+        "capital-country": {
+          world: [
+            {
+              question: "Cairo is the capital of which country?",
+              answer: "Egypt",
+              options: ["Morocco", "Egypt", "Libya", "Sudan"],
+              coordinates: [30.0444, 31.2357],
+            },
+            {
+              question: "Tokyo is the capital of which country?",
+              answer: "Japan",
+              options: ["China", "South Korea", "Japan", "Thailand"],
+              coordinates: [35.6762, 139.6503],
+            },
+            {
+              question: "Berlin is the capital of which country?",
+              answer: "Germany",
+              options: ["France", "Germany", "Poland", "Austria"],
+              coordinates: [52.52, 13.405],
+            },
+          ],
+          africa: [
+            {
+              question: "Nairobi is the capital of which country?",
+              answer: "Kenya",
+              options: ["Tanzania", "Uganda", "Kenya", "Ethiopia"],
+              coordinates: [-1.2921, 36.8219],
+            },
+            {
+              question: "Addis Ababa is the capital of which country?",
+              answer: "Ethiopia",
+              options: ["Somalia", "Sudan", "Ethiopia", "Eritrea"],
+              coordinates: [9.0054, 38.7636],
+            },
+          ],
+          asia: [
+            {
+              question: "Bangkok is the capital of which country?",
+              answer: "Thailand",
+              options: ["Vietnam", "Cambodia", "Thailand", "Malaysia"],
+              coordinates: [13.7563, 100.5018],
+            },
+            {
+              question: "Seoul is the capital of which country?",
+              answer: "South Korea",
+              options: ["North Korea", "Japan", "South Korea", "China"],
+              coordinates: [37.5665, 126.978],
+            },
+          ],
+          europe: [
+            {
+              question: "Rome is the capital of which country?",
+              answer: "Italy",
+              options: ["Spain", "Greece", "Italy", "France"],
+              coordinates: [41.9028, 12.4964],
+            },
+            {
+              question: "Moscow is the capital of which country?",
+              answer: "Russia",
+              options: ["Ukraine", "Belarus", "Russia", "Poland"],
+              coordinates: [55.7558, 37.6173],
+            },
+          ],
+          "north-america": [
+            {
+              question: "Washington D.C. is the capital of which country?",
+              answer: "USA",
+              options: ["Canada", "USA", "Mexico", "Cuba"],
+              coordinates: [38.9072, -77.0369],
+            },
+            {
+              question: "Havana is the capital of which country?",
+              answer: "Cuba",
+              options: ["Jamaica", "Dominican Republic", "Cuba", "Puerto Rico"],
+              coordinates: [23.1136, -82.3666],
+            },
+          ],
+          "south-america": [
+            {
+              question: "Bogotá is the capital of which country?",
+              answer: "Colombia",
+              options: ["Venezuela", "Ecuador", "Colombia", "Peru"],
+              coordinates: [4.711, -74.0721],
+            },
+            {
+              question: "Santiago is the capital of which country?",
+              answer: "Chile",
+              options: ["Argentina", "Peru", "Chile", "Bolivia"],
+              coordinates: [-33.4489, -70.6693],
+            },
+          ],
+          oceania: [
+            {
+              question: "Suva is the capital of which country?",
+              answer: "Fiji",
+              options: ["Samoa", "Fiji", "Vanuatu", "Solomon Islands"],
+              coordinates: [-18.1416, 178.4419],
+            },
+            {
+              question: "Port Moresby is the capital of which country?",
+              answer: "Papua New Guinea",
+              options: [
+                "Indonesia",
+                "East Timor",
+                "Papua New Guinea",
+                "Solomon Islands",
+              ],
+              coordinates: [-9.4438, 147.1803],
+            },
+          ],
+        },
+        landmark: {
+          world: [
+            {
+              question: "In which country is the Eiffel Tower located?",
+              answer: "France",
+              options: ["Italy", "France", "Spain", "Germany"],
+              coordinates: [48.8584, 2.2945],
+            },
+            {
+              question: "Where can you find the Great Wall?",
+              answer: "China",
+              options: ["Japan", "South Korea", "China", "Mongolia"],
+              coordinates: [40.4319, 116.5704],
+            },
+            {
+              question: "Which country is home to the Taj Mahal?",
+              answer: "India",
+              options: ["Pakistan", "India", "Bangladesh", "Nepal"],
+              coordinates: [27.1751, 78.0421],
+            },
+          ],
+          africa: [
+            {
+              question: "In which country are the Pyramids of Giza located?",
+              answer: "Egypt",
+              options: ["Sudan", "Libya", "Egypt", "Algeria"],
+              coordinates: [29.9792, 31.1342],
+            },
+            {
+              question: "Which country is home to Table Mountain?",
+              answer: "South Africa",
+              options: ["Kenya", "Tanzania", "South Africa", "Namibia"],
+              coordinates: [-33.9628, 18.4098],
+            },
+          ],
+          asia: [
+            {
+              question: "In which country is Angkor Wat located?",
+              answer: "Cambodia",
+              options: ["Thailand", "Vietnam", "Cambodia", "Laos"],
+              coordinates: [13.4125, 103.867],
+            },
+            {
+              question: "Which country is home to Mount Fuji?",
+              answer: "Japan",
+              options: ["China", "South Korea", "Japan", "Taiwan"],
+              coordinates: [35.3606, 138.7274],
+            },
+          ],
+          europe: [
+            {
+              question: "In which country is the Colosseum located?",
+              answer: "Italy",
+              options: ["Greece", "Italy", "Spain", "France"],
+              coordinates: [41.8902, 12.4922],
+            },
+            {
+              question: "Which country is home to Stonehenge?",
+              answer: "United Kingdom",
+              options: ["Ireland", "France", "United Kingdom", "Germany"],
+              coordinates: [51.1789, -1.8262],
+            },
+          ],
+          "north-america": [
+            {
+              question: "In which country is the Statue of Liberty located?",
+              answer: "USA",
+              options: ["Canada", "USA", "Mexico", "Cuba"],
+              coordinates: [40.6892, -74.0445],
+            },
+            {
+              question: "Which country is home to Chichen Itza?",
+              answer: "Mexico",
+              options: ["Guatemala", "Honduras", "Mexico", "Belize"],
+              coordinates: [20.6843, -88.5678],
+            },
+          ],
+          "south-america": [
+            {
+              question: "In which country is Machu Picchu located?",
+              answer: "Peru",
+              options: ["Bolivia", "Ecuador", "Peru", "Colombia"],
+              coordinates: [-13.1631, -72.545],
+            },
+            {
+              question: "Which country is home to Christ the Redeemer statue?",
+              answer: "Brazil",
+              options: ["Argentina", "Chile", "Brazil", "Venezuela"],
+              coordinates: [-22.9519, -43.2105],
+            },
+          ],
+          oceania: [
+            {
+              question: "In which country is the Sydney Opera House located?",
+              answer: "Australia",
+              options: ["New Zealand", "Australia", "Fiji", "Papua New Guinea"],
+              coordinates: [-33.8568, 151.2153],
+            },
+            {
+              question: "Which country is home to Uluru (Ayers Rock)?",
+              answer: "Australia",
+              options: ["New Zealand", "Australia", "Indonesia", "Vanuatu"],
+              coordinates: [-25.3444, 131.0369],
+            },
+          ],
+        },
+      };
 
-        let currentQuiz = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let map;
-        let marker;
+      let currentQuiz = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let map;
+      let marker;
 
-        function initMap() {
-            map = L.map('map').setView([0, 0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+      function initMap() {
+        map = L.map("map").setView([0, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+      }
+
+      function startQuiz() {
+        const mode = document.getElementById("quiz-mode").value;
+        const region = document.getElementById("region").value;
+        currentQuiz = quizData[mode][region] || quizData[mode]["world"];
+        currentQuestionIndex = 0;
+        score = 0;
+        if (currentQuiz && currentQuiz.length > 0) {
+          loadQuestion();
+          updateProgress();
+        } else {
+          alert(
+            "No questions available for this combination. Try a different mode or region."
+          );
+          return;
+        }
+      }
+
+      function loadQuestion() {
+        if (currentQuestionIndex >= currentQuiz.length) {
+          endQuiz();
+          return;
+        }
+        const question = currentQuiz[currentQuestionIndex];
+        document.getElementById("question").textContent = question.question;
+        const optionsContainer = document.getElementById("options");
+        optionsContainer.innerHTML = "";
+        question.options.forEach((option) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.className = "w-full p-2 bg-gray-200 rounded hover:bg-gray-300";
+          button.onclick = () => selectOption(option);
+          optionsContainer.appendChild(button);
+        });
+
+        if (marker) map.removeLayer(marker);
+        map.setView(question.coordinates, 5);
+        marker = L.marker(question.coordinates).addTo(map);
+      }
+
+      function selectOption(option) {
+        const buttons = document.querySelectorAll("#options button");
+        buttons.forEach((button) => {
+          button.classList.remove("bg-blue-500", "text-white");
+          if (button.textContent === option) {
+            button.classList.add("bg-blue-500", "text-white");
+          }
+        });
+      }
+
+      function checkAnswer() {
+        const selectedButton = document.querySelector(
+          "#options button.bg-blue-500"
+        );
+        if (!selectedButton) return;
+
+        const userAnswer = selectedButton.textContent;
+        const correctAnswer = currentQuiz[currentQuestionIndex].answer;
+
+        if (userAnswer === correctAnswer) {
+          score++;
+          selectedButton.classList.add("bg-green-500");
+        } else {
+          selectedButton.classList.add("bg-red-500");
+          document
+            .querySelector(`#options button:contains('${correctAnswer}')`)
+            .classList.add("bg-green-500");
         }
 
-        function startQuiz() {
-            const mode = document.getElementById('quiz-mode').value;
-            const region = document.getElementById('region').value;
-            currentQuiz = quizData[mode][region] || quizData[mode]['world'];
-            currentQuestionIndex = 0;
-            score = 0;
-            loadQuestion();
-            updateProgress();
+        setTimeout(() => {
+          currentQuestionIndex++;
+          loadQuestion();
+          updateProgress();
+        }, 1000);
+      }
+
+      function updateProgress() {
+        const progressBar = document.querySelector("#progress-bar > div");
+        const progress = (currentQuestionIndex / currentQuiz.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        document.getElementById("score").textContent = `Score: ${score}`;
+      }
+
+      function endQuiz() {
+        alert(`Quiz completed! Your score: ${score}/${currentQuiz.length}`);
+        updateLeaderboard();
+        checkAchievements();
+      }
+
+      function updateLeaderboard() {
+        try {
+          let leaderboard = JSON.parse(
+            localStorage.getItem("leaderboard") || "[]"
+          );
+          if (!Array.isArray(leaderboard)) {
+            leaderboard = [];
+          }
+          const mode = document.getElementById("quiz-mode").value;
+          const region = document.getElementById("region").value;
+          const entry = { score, mode, region, date: new Date().toISOString() };
+          leaderboard.push(entry);
+          leaderboard.sort((a, b) => b.score - a.score);
+          leaderboard = leaderboard.slice(0, 10);
+          localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+          showLeaderboard();
+        } catch (error) {
+          console.error("Error updating leaderboard:", error);
+          localStorage.setItem("leaderboard", "[]");
         }
+      }
 
-        function loadQuestion() {
-            if (currentQuestionIndex >= currentQuiz.length) {
-                endQuiz();
-                return;
-            }
-            const question = currentQuiz[currentQuestionIndex];
-            document.getElementById('question').textContent = question.question;
-            const optionsContainer = document.getElementById('options');
-            optionsContainer.innerHTML = '';
-            question.options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.className = 'w-full p-2 bg-gray-200 rounded hover:bg-gray-300';
-                button.onclick = () => selectOption(option);
-                optionsContainer.appendChild(button);
-            });
-            
-            if (marker) map.removeLayer(marker);
-            map.setView(question.coordinates, 5);
-            marker = L.marker(question.coordinates).addTo(map);
+      function showLeaderboard() {
+        try {
+          let leaderboard = JSON.parse(
+            localStorage.getItem("leaderboard") || "[]"
+          );
+          if (!Array.isArray(leaderboard)) {
+            leaderboard = [];
+          }
+          const leaderboardElement = document.getElementById("leaderboard");
+          leaderboardElement.innerHTML = "";
+          leaderboard.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `#${index + 1}: Score ${entry.score} - ${
+              entry.mode
+            } (${entry.region}) - ${new Date(entry.date).toLocaleDateString()}`;
+            leaderboardElement.appendChild(li);
+          });
+        } catch (error) {
+          console.error("Error displaying leaderboard:", error);
+          localStorage.setItem("leaderboard", "[]");
         }
+      }
 
-        function selectOption(option) {
-            const buttons = document.querySelectorAll('#options button');
-            buttons.forEach(button => {
-                button.classList.remove('bg-blue-500', 'text-white');
-                if (button.textContent === option) {
-                    button.classList.add('bg-blue-500', 'text-white');
-                }
-            });
+      function checkAchievements() {
+        try {
+          let achievements = JSON.parse(
+            localStorage.getItem("achievements") || "{}"
+          );
+          if (typeof achievements !== "object") {
+            achievements = {};
+          }
+          const mode = document.getElementById("quiz-mode").value;
+          const region = document.getElementById("region").value;
+
+          if (score === currentQuiz.length) {
+            const achievementKey = `${mode}-${region}`;
+            achievements[achievementKey] = true;
+            localStorage.setItem("achievements", JSON.stringify(achievements));
+          }
+
+          showAchievements();
+        } catch (error) {
+          console.error("Error checking achievements:", error);
+          localStorage.setItem("achievements", "{}");
         }
+      }
 
-        function checkAnswer() {
-            const selectedButton = document.querySelector('#options button.bg-blue-500');
-            if (!selectedButton) return;
+      function showAchievements() {
+        try {
+          let achievements = JSON.parse(
+            localStorage.getItem("achievements") || "{}"
+          );
+          if (typeof achievements !== "object") {
+            achievements = {};
+          }
+          const achievementsElement = document.getElementById("achievements");
+          achievementsElement.innerHTML = "";
 
-            const userAnswer = selectedButton.textContent;
-            const correctAnswer = currentQuiz[currentQuestionIndex].answer;
-            
-            if (userAnswer === correctAnswer) {
-                score++;
-                selectedButton.classList.add('bg-green-500');
-            } else {
-                selectedButton.classList.add('bg-red-500');
-                document.querySelector(`#options button:contains('${correctAnswer}')`).classList.add('bg-green-500');
-            }
-
-            setTimeout(() => {
-                currentQuestionIndex++;
-                loadQuestion();
-                updateProgress();
-            }, 1000);
+          Object.keys(achievements).forEach((key) => {
+            const [mode, region] = key.split("-");
+            const div = document.createElement("div");
+            div.className = "bg-yellow-200 p-2 rounded text-center";
+            div.textContent = `${mode} ${region} Master`;
+            achievementsElement.appendChild(div);
+          });
+        } catch (error) {
+          console.error("Error displaying achievements:", error);
+          localStorage.setItem("achievements", "{}");
         }
+      }
 
-        function updateProgress() {
-            const progressBar = document.querySelector('#progress-bar > div');
-            const progress = (currentQuestionIndex / currentQuiz.length) * 100;
-            progressBar.style.width = `${progress}%`;
-            document.getElementById('score').textContent = `Score: ${score}`;
+      function resetGame() {
+        if (
+          confirm(
+            "Are you sure you want to reset the game? This will clear all progress, leaderboard, and achievements."
+          )
+        ) {
+          localStorage.removeItem("leaderboard");
+          localStorage.removeItem("achievements");
+          currentQuiz = [];
+          currentQuestionIndex = 0;
+          score = 0;
+          updateProgress();
+          showLeaderboard();
+          showAchievements();
+          startQuiz();
+          alert("Game reset successfully!");
         }
+      }
 
-        function endQuiz() {
-            alert(`Quiz completed! Your score: ${score}/${currentQuiz.length}`);
-            updateLeaderboard();
-            checkAchievements();
-        }
+      document.getElementById("submit").addEventListener("click", checkAnswer);
+      document
+        .getElementById("quiz-mode")
+        .addEventListener("change", startQuiz);
+      document.getElementById("region").addEventListener("change", startQuiz);
+      document
+        .getElementById("reset-game")
+        .addEventListener("click", resetGame);
 
-        function updateLeaderboard() {
-            try {
-                let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-                if (!Array.isArray(leaderboard)) {
-                    leaderboard = [];
-                }
-                const mode = document.getElementById('quiz-mode').value;
-                const region = document.getElementById('region').value;
-                const entry = { score, mode, region, date: new Date().toISOString() };
-                leaderboard.push(entry);
-                leaderboard.sort((a, b) => b.score - a.score);
-                leaderboard = leaderboard.slice(0, 10);
-                localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-                showLeaderboard();
-            } catch (error) {
-                console.error('Error updating leaderboard:', error);
-                localStorage.setItem('leaderboard', '[]');
-            }
-        }
-
-        function showLeaderboard() {
-            try {
-                let leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-                if (!Array.isArray(leaderboard)) {
-                    leaderboard = [];
-                }
-                const leaderboardElement = document.getElementById('leaderboard');
-                leaderboardElement.innerHTML = '';
-                leaderboard.forEach((entry, index) => {
-                    const li = document.createElement('li');
-                    li.textContent = `#${index + 1}: Score ${entry.score} - ${entry.mode} (${entry.region}) - ${new Date(entry.date).toLocaleDateString()}`;
-                    leaderboardElement.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error displaying leaderboard:', error);
-                localStorage.setItem('leaderboard', '[]');
-            }
-        }
-
-        function checkAchievements() {
-            try {
-                let achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
-                if (typeof achievements !== 'object') {
-                    achievements = {};
-                }
-                const mode = document.getElementById('quiz-mode').value;
-                const region = document.getElementById('region').value;
-
-                if (score === currentQuiz.length) {
-                    const achievementKey = `${mode}-${region}`;
-                    achievements[achievementKey] = true;
-                    localStorage.setItem('achievements', JSON.stringify(achievements));
-                }
-
-                showAchievements();
-            } catch (error) {
-                console.error('Error checking achievements:', error);
-                localStorage.setItem('achievements', '{}');
-            }
-        }
-
-        function showAchievements() {
-            try {
-                let achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
-                if (typeof achievements !== 'object') {
-                    achievements = {};
-                }
-                const achievementsElement = document.getElementById('achievements');
-                achievementsElement.innerHTML = '';
-                
-                Object.keys(achievements).forEach(key => {
-                    const [mode, region] = key.split('-');
-                    const div = document.createElement('div');
-                    div.className = 'bg-yellow-200 p-2 rounded text-center';
-                    div.textContent = `${mode} ${region} Master`;
-                    achievementsElement.appendChild(div);
-                });
-            } catch (error) {
-                console.error('Error displaying achievements:', error);
-                localStorage.setItem('achievements', '{}');
-            }
-        }
-
-        document.getElementById('submit').addEventListener('click', checkAnswer);
-        document.getElementById('quiz-mode').addEventListener('change', startQuiz);
-        document.getElementById('region').addEventListener('change', startQuiz);
-
-        initMap();
-        startQuiz();
-        showLeaderboard();
-        showAchievements();
+      initMap();
+      startQuiz();
+      showLeaderboard();
+      showAchievements();
     </script>
-</body>
+  </body>
 </html>
