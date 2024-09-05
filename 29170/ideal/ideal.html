@@ -6,49 +6,100 @@
     <title>Interactive Periodic Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
   </head>
-  <body class="bg-gray-100">
+  <body
+    class="bg-gray-100 text-black dark:bg-gray-900 dark:text-white transition-colors duration-200"
+  >
     <div class="container mx-auto p-4">
       <h1 class="text-3xl font-bold mb-4">Interactive Periodic Table</h1>
 
-      <div class="flex space-x-4 mb-4">
+      <div class="flex flex-wrap gap-2 mb-4">
         <button
           id="filterMetal"
-          class="px-4 py-2 bg-blue-500 text-white rounded"
+          class="px-3 py-1 bg-blue-500 text-white rounded text-sm"
         >
           Filter Metals
         </button>
         <button
+          id="filterNonmetal"
+          class="px-3 py-1 bg-green-500 text-white rounded text-sm"
+        >
+          Filter Non-metals
+        </button>
+        <button
+          id="filterNobleGas"
+          class="px-3 py-1 bg-yellow-500 text-white rounded text-sm"
+        >
+          Filter Noble Gases
+        </button>
+        <button
+          id="filterSolid"
+          class="px-3 py-1 bg-red-500 text-white rounded text-sm"
+        >
+          Filter Solids
+        </button>
+        <button
+          id="filterLiquid"
+          class="px-3 py-1 bg-purple-500 text-white rounded text-sm"
+        >
+          Filter Liquids
+        </button>
+        <button
           id="filterGas"
-          class="px-4 py-2 bg-green-500 text-white rounded"
+          class="px-3 py-1 bg-indigo-500 text-white rounded text-sm"
         >
           Filter Gases
         </button>
         <button
-          id="toggleQuiz"
-          class="px-4 py-2 bg-purple-500 text-white rounded"
+          id="resetFilters"
+          class="px-3 py-1 bg-gray-500 text-white rounded text-sm"
         >
-          Toggle Quiz Mode
+          Reset Filters
+        </button>
+        <button
+          id="toggleTrends"
+          class="px-3 py-1 bg-teal-500 text-white rounded text-sm"
+        >
+          Toggle Trends
         </button>
         <button
           id="toggleDarkMode"
-          class="px-4 py-2 bg-gray-500 text-white rounded"
+          class="px-3 py-1 bg-gray-700 text-white rounded text-sm"
         >
           Toggle Dark Mode
         </button>
       </div>
 
-      <div id="periodicTable" class="grid grid-cols-18 gap-1"></div>
-
-      <div id="elementInfo" class="mt-4 p-4 border rounded hidden"></div>
-
-      <div id="quizSection" class="mt-4 hidden">
-        <h2 class="text-2xl font-bold">Quiz Mode</h2>
-        <p>Quiz content would go here...</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div id="periodicTable" class="grid grid-cols-18 gap-1 mb-4"></div>
+          <div id="elementInfo" class="mt-4 p-4 border rounded hidden"></div>
+        </div>
+        <div>
+          <div class="mt-4">
+            <canvas id="trendChart" width="400" height="200"></canvas>
+          </div>
+        </div>
       </div>
 
-      <div class="mt-4">
-        <canvas id="trendChart" width="400" height="200"></canvas>
+      <div id="chemistryFacts" class="mt-8 p-4 border rounded">
+        <h2 class="text-2xl font-bold mb-2">Chemistry Fact of the Moment</h2>
+        <p id="factDisplay" class="mb-2"></p>
+        <button
+          id="newFactButton"
+          class="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          New Fact
+        </button>
+      </div>
+      <div id="externalResources" class="mt-4">
+        <h2 class="text-2xl font-bold mb-2">External Resources</h2>
+        <ul id="resourceList" class="list-disc pl-5"></ul>
       </div>
     </div>
 
@@ -61,6 +112,9 @@
           atomicMass: 1.008,
           group: "Nonmetal",
           state: "Gas",
+          atomicRadius: 53,
+          electronegativity: 2.2,
+          ionizationEnergy: 1312,
         },
         {
           symbol: "He",
@@ -69,19 +123,53 @@
           atomicMass: 4.003,
           group: "Noble Gas",
           state: "Gas",
+          atomicRadius: 31,
+          electronegativity: null,
+          ionizationEnergy: 2372,
         },
         // Add more elements here...
       ];
 
-      const periodicTable = document.getElementById("periodicTable");
-      const elementInfo = document.getElementById("elementInfo");
-      const quizSection = document.getElementById("quizSection");
+      const chemistryFacts = [
+        "The only letter that doesn't appear on the periodic table is J.",
+        "The human body contains enough carbon to make 900 pencils.",
+        "If you could remove all empty space from the atoms that make up every human on earth, the entire world population could fit into an apple.",
+        "The chemical name for water (H2O) is dihydrogen monoxide.",
+        "Diamonds and graphite are both made from pure carbon, but have very different properties due to their crystal structure.",
+        "Gold is edible. Some Asian countries put gold in fruit, jelly snacks, coffee, and tea.",
+        "The rarest naturally occurring element in the Earth's crust is astatine.",
+        "Helium is the only element that was discovered in space before it was found on Earth.",
+        "Oxygen is the most abundant element in the Earth's crust, making up almost half of it by mass.",
+        "The inventor of the periodic table, Dmitri Mendeleev, used the game of solitaire to arrange the elements.",
+        "Gallium, a metal used in semiconductors, can melt in your hand as its melting point is only about 85.6°F (29.8°C).",
+        "Caesium is the softest metal and can be cut with a butter knife.",
+        "The noble gases were originally called 'inert gases' because scientists thought they didn't react with anything.",
+        "Phosphorus was discovered by an alchemist looking for the philosopher's stone.",
+        "Marie Curie's notebooks are still radioactive and will be for another 1500 years.",
+      ];
+
+      function displayRandomFact() {
+        const factDisplay = document.getElementById("factDisplay");
+        const randomIndex = Math.floor(Math.random() * chemistryFacts.length);
+        factDisplay.textContent = chemistryFacts[randomIndex];
+      }
+      let currentTrend = "atomicRadius";
+
+      function initApp() {
+        createPeriodicTable();
+        updateTrendChart("atomicRadius");
+        populateExternalResources();
+        attachEventListeners();
+        loadDarkModePreference();
+        handleResponsiveDesign();
+      }
 
       function createPeriodicTable() {
+        const periodicTable = document.getElementById("periodicTable");
         periodicTableData.forEach((element) => {
           const elementDiv = document.createElement("div");
           elementDiv.className =
-            "p-2 border rounded cursor-pointer hover:bg-gray-200";
+            "p-2 border rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200";
           elementDiv.innerHTML = `
                     <div class="text-xs">${element.atomicNumber}</div>
                     <div class="text-xl font-bold">${element.symbol}</div>
@@ -93,78 +181,209 @@
       }
 
       function showElementInfo(element) {
+        const elementInfo = document.getElementById("elementInfo");
         elementInfo.innerHTML = `
                 <h2 class="text-2xl font-bold">${element.name}</h2>
-                <p>Symbol: ${element.symbol}</p>
-                <p>Atomic Number: ${element.atomicNumber}</p>
-                <p>Atomic Mass: ${element.atomicMass}</p>
-                <p>Group: ${element.group}</p>
-                <p>State: ${element.state}</p>
+                <p><strong>Symbol:</strong> ${element.symbol}</p>
+                <p><strong>Atomic Number:</strong> ${element.atomicNumber}</p>
+                <p><strong>Atomic Mass:</strong> ${element.atomicMass}</p>
+                <p><strong>Group:</strong> ${element.group}</p>
+                <p><strong>State:</strong> ${element.state}</p>
+                <p><strong>Atomic Radius:</strong> ${
+                  element.atomicRadius
+                } pm</p>
+                <p><strong>Electronegativity:</strong> ${
+                  element.electronegativity || "N/A"
+                }</p>
+                <p><strong>Ionization Energy:</strong> ${
+                  element.ionizationEnergy
+                } kJ/mol</p>
             `;
         elementInfo.classList.remove("hidden");
       }
 
-      document
-        .getElementById("filterMetal")
-        .addEventListener("click", () => filterElements("Metal"));
-      document
-        .getElementById("filterGas")
-        .addEventListener("click", () => filterElements("Gas"));
-
-      function filterElements(filterType) {
-        const elements = periodicTable.children;
+      function filterElements(filterType, filterValue) {
+        const elements = document.getElementById("periodicTable").children;
         for (let element of elements) {
           const elementData = periodicTableData.find(
             (e) => e.symbol === element.querySelector(".text-xl").textContent
           );
-          if (
-            elementData.group.includes(filterType) ||
-            elementData.state === filterType
-          ) {
-            element.classList.add("bg-yellow-200");
+          if (elementData[filterType] === filterValue) {
+            element.classList.add("bg-yellow-200", "dark:bg-yellow-900");
           } else {
-            element.classList.remove("bg-yellow-200");
+            element.classList.remove("bg-yellow-200", "dark:bg-yellow-900");
           }
         }
       }
 
-      document.getElementById("toggleQuiz").addEventListener("click", () => {
-        quizSection.classList.toggle("hidden");
-      });
+      function resetFilters() {
+        const elements = document.getElementById("periodicTable").children;
+        for (let element of elements) {
+          element.classList.remove("bg-yellow-200", "dark:bg-yellow-900");
+          element.style.backgroundColor = "";
+          element.style.color = "";
+        }
+      }
 
-      document
-        .getElementById("toggleDarkMode")
-        .addEventListener("click", () => {
-          document.body.classList.toggle("bg-gray-900");
-          document.body.classList.toggle("text-white");
-        });
+      function toggleTrends() {
+        const trends = [
+          "atomicRadius",
+          "electronegativity",
+          "ionizationEnergy",
+        ];
+        const currentIndex = trends.indexOf(currentTrend);
+        currentTrend = trends[(currentIndex + 1) % trends.length];
+        updateTrendChart(currentTrend);
+        setTrendColors(currentTrend);
+      }
 
-      // Create trend chart
-      const ctx = document.getElementById("trendChart").getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: periodicTableData.slice(0, 10).map((e) => e.symbol),
-          datasets: [
-            {
-              label: "Atomic Mass",
-              data: periodicTableData.slice(0, 10).map((e) => e.atomicMass),
-              borderColor: "rgb(75, 192, 192)",
-              tension: 0.1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
+      function setTrendColors(property) {
+        const elements = document.getElementById("periodicTable").children;
+        const values = periodicTableData
+          .map((e) => e[property])
+          .filter((v) => v !== null);
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+
+        for (let elementDiv of elements) {
+          const element = periodicTableData.find(
+            (e) => e.symbol === elementDiv.querySelector(".text-xl").textContent
+          );
+          if (element[property] !== null) {
+            const normalizedValue =
+              (element[property] - minValue) / (maxValue - minValue);
+            const hue = 240 - normalizedValue * 240; // Blue to Red
+            elementDiv.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+            elementDiv.style.color = normalizedValue > 0.5 ? "white" : "black";
+          }
+        }
+      }
+
+      function updateTrendChart(property) {
+        const ctx = document.getElementById("trendChart").getContext("2d");
+        const data = periodicTableData.filter((e) => e[property] !== null);
+
+        if (window.trendChartInstance) {
+          window.trendChartInstance.destroy();
+        }
+
+        window.trendChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: data.map((e) => e.symbol),
+            datasets: [
+              {
+                label: property.charAt(0).toUpperCase() + property.slice(1),
+                data: data.map((e) => e[property]),
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
             },
           },
-        },
-      });
+        });
+      }
 
-      createPeriodicTable();
+      function toggleDarkMode() {
+        document.documentElement.classList.toggle("dark");
+        const isDarkMode = document.documentElement.classList.contains("dark");
+        localStorage.setItem("darkMode", isDarkMode);
+      }
+
+      function loadDarkModePreference() {
+        if (localStorage.getItem("darkMode") === "true") {
+          document.documentElement.classList.add("dark");
+        }
+      }
+
+      function handleResponsiveDesign() {
+        const width = window.innerWidth;
+        const periodicTable = document.getElementById("periodicTable");
+        if (width < 640) {
+          // mobile
+          periodicTable.className = "grid grid-cols-9 gap-1 mb-4";
+        } else if (width < 1024) {
+          // tablet
+          periodicTable.className = "grid grid-cols-13 gap-1 mb-4";
+        } else {
+          // desktop
+          periodicTable.className = "grid grid-cols-18 gap-1 mb-4";
+        }
+      }
+
+      function populateExternalResources() {
+        const resources = [
+          {
+            name: "Royal Society of Chemistry - Periodic Table",
+            url: "https://www.rsc.org/periodic-table",
+          },
+          {
+            name: "Khan Academy - Chemistry",
+            url: "https://www.khanacademy.org/science/chemistry",
+          },
+          { name: "Chemistry LibreTexts", url: "https://chem.libretexts.org/" },
+        ];
+
+        const resourceList = document.getElementById("resourceList");
+        resources.forEach((resource) => {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = resource.url;
+          a.textContent = resource.name;
+          a.className = "text-blue-500 hover:underline";
+          a.target = "_blank";
+          li.appendChild(a);
+          resourceList.appendChild(li);
+        });
+      }
+
+      function attachEventListeners() {
+        document
+          .getElementById("filterMetal")
+          .addEventListener("click", () => filterElements("group", "Metal"));
+        document
+          .getElementById("filterNonmetal")
+          .addEventListener("click", () => filterElements("group", "Nonmetal"));
+        document
+          .getElementById("filterNobleGas")
+          .addEventListener("click", () =>
+            filterElements("group", "Noble Gas")
+          );
+        document
+          .getElementById("filterSolid")
+          .addEventListener("click", () => filterElements("state", "Solid"));
+        document
+          .getElementById("filterLiquid")
+          .addEventListener("click", () => filterElements("state", "Liquid"));
+        document
+          .getElementById("filterGas")
+          .addEventListener("click", () => filterElements("state", "Gas"));
+        document
+          .getElementById("resetFilters")
+          .addEventListener("click", resetFilters);
+        document
+          .getElementById("toggleTrends")
+          .addEventListener("click", toggleTrends);
+        document
+          .getElementById("toggleDarkMode")
+          .addEventListener("click", toggleDarkMode);
+        document
+          .getElementById("newFactButton")
+          .addEventListener("click", displayRandomFact);
+      }
+
+      // Initialize the application
+      document.addEventListener("DOMContentLoaded", () => {
+        initApp();
+        window.addEventListener("resize", handleResponsiveDesign);
+      });
     </script>
   </body>
 </html>
