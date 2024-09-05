@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Four in a Row</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --background-color: #ecf0f1;
+        --text-color: #2c3e50;
+        --player1-color: #e74c3c;
+        --player2-color: #f1c40f;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      .game-container {
+        text-align: center;
+      }
+
+      .board {
+        display: inline-grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        background-color: var(--primary-color);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .cell {
+        width: 50px;
+        height: 50px;
+        background-color: var(--background-color);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .cell.player1 {
+        background-color: var(--player1-color);
+      }
+      .cell.player2 {
+        background-color: var(--player2-color);
+      }
+
+      .player-info {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+      }
+
+      .player {
+        padding: 10px 20px;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .player.active {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+      }
+
+      .player1 {
+        background-color: var(--player1-color);
+      }
+      .player2 {
+        background-color: var(--player2-color);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content {
+        background-color: var(--background-color);
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 400px;
+      }
+
+      input,
+      button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+      }
+
+      button {
+        background-color: var(--secondary-color);
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #27ae60;
+      }
+
+      @media (max-width: 600px) {
+        .cell {
+          width: 40px;
+          height: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+        <h1>Four in a row</h1>
+      <div class="player-info">
+        <div class="player player1" id="player1">Player 1</div>
+        <div class="player player2" id="player2">Player 2</div>
+      </div>
+      <div class="board" id="board"></div>
+    </div>
+
+    <div id="startModal" class="modal">
+      <div class="modal-content">
+        <input type="text" id="player1Name" placeholder="Player 1 Name" />
+        <input type="text" id="player2Name" placeholder="Player 2 Name" />
+        <button id="startGame">Start Game</button>
+      </div>
+    </div>
+
+    <div id="winnerModal" class="modal">
+      <div class="modal-content">
+        <h2 id="winnerMessage"></h2>
+        <button id="playAgain">Play Again</button>
+      </div>
+    </div>
+
+    <script>
+      const board = document.getElementById("board");
+      const player1El = document.getElementById("player1");
+      const player2El = document.getElementById("player2");
+      const startModal = document.getElementById("startModal");
+      const winnerModal = document.getElementById("winnerModal");
+      const winnerMessage = document.getElementById("winnerMessage");
+      const playAgainBtn = document.getElementById("playAgain");
+      const startGameBtn = document.getElementById("startGame");
+      const player1NameInput = document.getElementById("player1Name");
+      const player2NameInput = document.getElementById("player2Name");
+
+      let currentPlayer = 1;
+      let gameBoard = Array(6)
+        .fill()
+        .map(() => Array(7).fill(0));
+      let gameActive = true;
+      let player1Name = "Player 1";
+      let player2Name = "Player 2";
+
+      function createBoard() {
+        for (let row = 0; row < 6; row++) {
+          for (let col = 0; col < 7; col++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            board.appendChild(cell);
+          }
+        }
+      }
+
+      function dropPiece(col) {
+        if (!gameActive) return;
+
+        for (let row = 5; row >= 0; row--) {
+          if (gameBoard[row][col] === 0) {
+            gameBoard[row][col] = currentPlayer;
+            animateDrop(row, col);
+            if (checkWin(row, col)) {
+              gameActive = false;
+              setTimeout(() => showWinner(), 500);
+            } else {
+              currentPlayer = currentPlayer === 1 ? 2 : 1;
+              updatePlayerInfo();
+            }
+            return;
+          }
+        }
+      }
+
+      function animateDrop(row, col) {
+        const cell = document.querySelector(
+          `.cell[data-row="${row}"][data-col="${col}"]`
+        );
+        cell.classList.add(currentPlayer === 1 ? "player1" : "player2");
+        anime({
+          targets: cell,
+          backgroundColor: currentPlayer === 1 ? "#e74c3c" : "#f1c40f",
+          duration: 300,
+          easing: "easeOutBounce",
+        });
+      }
+
+      function checkWin(row, col) {
+        const directions = [
+          [0, 1], // Horizontal
+          [1, 0], // Vertical
+          [1, 1], // Diagonal down-right
+          [1, -1], // Diagonal down-left
+        ];
+
+        for (const [dr, dc] of directions) {
+          if (countConsecutive(row, col, dr, dc) >= 4) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function countConsecutive(row, col, dr, dc) {
+        const player = gameBoard[row][col];
+        let count = 1;
+
+        // Check in positive direction
+        for (let i = 1; i < 4; i++) {
+          const r = row + i * dr;
+          const c = col + i * dc;
+          if (r < 0 || r >= 6 || c < 0 || c >= 7 || gameBoard[r][c] !== player)
+            break;
+          count++;
+        }
+
+        // Check in negative direction
+        for (let i = 1; i < 4; i++) {
+          const r = row - i * dr;
+          const c = col - i * dc;
+          if (r < 0 || r >= 6 || c < 0 || c >= 7 || gameBoard[r][c] !== player)
+            break;
+          count++;
+        }
+
+        return count;
+      }
+
+      function updatePlayerInfo() {
+        player1El.classList.toggle("active", currentPlayer === 1);
+        player2El.classList.toggle("active", currentPlayer === 2);
+      }
+
+      function showWinner() {
+        const winner = currentPlayer === 1 ? player1Name : player2Name;
+        winnerMessage.textContent = `${winner} wins!`;
+        winnerModal.style.display = "block";
+      }
+
+      function resetGame() {
+        gameBoard = Array(6)
+          .fill()
+          .map(() => Array(7).fill(0));
+        currentPlayer = 1;
+        gameActive = true;
+        updatePlayerInfo();
+        const cells = document.querySelectorAll(".cell");
+        cells.forEach((cell) => {
+          cell.style.backgroundColor = "";
+          cell.classList.remove("player1", "player2");
+        });
+        winnerModal.style.display = "none";
+      }
+
+      board.addEventListener("click", (e) => {
+        if (e.target.classList.contains("cell")) {
+          const col = parseInt(e.target.dataset.col);
+          dropPiece(col);
+        }
+      });
+
+      playAgainBtn.addEventListener("click", resetGame);
+
+      startGameBtn.addEventListener("click", () => {
+        player1Name = player1NameInput.value || "Player 1";
+        player2Name = player2NameInput.value || "Player 2";
+        player1El.textContent = player1Name;
+        player2El.textContent = player2Name;
+        startModal.style.display = "none";
+        resetGame();
+      });
+
+      createBoard();
+      startModal.style.display = "block";
+      updatePlayerInfo();
+    </script>
+  </body>
+</html>
