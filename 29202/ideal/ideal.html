@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Economics Course: Supply and Demand</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Add any additional custom styles here */
+      .dark-mode {
+        @apply bg-gray-900 text-white;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-6">
+        Interactive Economics Course: Supply and Demand
+      </h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Graph Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Supply and Demand Graph</h2>
+          <canvas id="supplyDemandChart"></canvas>
+          <div class="mt-4">
+            <p>Equilibrium Price: <span id="equilibriumPrice"></span></p>
+            <p>Equilibrium Quantity: <span id="equilibriumQuantity"></span></p>
+            <p>Consumer Surplus: <span id="consumerSurplus"></span></p>
+            <p>Producer Surplus: <span id="producerSurplus"></span></p>
+          </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-xl font-semibold mb-4">Adjust Market Variables</h2>
+          <div class="space-y-4">
+            <div>
+              <label for="productionCost" class="block mb-2"
+                >Production Cost:</label
+              >
+              <input
+                type="range"
+                id="productionCost"
+                min="0"
+                max="100"
+                value="50"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label for="consumerPreference" class="block mb-2"
+                >Consumer Preference:</label
+              >
+              <input
+                type="range"
+                id="consumerPreference"
+                min="0"
+                max="100"
+                value="50"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label for="incomeLevel" class="block mb-2">Income Level:</label>
+              <input
+                type="range"
+                id="incomeLevel"
+                min="0"
+                max="100"
+                value="50"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <h3 class="text-lg font-semibold mt-6 mb-2">
+            Government Interventions
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <label for="priceCeiling" class="block mb-2"
+                >Price Ceiling:</label
+              >
+              <input
+                type="range"
+                id="priceCeiling"
+                min="0"
+                max="100"
+                value="0"
+                class="w-full"
+              />
+            </div>
+            <div>
+              <label for="priceFloor" class="block mb-2">Price Floor:</label>
+              <input
+                type="range"
+                id="priceFloor"
+                min="0"
+                max="100"
+                value="0"
+                class="w-full"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning Cards Section -->
+      <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">Learning Cards</h2>
+        <div
+          id="learningCards"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          <!-- Learning cards will be dynamically inserted here -->
+        </div>
+      </div>
+
+      <!-- Elasticity Tool -->
+      <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold mb-4">
+          Price Elasticity Visualization
+        </h2>
+        <canvas id="elasticityChart"></canvas>
+        <div class="mt-4">
+          <label for="priceChange" class="block mb-2">Price Change:</label>
+          <input
+            type="range"
+            id="priceChange"
+            min="-50"
+            max="50"
+            value="0"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <!-- Dark Mode Toggle -->
+      <div class="mt-8 text-right">
+        <button
+          id="darkModeToggle"
+          class="bg-gray-800 text-white px-4 py-2 rounded"
+        >
+          Toggle Dark Mode
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript code will be added here to handle interactivity and graph updates
+      // This will include Chart.js configurations, event listeners for sliders,
+      // functions to update graphs and calculate market indicators,
+      // and logic for displaying learning cards and handling dark mode.
+
+      // Example stub for initializing charts:
+      function initCharts() {
+        // Initialize Supply and Demand Chart
+        const supplyDemandCtx = document
+          .getElementById("supplyDemandChart")
+          .getContext("2d");
+        const supplyDemandChart = new Chart(supplyDemandCtx, {
+          type: "line",
+          data: {
+            labels: ["Q1", "Q2", "Q3", "Q4", "Q5"],
+            datasets: [
+              {
+                label: "Supply",
+                data: [1, 2, 3, 4, 5],
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+              {
+                label: "Demand",
+                data: [5, 4, 3, 2, 1],
+                borderColor: "rgb(255, 99, 132)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            scales: {
+              y: {
+                title: {
+                  display: true,
+                  text: "Price",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Quantity",
+                },
+              },
+            },
+          },
+        });
+
+        // Initialize Elasticity Chart
+        const elasticityCtx = document
+          .getElementById("elasticityChart")
+          .getContext("2d");
+        const elasticityChart = new Chart(elasticityCtx, {
+          type: "line",
+          data: {
+            labels: ["Q1", "Q2", "Q3", "Q4", "Q5"],
+            datasets: [
+              {
+                label: "Elastic",
+                data: [5, 4, 3, 2, 1],
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+              {
+                label: "Inelastic",
+                data: [5, 4.8, 4.6, 4.4, 4.2],
+                borderColor: "rgb(255, 99, 132)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                title: {
+                  display: true,
+                  text: "Price",
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Quantity",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Example function to update market indicators
+      function updateMarketIndicators() {
+        document.getElementById("equilibriumPrice").textContent = "$5.00";
+        document.getElementById("equilibriumQuantity").textContent =
+          "100 units";
+        document.getElementById("consumerSurplus").textContent = "$250";
+        document.getElementById("producerSurplus").textContent = "$250";
+      }
+
+      // Example function to handle slider changes
+      function handleSliderChange(event) {
+        const sliderId = event.target.id;
+        const value = event.target.value;
+        console.log(`${sliderId} changed to ${value}`);
+        // Update relevant chart and indicators here
+        updateMarketIndicators();
+      }
+
+      // Add event listeners to sliders
+      document.querySelectorAll('input[type="range"]').forEach((slider) => {
+        slider.addEventListener("input", handleSliderChange);
+      });
+
+      // Toggle dark mode
+      document
+        .getElementById("darkModeToggle")
+        .addEventListener("click", () => {
+          document.body.classList.toggle("dark-mode");
+        });
+
+      // Initialize the application
+      function init() {
+        initCharts();
+        updateMarketIndicators();
+        // Additional initialization code...
+      }
+
+      // Run initialization when the DOM is fully loaded
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>

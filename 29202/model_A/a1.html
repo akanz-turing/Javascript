@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Economics Interactive Learning</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+      }
+      body.dark-mode {
+        --bg-color: #1a202c;
+        --text-color: #f7fafc;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+    </style>
+  </head>
+  <body class="p-4">
+    <button id="darkModeToggle" class="bg-blue-500 text-white p-2 rounded">
+      Toggle Dark Mode
+    </button>
+
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold">Interactive Economics Course</h1>
+      <!-- Sliders for variables -->
+      <div id="controls" class="my-4"></div>
+      <!-- Chart Container -->
+      <canvas id="economicsChart" width="400" height="200"></canvas>
+      <!-- Learning Cards will be dynamically inserted here -->
+      <div id="learningCards" class="mt-4"></div>
+    </div>
+
+    <script>
+      const ctx = document.getElementById("economicsChart").getContext("2d");
+      let chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          datasets: [
+            {
+              label: "Demand",
+              borderColor: "blue",
+              data: [],
+              fill: false,
+            },
+            {
+              label: "Supply",
+              borderColor: "red",
+              data: [],
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: { display: true, text: "Quantity" },
+            },
+            y: {
+              title: { display: true, text: "Price" },
+            },
+          },
+        },
+      });
+
+      // Function to update chart with new data
+      function updateChart(demand, supply) {
+        chart.data.datasets[0].data = demand;
+        chart.data.datasets[1].data = supply;
+        chart.update();
+      }
+
+      // Sliders creation (example for one variable)
+      function createSlider(name, min, max, step, defaultValue) {
+        let sliderDiv = document.createElement("div");
+        sliderDiv.innerHTML = `
+            <label>${name}: <span id="${name}Value"></span></label>
+            <input type="range" min="${min}" max="${max}" step="${step}" value="${defaultValue}" id="${name}Slider" class="w-full">`;
+        document.getElementById("controls").appendChild(sliderDiv);
+        document.getElementById(`${name}Slider`).oninput = function () {
+          document.getElementById(`${name}Value`).textContent = this.value;
+          // Here you would call a function to recalculate supply/demand
+        };
+      }
+
+      // Dark mode toggle
+      document
+        .getElementById("darkModeToggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("dark-mode");
+        });
+
+      // Initialize sliders
+      createSlider("ProductionCost", 1, 10, 1, 5);
+      // Add more sliders for other variables
+
+      // Initial chart update with some default data
+      updateChart(
+        [
+          { x: 0, y: 10 },
+          { x: 10, y: 0 },
+        ],
+        [
+          { x: 0, y: 0 },
+          { x: 10, y: 10 },
+        ]
+      );
+
+      // Learning cards (this would be dynamically managed)
+      function showLearningCard(concept) {
+        // Logic to show or hide learning cards with information about 'concept'
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Economics Interactive Course</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      .dark-mode {
+        background-color: #1a202c;
+        color: #e2e8f0;
+      }
+      .dark-mode .card {
+        background-color: #2d3748;
+      }
+    </style>
+  </head>
+  <body class="p-4">
+    <button id="darkModeToggle" class="mb-4 p-2 bg-blue-500 text-white rounded">
+      Toggle Dark Mode
+    </button>
+    <div id="graphContainer" class="mb-4">
+      <canvas id="economicsGraph"></canvas>
+    </div>
+    <div id="controls" class="mb-4">
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value="50"
+        class="slider"
+        id="productionCost"
+      />
+      Production Cost
+      <!-- Add more sliders for other variables -->
+    </div>
+    <div id="learningCards" class="grid grid-cols-1 gap-4 md:grid-cols-2"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+      const ctx = document.getElementById("economicsGraph").getContext("2d");
+      let chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          // Initial data for supply and demand
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: "nearest",
+            axis: "x",
+            intersect: false,
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Quantity" },
+            },
+            y: {
+              title: { display: true, text: "Price" },
+            },
+          },
+        },
+      });
+
+      // Function to update chart with new data based on sliders
+      function updateChart() {
+        // Logic to update supply and demand curves based on slider values
+        chart.update();
+      }
+
+      document.querySelectorAll(".slider").forEach((slider) => {
+        slider.oninput = updateChart;
+      });
+
+      document.getElementById("darkModeToggle").onclick = function () {
+        document.body.classList.toggle("dark-mode");
+      };
+
+      // Placeholder for learning cards logic
+      function showLearningCard(concept) {
+        // Display card with content about 'concept'
+      }
+
+      // Initial setup
+      updateChart();
+    </script>
+  </body>
+</html>
