@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Physics Laws</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  </head>
+  <body class="bg-gray-100">
+    <header class="bg-blue-600 text-white p-4">
+      <h1 class="text-2xl font-bold">Interactive Physics Laws</h1>
+    </header>
+    <main class="container mx-auto p-4">
+      <div id="lawSelector" class="mb-4">
+        <label for="lawSelect" class="block mb-2">Select a Physics Law:</label>
+        <select id="lawSelect" class="w-full p-2 border rounded">
+          <option value="newton1">Newton's First Law of Motion</option>
+          <option value="newton2">Newton's Second Law of Motion</option>
+          <option value="newton3">Newton's Third Law of Motion</option>
+          <option value="gravity">Law of Gravity</option>
+          <option value="archimedes">Archimedes' Principle</option>
+        </select>
+      </div>
+      <div id="lawContent" class="bg-white p-4 rounded shadow">
+        <!-- Content will be dynamically inserted here -->
+      </div>
+    </main>
+    <script>
+      // Define the laws and their properties
+      const laws = {
+        newton1: {
+          title: "Newton's First Law of Motion",
+          description:
+            "An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction unless acted upon by an unbalanced force.",
+          variables: ["Force", "Mass"],
+          simulation: simulateNewton1,
+          realWorldUse:
+            "This law explains why we wear seatbelts in cars. When a car suddenly stops, our body tends to continue moving forward due to inertia.",
+        },
+        newton2: {
+          title: "Newton's Second Law of Motion",
+          description:
+            "The acceleration of an object as produced by a net force is directly proportional to the magnitude of the net force, in the same direction as the net force, and inversely proportional to the mass of the object.",
+          variables: ["Force", "Mass"],
+          simulation: simulateNewton2,
+          realWorldUse:
+            "This law is used in designing vehicles, determining how much thrust is needed for a rocket to overcome Earth's gravity.",
+        },
+        newton3: {
+          title: "Newton's Third Law of Motion",
+          description:
+            "For every action, there is an equal and opposite reaction.",
+          variables: ["Force"],
+          simulation: simulateNewton3,
+          realWorldUse:
+            "This principle is used in the design of rocket propulsion systems, where the backward ejection of exhaust gases propels the rocket forward.",
+        },
+        gravity: {
+          title: "Law of Gravity",
+          description:
+            "Every particle attracts every other particle in the universe with a force proportional to the product of their masses and inversely proportional to the square of the distance between them.",
+          variables: ["Mass 1", "Mass 2", "Distance"],
+          simulation: simulateGravity,
+          realWorldUse:
+            "This law explains the orbits of planets and satellites, and is crucial in space exploration and satellite technology.",
+        },
+        archimedes: {
+          title: "Archimedes' Principle",
+          description:
+            "The upward buoyant force that is exerted on a body immersed in a fluid is equal to the weight of the fluid that the body displaces.",
+          variables: ["Object Density", "Fluid Density", "Volume"],
+          simulation: simulateArchimedes,
+          realWorldUse:
+            "This principle is used in the design of ships and submarines, and explains why some objects float while others sink.",
+        },
+      };
+
+      // Function to update the content when a law is selected
+      function updateContent(lawId) {
+        const law = laws[lawId];
+        const content = document.getElementById("lawContent");
+
+        content.innerHTML = `
+        <h2 class="text-xl font-bold mb-2">${law.title}</h2>
+        <p class="mb-4">${law.description}</p>
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold mb-2">Variables:</h3>
+            ${law.variables
+              .map(
+                (variable) => `
+                <div class="mb-2">
+                    <label for="${variable.toLowerCase()}" class="block">${variable}:</label>
+                    <input type="range" id="${variable.toLowerCase()}" min="0" max="100" value="50" class="w-full">
+                </div>
+            `
+              )
+              .join("")}
+        </div>
+        <div class="mb-4">
+            <canvas id="simulationChart"></canvas>
+        </div>
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold mb-2">Real-world Application:</h3>
+            <p>${law.realWorldUse}</p>
+        </div>
+    `;
+
+        // Initialize the chart
+        const ctx = document.getElementById("simulationChart").getContext("2d");
+        const chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Simulation Result",
+                data: [],
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Time",
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Value",
+                },
+              },
+            },
+          },
+        });
+
+        // Add event listeners to the inputs
+        law.variables.forEach((variable) => {
+          document
+            .getElementById(variable.toLowerCase())
+            .addEventListener("input", () => {
+              updateSimulation(lawId, chart);
+            });
+        });
+
+        // Initial simulation update
+        updateSimulation(lawId, chart);
+      }
+
+      // Function to update the simulation based on input values
+      function updateSimulation(lawId, chart) {
+        const law = laws[lawId];
+        const values = law.variables.map((variable) =>
+          parseInt(document.getElementById(variable.toLowerCase()).value)
+        );
+
+        const simulationData = law.simulation(...values);
+
+        chart.data.labels = simulationData.map((_, index) => index);
+        chart.data.datasets[0].data = simulationData;
+        chart.update();
+      }
+
+      // Simulation functions (simplified for demonstration)
+      function simulateNewton1(force, mass) {
+        return Array(100)
+          .fill(0)
+          .map((_, i) => (force / mass) * i);
+      }
+
+      function simulateNewton2(force, mass) {
+        return Array(100)
+          .fill(0)
+          .map((_, i) => ((force / mass) * i * i) / 2);
+      }
+
+      function simulateNewton3(force) {
+        return Array(100)
+          .fill(0)
+          .map((_, i) => force * Math.sin(i / 10));
+      }
+
+      function simulateGravity(mass1, mass2, distance) {
+        const G = 6.674 * Math.pow(10, -11);
+        return Array(100)
+          .fill(0)
+          .map((_, i) => (G * (mass1 * mass2)) / Math.pow(distance + i, 2));
+      }
+
+      function simulateArchimedes(objectDensity, fluidDensity, volume) {
+        const g = 9.81; // acceleration due to gravity
+        const buoyantForce = fluidDensity * volume * g;
+        const weight = objectDensity * volume * g;
+        return Array(100)
+          .fill(0)
+          .map(() => buoyantForce - weight);
+      }
+
+      // Event listener for law selection
+      document.getElementById("lawSelect").addEventListener("change", (e) => {
+        updateContent(e.target.value);
+      });
+
+      // Initial content update
+      updateContent("newton1");
+    </script>
+  </body>
+</html>
