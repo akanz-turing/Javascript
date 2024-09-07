@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Racer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #f4f4f7;
+        margin: 0;
+        padding: 0;
+      }
+      #gameArea {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      #track {
+        width: 100%;
+        height: 300px;
+        background: url("track.png") repeat-x;
+        background-size: contain;
+        position: relative;
+        overflow: hidden;
+      }
+      #car {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        width: 50px;
+        transition: left 0.1s linear;
+      }
+      #problem,
+      #answer,
+      #submit,
+      #speed,
+      #leaderboard {
+        margin: 10px;
+        padding: 10px;
+      }
+      #submit {
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+      }
+      #leaderboard {
+        background: #e9e9e9;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="gameArea">
+      <div id="track">
+        <img id="car" src="car.png" alt="Racing Car" />
+      </div>
+      <div id="problem">Solve:</div>
+      <input type="number" id="answer" placeholder="Your answer" />
+      <button id="submit">Submit</button>
+      <div id="speed">Speed: <span id="speedValue">0</span> km/h</div>
+      <div id="leaderboard">Leaderboard loading...</div>
+    </div>
+
+    <script>
+      const game = {
+        speed: 0,
+        position: 0,
+        difficulty: 1,
+        problemElement: document.getElementById("problem"),
+        answerInput: document.getElementById("answer"),
+        submitButton: document.getElementById("submit"),
+        speedDisplay: document.getElementById("speedValue"),
+        car: document.getElementById("car"),
+        trackLength: 800, // Assuming the track image width for simplicity
+        maxSpeed: 200,
+        init() {
+          this.submitButton.onclick = () => this.checkAnswer();
+          this.generateProblem();
+          this.gameLoop();
+        },
+        generateProblem() {
+          const operations = ["+", "-", "*", "/"];
+          const op = operations[Math.floor(Math.random() * operations.length)];
+          let num1 = Math.floor(Math.random() * 10 * this.difficulty);
+          let num2 =
+            op === "/"
+              ? Math.floor(Math.random() * 10) + 1
+              : Math.floor(Math.random() * 10 * this.difficulty);
+          if (op === "/" && num2 === 0) num2 = 1;
+          this.currentProblem = { num1, num2, op };
+          this.problemElement.textContent = `Solve: ${num1} ${op} ${num2} = ?`;
+        },
+        checkAnswer() {
+          const correctAnswer = eval(
+            `${this.currentProblem.num1} ${this.currentProblem.op} ${this.currentProblem.num2}`
+          );
+          if (parseFloat(this.answerInput.value) === correctAnswer) {
+            this.speedUp();
+          } else {
+            this.slowDown();
+          }
+          this.generateProblem();
+          this.answerInput.value = "";
+        },
+        speedUp() {
+          this.speed = Math.min(
+            this.speed + 10 + this.difficulty * 2,
+            this.maxSpeed
+          );
+        },
+        slowDown() {
+          this.speed = Math.max(this.speed - 5, 0);
+        },
+        updateCarPosition() {
+          this.position += this.speed / 1000;
+          if (this.position > this.trackLength) {
+            this.position -= this.trackLength; // Loop the track
+            this.difficulty += 0.5; // Increase difficulty each lap
+          }
+          this.car.style.left = `${this.position}px`;
+        },
+        gameLoop() {
+          this.speedDisplay.textContent = Math.round(this.speed);
+          this.updateCarPosition();
+          requestAnimationFrame(() => this.gameLoop());
+        },
+      };
+
+      // Start game
+      game.init();
+
+      // Placeholder for leaderboard (would require backend integration)
+      document.getElementById("leaderboard").innerText =
+        "1. Player1 - 120 laps\n2. Player2 - 115 laps";
+
+      // Sound effects would be added here with Web Audio API for correct answers, speed up, etc.
+    </script>
+  </body>
+</html>

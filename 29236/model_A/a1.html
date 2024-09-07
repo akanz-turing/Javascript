@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Race</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #f4f4f4;
+      }
+      #game-area {
+        width: 100%;
+        max-width: 800px;
+        margin: auto;
+        position: relative;
+        overflow: hidden;
+      }
+      #track {
+        background: url("track.png") repeat-y;
+        height: 100vh;
+        position: relative;
+      }
+      #car {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+      }
+      #equation,
+      #answer,
+      #submit,
+      #result,
+      #speed {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+      }
+      #speed {
+        top: 50px;
+        color: #007bff;
+      }
+      .power-up,
+      .obstacle {
+        position: absolute;
+        width: 30px;
+      }
+      #leaderboard {
+        position: fixed;
+        right: 10px;
+        top: 10px;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+      .animate-boost {
+        animation: boost 0.5s;
+      }
+      @keyframes boost {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-area">
+      <div id="track">
+        <img id="car" src="car.svg" alt="Car" />
+      </div>
+      <div id="equation"></div>
+      <input type="number" id="answer" placeholder="Answer" />
+      <button id="submit">Submit</button>
+      <div id="result"></div>
+      <div id="speed">Speed: <span id="currentSpeed">0</span> km/h</div>
+      <div id="leaderboard">
+        <h3>Leaderboard</h3>
+        <ul id="leaders"></ul>
+      </div>
+    </div>
+    <script>
+      // Game variables
+      let carPosition = 0;
+      let speed = 0;
+      let difficulty = 1;
+      const maxSpeed = 300;
+
+      // Generate math problem
+      function generateProblem() {
+        let num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+        let num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+        let operators = ["+", "-", "*", "/"];
+        let operator = operators[Math.floor(Math.random() * operators.length)];
+        let equation = `${num1} ${operator} ${num2}`;
+        let result = eval(equation); // Note: Use with caution in real applications
+        document.getElementById("equation").textContent = equation;
+        return result;
+      }
+
+      // Update game state
+      function updateGame(answerCorrect) {
+        if (answerCorrect) {
+          speed += 10 * difficulty;
+          if (speed > maxSpeed) speed = maxSpeed;
+          if (Math.random() < 0.1 * difficulty) difficulty++;
+          document.getElementById("result").innerHTML =
+            '<i class="fas fa-check" style="color:green;"></i>';
+          document.getElementById("car").classList.add("animate-boost");
+          setTimeout(
+            () =>
+              document.getElementById("car").classList.remove("animate-boost"),
+            500
+          );
+        } else {
+          speed = Math.max(0, speed - 20);
+          document.getElementById("result").innerHTML =
+            '<i class="fas fa-times" style="color:red;"></i>';
+        }
+        document.getElementById("currentSpeed").textContent = speed.toFixed(2);
+        carPosition += speed / 10; // Adjust for animation smoothness
+        document.getElementById("car").style.bottom = `${carPosition}px`;
+      }
+
+      // Event listeners
+      document.getElementById("submit").addEventListener("click", function () {
+        let userAnswer = parseFloat(document.getElementById("answer").value);
+        let correctAnswer = generateProblem();
+        updateGame(userAnswer === correctAnswer);
+        document.getElementById("answer").value = ""; // Clear input
+      });
+
+      // Leaderboard (mock data)
+      function updateLeaderboard() {
+        let leaders = [
+          { name: "Speedy", score: 950 },
+          { name: "MathWiz", score: 870 },
+          { name: "FormulaOne", score: 800 },
+        ];
+        let leaderboardHTML = leaders
+          .map((player) => `<li>${player.name}: ${player.score}</li>`)
+          .join("");
+        document.getElementById("leaders").innerHTML = leaderboardHTML;
+      }
+
+      // Initial setup
+      updateLeaderboard();
+      generateProblem();
+
+      // Sound effects - ensure to include audio files or use a library
+      function playSound(effect) {
+        let audio = new Audio(`${effect}.mp3`);
+        audio.play();
+      }
+
+      // Touch controls for mobile
+      document
+        .getElementById("answer")
+        .addEventListener("touchstart", function () {
+          this.focus();
+        });
+    </script>
+  </body>
+</html>

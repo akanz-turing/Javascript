@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Racer Game</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      .game-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      .speed-bar {
+        width: 100%;
+        height: 20px;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .speed-fill {
+        height: 100%;
+        width: 0%;
+        background-color: #4caf50;
+        transition: width 0.5s ease-out;
+      }
+      .leaderboard {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .leaderboard h3 {
+        margin-top: 0;
+      }
+      .leaderboard ol {
+        padding-left: 20px;
+        margin-bottom: 0;
+      }
+      .game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        display: none;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .feedback {
+        margin-top: 20px;
+        font-weight: bold;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <h1>Math Racer</h1>
+      <div id="stats">
+        <p>Speed: <span id="speed">0</span> mph</p>
+        <p>Score: <span id="score">0</span></p>
+        <p>Lap: <span id="lap">1</span>/3</p>
+      </div>
+      <div class="speed-bar">
+        <div class="speed-fill" id="speedFill"></div>
+      </div>
+      <div id="problem"></div>
+      <form id="answerForm">
+        <input
+          type="number"
+          id="userAnswer"
+          placeholder="Enter your answer"
+          required
+        />
+        <button type="submit">Submit</button>
+      </form>
+      <div id="feedback" class="feedback"></div>
+      <div class="leaderboard">
+        <h3>Leaderboard</h3>
+        <ol id="leaderboardList"></ol>
+      </div>
+      <div class="game-over" id="gameOver">
+        <h2>Game Over!</h2>
+        <p>Your Score: <span id="finalScore"></span></p>
+        <p>Your Time: <span id="finalTime"></span> seconds</p>
+        <button id="restartButton">Play Again</button>
+      </div>
+    </div>
+
+    <script>
+      const problem = document.getElementById("problem");
+      const answerForm = document.getElementById("answerForm");
+      const userAnswer = document.getElementById("userAnswer");
+      const feedback = document.getElementById("feedback");
+      const speedElement = document.getElementById("speed");
+      const scoreElement = document.getElementById("score");
+      const lapElement = document.getElementById("lap");
+      const speedFill = document.getElementById("speedFill");
+
+      let speed = 0;
+      let score = 0;
+      let lap = 1;
+      let currentProblem = {};
+      let difficulty = "easy";
+
+      const finishLine = document.querySelector(".finish-line");
+      const gameOverScreen = document.getElementById("gameOver");
+      const finalScoreElement = document.getElementById("finalScore");
+      const finalTimeElement = document.getElementById("finalTime");
+      const restartButton = document.getElementById("restartButton");
+      const leaderboardList = document.getElementById("leaderboardList");
+
+      let isGameOver = false;
+      let streak = 0;
+      let leaderboard = [];
+
+      function generateMathProblem(difficulty) {
+        const operations = ["+", "-", "*", "/"];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
+        let a, b;
+
+        switch (difficulty) {
+          case "easy":
+            a = Math.floor(Math.random() * 10) + 1;
+            b = Math.floor(Math.random() * 10) + 1;
+            break;
+          case "medium":
+            a = Math.floor(Math.random() * 50) + 1;
+            b = Math.floor(Math.random() * 50) + 1;
+            break;
+          case "hard":
+            a = Math.floor(Math.random() * 100) + 1;
+            b = Math.floor(Math.random() * 100) + 1;
+            break;
+        }
+
+        let problemText, answer;
+        switch (operation) {
+          case "+":
+            problemText = `${a} + ${b}`;
+            answer = a + b;
+            break;
+          case "-":
+            problemText = `${a} - ${b}`;
+            answer = a - b;
+            break;
+          case "*":
+            problemText = `${a} × ${b}`;
+            answer = a * b;
+            break;
+          case "/":
+            answer = a;
+            problemText = `${a * b} ÷ ${b}`;
+            break;
+        }
+
+        return { problemText, answer };
+      }
+
+      function updateProblem() {
+        currentProblem = generateMathProblem(difficulty);
+        problem.textContent = currentProblem.problemText;
+      }
+
+      function showFeedback(message, isCorrect) {
+        feedback.textContent = message;
+        feedback.style.color = isCorrect ? "green" : "red";
+        feedback.style.opacity = 1;
+        setTimeout(() => {
+          feedback.style.opacity = 0;
+        }, 1500);
+      }
+
+      function updateGameState() {
+        speedElement.textContent = speed;
+        scoreElement.textContent = score;
+        lapElement.textContent = lap;
+        timeElement.textContent = time;
+
+        car.style.left = `${50 + speed / 2}%`;
+        track.style.animationDuration = `${1 - speed / 200}s`;
+      }
+
+      function createObstacle() {
+        const obstacle = document.createElement("div");
+        obstacle.classList.add("obstacle");
+        obstacle.style.left = `${Math.random() * 80 + 10}%`;
+        track.appendChild(obstacle);
+
+        setTimeout(() => {
+          track.removeChild(obstacle);
+        }, 3000);
+      }
+
+      function createPowerUp() {
+        const powerUp = document.createElement("div");
+        powerUp.classList.add("power-up");
+        powerUp.style.left = `${Math.random() * 80 + 10}%`;
+        track.appendChild(powerUp);
+
+        setTimeout(() => {
+          track.removeChild(powerUp);
+        }, 5000);
+      }
+
+      function checkCollisions() {
+        const carRect = car.getBoundingClientRect();
+        const obstacles = document.querySelectorAll(".obstacle");
+        const powerUps = document.querySelectorAll(".power-up");
+
+        obstacles.forEach((obstacle) => {
+          const obstacleRect = obstacle.getBoundingClientRect();
+          if (
+            carRect.left < obstacleRect.right &&
+            carRect.right > obstacleRect.left &&
+            carRect.top < obstacleRect.bottom &&
+            carRect.bottom > obstacleRect.top
+          ) {
+            speed = Math.max(0, speed - 10);
+            showFeedback("Hit an obstacle!", false);
+            wrongSound.play();
+          }
+        });
+
+        powerUps.forEach((powerUp) => {
+          const powerUpRect = powerUp.getBoundingClientRect();
+          if (
+            carRect.left < powerUpRect.right &&
+            carRect.right > powerUpRect.left &&
+            carRect.top < powerUpRect.bottom &&
+            carRect.bottom > powerUpRect.top
+          ) {
+            speed = Math.min(100, speed + 20);
+            showFeedback("Power-up!", true);
+            correctSound.play();
+            track.removeChild(powerUp);
+          }
+        });
+      }
+
+      function endGame() {
+        isGameOver = true;
+        clearInterval(gameInterval);
+        clearInterval(obstacleInterval);
+        clearInterval(powerUpInterval);
+        finalScoreElement.textContent = score;
+        finalTimeElement.textContent = time;
+        gameOverScreen.style.display = "block";
+
+        // Update leaderboard
+        leaderboard.push({ score, time });
+        leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+        leaderboard = leaderboard.slice(0, 10); // Keep top 10
+        updateLeaderboard();
+      }
+
+      function updateLeaderboard() {
+        leaderboardList.innerHTML = "";
+        leaderboard.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.textContent = `Score: ${entry.score}, Time: ${entry.time}s`;
+          leaderboardList.appendChild(li);
+        });
+      }
+
+      function startGame() {
+        isGameOver = false;
+        speed = 0;
+        score = 0;
+        lap = 1;
+        time = 0;
+        difficulty = "easy";
+        streak = 0;
+        updateProblem();
+        updateGameState();
+        gameOverScreen.style.display = "none";
+
+        gameInterval = setInterval(() => {
+          if (!isGameOver) {
+            time++;
+            updateGameState();
+            checkCollisions();
+          }
+        }, 1000);
+
+        obstacleInterval = setInterval(createObstacle, 3000);
+        powerUpInterval = setInterval(createPowerUp, 7000);
+      }
+
+      userAnswer.addEventListener("keyup", (e) => {
+        if (e.key === "Enter") {
+          const userAnswerValue = parseInt(userAnswer.value);
+          if (userAnswerValue === currentProblem.answer) {
+            speed = Math.min(100, speed + 10);
+            score += 10;
+            streak++;
+            showFeedback("Correct!", true);
+            correctSound.play();
+
+            if (streak % 5 === 0) {
+              speed = Math.min(100, speed + 20);
+              showFeedback("Streak bonus!", true);
+            }
+
+            if (speed === 100) {
+              lap++;
+              if (lap > 3) {
+                endGame();
+              } else {
+                difficulty = lap === 2 ? "medium" : "hard";
+                speed = 50;
+                finishLine.style.opacity = 1;
+                finishLine.style.animation = "moveFinishLine 5s linear";
+                setTimeout(() => {
+                  finishLine.style.opacity = 0;
+                  finishLine.style.animation = "none";
+                }, 5000);
+              }
+            }
+          } else {
+            speed = Math.max(0, speed - 10);
+            streak = 0;
+            showFeedback("Wrong answer!", false);
+            wrongSound.play();
+          }
+          updateProblem();
+          updateGameState();
+          userAnswer.value = "";
+        }
+      });
+
+      restartButton.addEventListener("click", startGame);
+      startGame();
+    </script>
+  </body>
+</html>
