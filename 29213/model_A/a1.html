@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Charades Game</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Additional custom styles can go here */
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4 max-w-lg">
+      <h1 class="text-4xl text-center mb-4">Charades</h1>
+      <!-- Category Selection -->
+      <div class="mb-4">
+        <select id="category" class="p-2 border rounded w-full">
+          <option value="random">Random</option>
+          <option value="movies">Movies</option>
+          <!-- Add more categories -->
+        </select>
+      </div>
+      <!-- Difficulty Level -->
+      <div class="mb-4">
+        <select id="difficulty" class="p-2 border rounded w-full">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <!-- Word and Hints Area -->
+      <div id="gameArea" class="text-center">
+        <h2 id="wordDisplay" class="text-3xl mb-4">?????</h2>
+        <p id="hintDisplay" class="mb-2"></p>
+        <div id="emojiHint" class="text-5xl mb-4"></div>
+      </div>
+      <!-- Guess Input -->
+      <input
+        id="guessInput"
+        type="text"
+        class="p-2 mb-2 w-full border rounded"
+        placeholder="Enter your guess"
+      />
+      <button
+        id="submitGuess"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Submit
+      </button>
+      <button
+        id="skipWord"
+        class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+      >
+        Skip
+      </button>
+      <!-- Timer -->
+      <div id="timer" class="text-2xl text-center mt-4">60s</div>
+      <!-- Leaderboard -->
+      <div id="leaderboard" class="mt-4"></div>
+      <button
+        id="resetLeaderboard"
+        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Reset Leaderboard
+      </button>
+    </div>
+
+    <script>
+      const game = {
+        words: {
+          easy: { movies: ["film", "cinema"], animals: ["dog", "cat"] },
+          // Expand with more words and categories
+        },
+        currentWord: "",
+        timeLeft: 60,
+        timer: null,
+        score: 0,
+        init() {
+          document
+            .getElementById("submitGuess")
+            .addEventListener("click", this.checkGuess.bind(this));
+          document
+            .getElementById("skipWord")
+            .addEventListener("click", this.nextWord.bind(this));
+          document
+            .getElementById("resetLeaderboard")
+            .addEventListener("click", this.resetLeaderboard.bind(this));
+          this.loadLeaderboard();
+        },
+        startGame() {
+          this.pickWord();
+          this.startTimer();
+        },
+        pickWord() {
+          const cat = document.getElementById("category").value;
+          const diff = document.getElementById("difficulty").value;
+          const wordList =
+            this.words[diff][cat === "random" ? this.randomCategory() : cat];
+          this.currentWord =
+            wordList[Math.floor(Math.random() * wordList.length)];
+          // Display logic for word, hints, etc.
+        },
+        checkGuess() {
+          const guess = document
+            .getElementById("guessInput")
+            .value.toLowerCase();
+          if (guess === this.currentWord) {
+            this.score++;
+            this.nextWord();
+          } else {
+            // Animation or message for incorrect guess
+          }
+        },
+        nextWord() {
+          // Clear current game state and pick new word
+          this.pickWord();
+        },
+        startTimer() {
+          this.timer = setInterval(() => {
+            this.timeLeft--;
+            document.getElementById("timer").textContent = this.timeLeft + "s";
+            if (this.timeLeft <= 0) {
+              clearInterval(this.timer);
+              // End game logic
+            }
+          }, 1000);
+        },
+        loadLeaderboard() {
+          // Load from localStorage or initialize
+        },
+        updateLeaderboard() {
+          // Save score to localStorage
+        },
+        resetLeaderboard() {
+          // Clear leaderboard from localStorage
+        },
+        randomCategory() {
+          // Return a random category
+        },
+      };
+
+      game.init();
+      // Start game on load or when a start button is clicked
+    </script>
+  </body>
+</html>

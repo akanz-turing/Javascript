@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Charades Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        50% {
+          transform: translateX(5px);
+        }
+        75% {
+          transform: translateX(-5px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .shake {
+        animation: shake 0.5s ease-in-out;
+      }
+
+      .pulse {
+        animation: pulse 0.5s ease-in-out;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      /* Custom Tailwind classes */
+      @layer components {
+        .btn {
+          @apply px-4 py-2 rounded transition-all duration-200 ease-in-out;
+        }
+
+        .btn:hover {
+          @apply transform scale-105;
+        }
+
+        .btn:active {
+          @apply transform scale-95;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div
+      id="game-container"
+      class="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full"
+    >
+      <h1 class="text-3xl font-bold mb-6 text-center">Charades Game</h1>
+
+      <div id="menu" class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">Select Category:</h2>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button
+            class="category-btn btn bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Movies
+          </button>
+          <button
+            class="category-btn btn bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Animals
+          </button>
+          <button
+            class="category-btn btn bg-yellow-500 text-white px-4 py-2 rounded"
+          >
+            Objects
+          </button>
+          <button
+            class="category-btn btn bg-purple-500 text-white px-4 py-2 rounded"
+          >
+            Famous People
+          </button>
+          <button
+            class="category-btn btn bg-red-500 text-white px-4 py-2 rounded"
+          >
+            Random
+          </button>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-2">Select Difficulty:</h2>
+        <div class="flex gap-2 mb-4">
+          <button class="difficulty-btn bg-green-300 px-4 py-2 rounded">
+            Easy
+          </button>
+          <button class="difficulty-btn bg-yellow-300 px-4 py-2 rounded">
+            Medium
+          </button>
+          <button class="difficulty-btn bg-red-300 px-4 py-2 rounded">
+            Hard
+          </button>
+        </div>
+      </div>
+
+      <div id="game" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <div id="timer" class="text-2xl font-bold">60s</div>
+          <div id="score" class="text-2xl font-bold">Score: 0</div>
+        </div>
+
+        <div id="word-container" class="mb-6">
+          <h2 class="text-2xl font-bold mb-2">Guess the word:</h2>
+          <div id="word" class="text-4xl font-bold mb-4 text-center">
+            _ _ _ _ _
+          </div>
+          <div id="visual-hint" class="text-6xl text-center mb-4">🤔</div>
+        </div>
+
+        <div id="hints" class="mb-6">
+          <h3 class="text-xl font-semibold mb-2">Hints:</h3>
+          <ul id="hint-list" class="list-disc pl-6"></ul>
+        </div>
+
+        <div class="mb-6">
+          <input
+            type="text"
+            id="guess-input"
+            class="w-full px-4 py-2 rounded border"
+            placeholder="Enter your guess..."
+          />
+        </div>
+
+        <div class="flex gap-4">
+          <button
+            id="submit-guess"
+            class="bg-blue-500 text-white px-6 py-2 rounded"
+          >
+            Submit
+          </button>
+          <button id="skip" class="bg-gray-500 text-white px-6 py-2 rounded">
+            Skip
+          </button>
+        </div>
+      </div>
+
+      <div id="leaderboard" class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Leaderboard</h2>
+        <ul id="leaderboard-list" class="list-decimal pl-6"></ul>
+      </div>
+
+      <button id="reset" class="mt-8 bg-red-500 text-white px-6 py-2 rounded">
+        Reset Game
+      </button>
+    </div>
+
+    <script>
+      // Game state
+      let currentWord = "";
+      let currentCategory = "";
+      let currentDifficulty = "";
+      let score = 0;
+      let timeLeft = 60;
+      let timer;
+      let words = {
+        movies: {
+          easy: ["Star Wars", "Frozen", "Titanic"],
+          medium: ["Inception", "Pulp Fiction", "The Matrix"],
+          hard: ["Citizen Kane", "Rashomon", "Memento"],
+        },
+        animals: {
+          easy: ["Dog", "Cat", "Elephant"],
+          medium: ["Platypus", "Koala", "Penguin"],
+          hard: ["Axolotl", "Pangolin", "Tardigrade"],
+        },
+        objects: {
+          easy: ["Chair", "Table", "Phone"],
+          medium: ["Telescope", "Umbrella", "Compass"],
+          hard: ["Sextant", "Astrolabe", "Sundial"],
+        },
+        "famous people": {
+          easy: ["Einstein", "Shakespeare", "Mozart"],
+          medium: ["Curie", "Galileo", "Beethoven"],
+          hard: ["Euler", "Planck", "Feynman"],
+        },
+      };
+
+      // DOM elements
+      const gameContainer = document.getElementById("game-container");
+      const menuElement = document.getElementById("menu");
+      const gameElement = document.getElementById("game");
+      const timerElement = document.getElementById("timer");
+      const scoreElement = document.getElementById("score");
+      const wordElement = document.getElementById("word");
+      const visualHintElement = document.getElementById("visual-hint");
+      const hintListElement = document.getElementById("hint-list");
+      const guessInput = document.getElementById("guess-input");
+      const submitGuessButton = document.getElementById("submit-guess");
+      const skipButton = document.getElementById("skip");
+      const resetButton = document.getElementById("reset");
+      const leaderboardList = document.getElementById("leaderboard-list");
+
+      // Event listeners
+      document.querySelectorAll(".category-btn").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          startGame(btn.textContent.toLowerCase())
+        );
+      });
+
+      document.querySelectorAll(".difficulty-btn").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          setDifficulty(btn.textContent.toLowerCase())
+        );
+      });
+
+      submitGuessButton.addEventListener("click", checkGuess);
+      skipButton.addEventListener("click", skipWord);
+      resetButton.addEventListener("click", resetGame);
+      guessInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") checkGuess();
+      });
+
+      // Game functions
+      function startGame(category) {
+        currentCategory =
+          category === "random" ? getRandomCategory() : category;
+        menuElement.classList.add("hidden");
+        gameElement.classList.remove("hidden");
+        score = 0;
+        timeLeft = 60;
+        updateScore();
+        startTimer();
+        nextWord();
+      }
+
+      function setDifficulty(difficulty) {
+        currentDifficulty = difficulty;
+        document.querySelectorAll(".difficulty-btn").forEach((btn) => {
+          btn.classList.remove("bg-blue-500", "text-white");
+        });
+        event.target.classList.add("bg-blue-500", "text-white");
+      }
+
+      function getRandomCategory() {
+        const categories = Object.keys(words);
+        return categories[Math.floor(Math.random() * categories.length)];
+      }
+
+      function startTimer() {
+        timer = setInterval(() => {
+          timeLeft--;
+          timerElement.textContent = `${timeLeft}s`;
+          if (timeLeft <= 0) {
+            endGame();
+          }
+        }, 1000);
+      }
+
+      function nextWord() {
+        const categoryWords = words[currentCategory][currentDifficulty];
+        currentWord =
+          categoryWords[Math.floor(Math.random() * categoryWords.length)];
+        wordElement.textContent = "_".repeat(currentWord.length);
+        visualHintElement.textContent = getVisualHint(currentWord);
+        hintListElement.innerHTML = "";
+        addHint();
+      }
+
+      function getVisualHint(word) {
+        // This is a simplified version. You'd need a more comprehensive emoji mapping.
+        const emojiMap = {
+          "star wars": "🌟🚀",
+          dog: "🐕",
+          chair: "🪑",
+          einstein: "👨‍🔬",
+          // Add more mappings here
+        };
+        return emojiMap[word.toLowerCase()] || "🤔";
+      }
+
+      function addHint() {
+        const hints = [
+          () => `The word has ${currentWord.length} letters.`,
+          () => `The first letter is "${currentWord[0]}".`,
+          () => `The last letter is "${currentWord[currentWord.length - 1]}".`,
+          // Add more hint types here
+        ];
+        const hint = hints[Math.floor(Math.random() * hints.length)]();
+        const li = document.createElement("li");
+        li.textContent = hint;
+        hintListElement.appendChild(li);
+      }
+
+      function checkGuess() {
+        const guess = guessInput.value.trim().toLowerCase();
+        if (guess === currentWord.toLowerCase()) {
+          score++;
+          updateScore();
+          animateCorrectGuess();
+          setTimeout(() => {
+            nextWord();
+            animateNewWord();
+          }, 500);
+        } else {
+          shakeElement(guessInput);
+        }
+        guessInput.value = "";
+      }
+
+      function skipWord() {
+        nextWord();
+      }
+
+      function updateScore() {
+        scoreElement.textContent = `Score: ${score}`;
+      }
+
+      function endGame() {
+        clearInterval(timer);
+        gameElement.classList.add("hidden");
+        menuElement.classList.remove("hidden");
+        alert(`Game Over! Your score: ${score}`);
+        updateLeaderboard(score);
+      }
+
+      function resetGame() {
+        clearInterval(timer);
+        score = 0;
+        timeLeft = 60;
+        updateScore();
+        timerElement.textContent = "60s";
+        gameElement.classList.add("hidden");
+        menuElement.classList.remove("hidden");
+      }
+
+      function updateLeaderboard(score) {
+        let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+        leaderboard.push(score);
+        leaderboard.sort((a, b) => b - a);
+        leaderboard = leaderboard.slice(0, 5);
+        localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        displayLeaderboard();
+      }
+
+      function displayLeaderboard() {
+        const leaderboard =
+          JSON.parse(localStorage.getItem("leaderboard")) || [];
+        leaderboardList.innerHTML = "";
+        leaderboard.forEach((score, index) => {
+          const li = document.createElement("li");
+          li.textContent = `${index + 1}. ${score}`;
+          leaderboardList.appendChild(li);
+        });
+      }
+
+      function shakeElement(element) {
+        element.classList.add("shake");
+        setTimeout(() => {
+          element.classList.remove("shake");
+        }, 500);
+      }
+      function animateCorrectGuess() {
+        wordElement.classList.add("pulse");
+        setTimeout(() => {
+          wordElement.classList.remove("pulse");
+        }, 500);
+      }
+
+      function animateNewWord() {
+        wordElement.classList.add("fade-in");
+        visualHintElement.classList.add("fade-in");
+        setTimeout(() => {
+          wordElement.classList.remove("fade-in");
+          visualHintElement.classList.remove("fade-in");
+        }, 500);
+      }
+
+      // Initialize the game
+      displayLeaderboard();
+    </script>
+  </body>
+</html>
