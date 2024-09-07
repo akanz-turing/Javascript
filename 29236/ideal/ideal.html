@@ -3,118 +3,426 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Math Racer Game</title>
+    <title>Enhanced Formula One Math Racer</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+
+      body,
+      html {
         margin: 0;
-        background-color: #f0f0f0;
+        padding: 0;
+        height: 100%;
+        font-family: "Orbitron", sans-serif;
+        overflow: hidden;
+        background: #1a1a1a;
       }
       .game-container {
-        background-color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        text-align: center;
-      }
-      .speed-bar {
+        position: relative;
         width: 100%;
-        height: 20px;
-        background-color: #e0e0e0;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 20px;
-      }
-      .speed-fill {
         height: 100%;
-        width: 0%;
-        background-color: #4caf50;
-        transition: width 0.5s ease-out;
+        background: linear-gradient(to bottom, #2c3e50, #34495e);
       }
-      .leaderboard {
+      .track {
+        position: absolute;
+        bottom: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 150px;
+        background: #333;
+        overflow: hidden;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      }
+      .track-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 200%;
+        height: 10px;
+        background: repeating-linear-gradient(
+          90deg,
+          white,
+          white 50px,
+          transparent 50px,
+          transparent 100px
+        );
+        animation: moveTrack 5s linear infinite;
+      }
+      @keyframes moveTrack {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+      .start-finish {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50px;
+        height: 100%;
+        background: repeating-linear-gradient(
+          45deg,
+          black,
+          black 10px,
+          white 10px,
+          white 20px
+        );
+      }
+      .track-border {
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border: 10px solid;
+        border-image: repeating-linear-gradient(
+            45deg,
+            red,
+            red 10px,
+            white 10px,
+            white 20px
+          )
+          10;
+      }
+      .car {
+        position: absolute;
+        bottom: 10px;
+        left: 10%;
+        width: 60px;
+        height: 30px;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><path d="M10,20 L15,10 L45,10 L50,20 Z" fill="red"/><circle cx="20" cy="20" r="5" fill="black"/><circle cx="40" cy="20" r="5" fill="black"/></svg>')
+          no-repeat;
+        transition: left 0.3s ease;
+      }
+      .scoreboard {
         position: absolute;
         top: 10px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.8);
+        left: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        font-size: 18px;
+      }
+      .scoreboard div {
+        margin: 5px 0;
+      }
+      .problem {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 28px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+      }
+      #userAnswer {
+        font-size: 24px;
         padding: 10px;
+        margin-top: 10px;
+        width: 150px;
+        background: #333;
+        border: 2px solid #00ff00;
+        color: #00ff00;
         border-radius: 5px;
-        max-height: 200px;
-        overflow-y: auto;
       }
-      .leaderboard h3 {
-        margin-top: 0;
+      #userAnswer::-webkit-inner-spin-button,
+      #userAnswer::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
-      .leaderboard ol {
-        padding-left: 20px;
-        margin-bottom: 0;
+      #userAnswer {
+        -moz-appearance: textfield;
+      }
+      .feedback {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 28px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        text-shadow: 0 0 10px currentColor;
       }
       .game-over {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.9);
+        color: #00ff00;
+        padding: 30px;
+        border-radius: 15px;
         text-align: center;
         display: none;
+        box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
       }
-      input {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        box-sizing: border-box;
+      .game-over h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
       }
-      button {
-        width: 100%;
-        padding: 10px;
-        background-color: #4caf50;
-        color: white;
+      .game-over p {
+        font-size: 24px;
+        margin: 10px 0;
+      }
+      #restartButton {
+        font-size: 20px;
+        padding: 10px 20px;
+        margin-top: 20px;
+        background: #00ff00;
+        color: black;
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        transition: background 0.3s ease;
       }
-      button:hover {
-        background-color: #45a049;
+      #restartButton:hover {
+        background: #00cc00;
+      }
+
+      .game-controls {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+      }
+      .game-controls button {
+        font-size: 16px;
+        padding: 5px 10px;
+        background: #00ff00;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .game-controls button:hover {
+        background: #00cc00;
+      }
+      .problem {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: "Orbitron", sans-serif;
+      }
+      #mathProblem {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+      .input-container {
+        display: flex;
+        align-items: stretch;
+        background: #333;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+      #userAnswer {
+        font-size: 24px;
+        padding: 10px 15px;
+        width: 150px;
+        background: transparent;
+        border: none;
+        color: #00ff00;
+        outline: none;
+        -moz-appearance: textfield;
+        font-family: "Orbitron", sans-serif;
+      }
+      #userAnswer::-webkit-inner-spin-button,
+      #userAnswer::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      #submitAnswer {
+        font-size: 24px;
+        padding: 10px 15px;
+        background: #00ff00;
+        border: none;
+        color: black;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #submitAnswer:hover {
+        background: #00cc00;
+      }
+      #submitAnswer svg {
+        width: 24px;
+        height: 24px;
+      }
+      .car-icon {
+        width: 40px;
+        height: 40px;
+        background: #00ff00;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+      }
+      .car-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+      @keyframes revEngine {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-2px);
+        }
+        75% {
+          transform: translateX(2px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+      .input-container:focus-within .car-icon {
+        animation: revEngine 0.3s ease infinite;
       }
       .feedback {
-        margin-top: 20px;
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 28px;
         font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        text-shadow: 0 0 10px currentColor;
+        font-family: "Orbitron", sans-serif;
       }
-      .success {
-        color: green;
+      .leaderboard {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
       }
-      .error {
-        color: red;
+      .leaderboard h3 {
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      .leaderboard ol {
+        padding-left: 20px;
+        margin-bottom: 0;
+      }
+      .leaderboard li {
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      .modal-content {
+        background-color: #000;
+        color: #00ff00;
+        margin: 15% auto;
+        padding: 20px;
+        border: 2px solid #00ff00;
+        width: 300px;
+        text-align: center;
+        font-family: "Orbitron", sans-serif;
+        box-shadow: 0 0 20px #00ff00;
+      }
+      .close-button {
+        color: #00ff00;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .close-button:hover {
+        color: #00cc00;
       }
     </style>
   </head>
   <body>
     <div class="game-container">
-      <h1>Math Racer</h1>
-      <div id="stats">
-        <p>Speed: <span id="speed">0</span> mph</p>
-        <p>Score: <span id="score">0</span></p>
-        <p>Lap: <span id="lap">1</span>/3</p>
+      <div class="track">
+        <div class="track-line"></div>
+        <div class="start-finish"></div>
+        <div class="track-border"></div>
+        <div class="car"></div>
       </div>
-      <div class="speed-bar">
-        <div class="speed-fill" id="speedFill"></div>
+      <div class="scoreboard">
+        <div>Speed: <span id="speed">0</span> mph</div>
+        <div>Score: <span id="score">0</span></div>
+        <div>Lap: <span id="lap">1</span>/3</div>
+        <div>Time: <span id="time">0</span>s</div>
       </div>
-      <div id="problem"></div>
-      <form id="answerForm">
-        <input
-          type="number"
-          id="userAnswer"
-          placeholder="Enter your answer"
-          required
-        />
-        <button type="submit">Submit</button>
-      </form>
-      <div id="feedback" class="feedback"></div>
+      <div class="problem">
+        <div id="mathProblem"></div>
+        <div class="input-container">
+          <div class="car-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 17h10M6 11l2-4h8l2 4M4 11h16v6H4z" />
+              <circle cx="7" cy="16.5" r="1.5" />
+              <circle cx="17" cy="16.5" r="1.5" />
+            </svg>
+          </div>
+          <input type="number" id="userAnswer" placeholder="Answer" />
+          <button id="submitAnswer">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="feedback" id="feedback"></div>
       <div class="leaderboard">
         <h3>Leaderboard</h3>
         <ol id="leaderboardList"></ol>
@@ -125,34 +433,57 @@
         <p>Your Time: <span id="finalTime"></span> seconds</p>
         <button id="restartButton">Play Again</button>
       </div>
+      <div class="game-controls">
+        <button id="quitButton">Quit Game</button>
+        <button id="resetLeaderboardButton">Reset Leaderboard</button>
+      </div>
+      <div id="lapModal" class="modal">
+        <div class="modal-content">
+          <span class="close-button">&times;</span>
+          <h2>Lap Completed!</h2>
+          <p>Lap Time: <span id="lapTime"></span> seconds</p>
+        </div>
+      </div>
     </div>
 
     <script>
-      const problem = document.getElementById("problem");
-      const answerForm = document.getElementById("answerForm");
+      const car = document.querySelector(".car");
+      const problem = document.getElementById("mathProblem");
       const userAnswer = document.getElementById("userAnswer");
       const feedback = document.getElementById("feedback");
       const speedElement = document.getElementById("speed");
       const scoreElement = document.getElementById("score");
       const lapElement = document.getElementById("lap");
-      const speedFill = document.getElementById("speedFill");
-
-      let speed = 0;
-      let score = 0;
-      let lap = 1;
-      let currentProblem = {};
-      let difficulty = "easy";
-
-      const finishLine = document.querySelector(".finish-line");
+      const timeElement = document.getElementById("time");
       const gameOverScreen = document.getElementById("gameOver");
       const finalScoreElement = document.getElementById("finalScore");
       const finalTimeElement = document.getElementById("finalTime");
       const restartButton = document.getElementById("restartButton");
       const leaderboardList = document.getElementById("leaderboardList");
+      const trackLine = document.querySelector(".track-line");
+      const quitButton = document.getElementById("quitButton");
+      const resetLeaderboardButton = document.getElementById(
+        "resetLeaderboardButton"
+      );
+      const submitAnswer = document.getElementById("submitAnswer");
 
+      let speed = 0;
+      let score = 0;
+      let lap = 1;
+      let time = 0;
+      let difficulty = "easy";
+      let currentProblem = {};
       let isGameOver = false;
       let streak = 0;
       let leaderboard = [];
+      let gameInterval;
+
+      const correctSound = new Audio(
+        "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHgU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlOq5O+zYBoGPJPY88p2KwUme8rx3I4+CRZiturqpVITC0mi4PK8aB8GM4nU8tGAMQYeb8Lv45ZFDBFYr+ftrVoXCECY3PLEcSYELIHO8diJOQgZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaRw0PVqzl77BeGQc9ltvyxnUoBSh+zPDaizsIGGS56+mjTxELTKXh8bllHgU1jdT0z3wvBSJ0xe/glEILElyx6OyrWRUIRJve8sFuJAUug8/y1oU2Bhxqvu3mnEoPDlOq5O+zYRsGPJLZ88p3KgUme8rx3I4+CRVht+rqpVMSC0mh4fK8aiAFM4nU8tGAMQYfbsLv45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQgZZ7zs56BODwxPpuPxt2IdBjiP1/PMeywGI3fH8N+RQAoVXrPp66hWEwlGnt/yv2wiBDCG0fPTgzQHHG/A7eSaSQ0PVqvm77BeGQc9ltrzxnUoBSh9y/HajDsIF2W56+mjUREKTKPi8blnHgU1jdTy0HwvBSF0xPDglEQKElux6eyrWRUJQ5vd88FwJAQug8/y1oY2Bhxqvu3mnEwODVKp5e+zYRsGOpPX88p3KgUmecnw3Y4/CBVhtuvqpVMSC0mh4PG9aiAFM4nS89GAMgYfbsLu45dGCxFYrufurVwWCECX2/PEcicFKoDN8tiIOQgZZ7rs56BODwxPpuPxt2IdBjiP1/PMey4FI3bH8N+RQQkVXbPq66hWFQlEnN/yv2wiBDCG0PPTgzUGHG3A7uSaSQ0PVKzm7rJeGAc9ltrzyHQpBSh9y/HajDwIF2S46+mjUREKTKPi8blnHwU1jdTy0H4wBiF0xPDglEQKElux6eyrWxQJQ5vd88NvJAUtg87y1oY3Bxtpve3mnUsODlKp5PC1YRsHOpHY88p3LAUlecnw3Y8+CBZhtuvqpVMSDEig4PG9ayAGMojT89GBMQYfbcPu45dGDRBYrufurVwXB0CX2/PEcycFKoDM8tiKOAgZZrrs56BPEAxOpePxt2QcBzaN1vLNei4FI3bH79+RQQsUXbPq66pVFAlEm9/zv2wiBDCF0fLUgzUGHG3A7uSaSQ0PVKzm7rJfGQc8lNrzyHUpBSh9y/HajDwJFmS46+mjUhEKS6Li8bpoHwU1i9Ty0H4wBiFzxfDglUMMEVux5+2sWxQJQprd88NvJAUsgs/y1oY3Bxppve3mnUsODlKp5PC1YhsGOpHY88p5KwUlecnw3Y8+ChVgtunqp1QSDEif4PG9ayAGMojT89GBMgUfbcPu45lFDRBXr+furVwXB0CW3PPEcycFKn/M8tiKOQcZZrrt56BPEAxOpd/zueUdBzaM1vLNei4GInbH79+RQgsUXbLr66pVFAlEm9/zv24jBi+F0fLUhDQGHG3A7uSaSg0OVKzm7rJfGQc8lNn0yHUpBSh7yvLajTsJFmS46umkUREMSqPh8bpoHwU1i9Py0n4wBiFzxe/hlUQLEVqw6O2sWxQJQprc88NxJQUsgs7z14Y3Bxpovu3mnUwPDVKo5PC1YhsGOpHY88p5KwUleMjx3Y9ACRVftOr"
+      );
+      const wrongSound = new Audio(
+        "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnMpBSl+zPLaizsIGGS57OihUBELTKXh8bllHgU2jdXzzn0vBSF1xe/glEILElyx6OyrWBUIQ5zd8sFuJAUuhM/z1YU2Bhxqvu7mnEoODlOq5O+zYBoGPJPY88p2KwUme8rx3I4+CRZiturqpVITC0mi4PK8aB8GM4nU8tGAMQYeb8Lv45ZFDBFYr+ftrVoXCECY3PLEcSYELIHO8diJOQgZaLvt559NEAxPqOPwtmMcBjiP1/PMeS0GI3fH8N2RQAoUXrTp66hVFApGnt/yvmwhBTCG0fPTgjQGHW/A7eSaRw0PVqzl77BeGQc9ltvyxnUoBSh+zPDaizsIGGS56+mjTxELTKXh8bllHgU1jdT0z3wvBSJ0xe/glEILElyx6OyrWRUIRJve8sFuJAUug8/y1oU2Bhxqvu3mnEoPDlOq5O+zYRsGPJLZ88p3KgUme8rx3I4+CRVht+rqpVMSC0mh4fK8aiAFM4nU8tGAMQYfbsLv45ZFDBFYr+ftrVwWCECY3PLEcSYGK4DN8tiIOQgZZ7zs56BODwxPpuPxt2IdBjiP1/PMeywGI3fH8N+RQAoVXrPp66hWEwlGnt/yv2wiBDCG0fPTgzQHHG/A7eSaSQ0PVqvm77BeGQc9ltrzxnUoBSh9y/HajDsIF2W56+mjUREKTKPi8blnHgU1jdTy0HwvBSF0xPDglEQKElux6eyrWRUJQ5vd88FwJAQug8/y1oY2Bhxqvu3mnEwODVKp5e+zYRsGOpPX88p3KgUmecnw3Y4/CBVhtuvqpVMSC0mh4PG9aiAFM4nS89GAMgYfbsLu45dGCxFYrufurVwWCECX2/PEcicFKoDN8tiIOQgZZ7rs56BODwxPpuPxt2IdBjiP1/PMey4FI3bH8N+RQQkVXbPq66hWFQlEnN/yv2wiBDCG0PPTgzUGHG3A7uSaSQ0PVKzm7rJeGAc9ltrzyHQpBSh9y/HajDwIF2S46+mjUREKTKPi8blnHwU1jdTy0H4wBiF0xPDglEQKElux6eyrWxQJQ5vd88NvJAUtg87y1oY3Bxtpve3mnUsODlKp5PC1YRsHOpHY88p3LAUlecnw3Y8+CBZhtuvqpVMSDEig4PG9ayAGMojT89GBMQYfbcPu45dGDRBYrufurVwXB0CX2/PEcycFKoDM8tiKOAgZZrrs56BPEAxOpePxt2QcBzaN1vLNei4FI3bH79+RQQsUXbPq66pVFAlEm9/zv2wiBDCF0fLUgzUGHG3A7uSaSQ0PVKzm7rJfGQc8lNrzyHUpBSh9y/HajDwJFmS46+mjUhEKS6Li8bpoHwU1i9Ty0H4wBiFzxfDglUMMEVux5+2sWxQJQprd88NvJAUsgs/y1oY3Bxppve3mnUsODlKp5PC1YhsGOpHY88p5KwUlecnw3Y8+ChVgtunqp1QSDEif4PG9ayAGMojT89GBMgUfbcPu45lFDRBXr+furVwXB0CW3PPEcycFKn/M8tiKOQcZZrrt56BPEAxOpd/zueUdBzaM1vLNei4GInbH79+RQgsUXbLr66pVFAlEm9/zv24jBi+F0fLUhDQGHG3A7uSaSg0OVKzm7rJfGQc8lNn0yHUpBSh7yvLajTsJFmS46umkUREMSqPh8bpoHwU1i9Py0n4wBiFzxe/hlUQLEVqw6O2sWxQJQprc88NxJQUsgs7z14Y3Bxpovu3mnUwPDVKo5PC1YhsGOpHY88p5KwUleMjx3Y9ACRVftOr"
+      );
 
       function generateMathProblem(difficulty) {
         const operations = ["+", "-", "*", "/"];
@@ -205,7 +536,7 @@
 
       function showFeedback(message, isCorrect) {
         feedback.textContent = message;
-        feedback.style.color = isCorrect ? "green" : "red";
+        feedback.style.color = isCorrect ? "#00ff00" : "#ff0000";
         feedback.style.opacity = 1;
         setTimeout(() => {
           feedback.style.opacity = 0;
@@ -218,91 +549,14 @@
         lapElement.textContent = lap;
         timeElement.textContent = time;
 
-        car.style.left = `${50 + speed / 2}%`;
-        track.style.animationDuration = `${1 - speed / 200}s`;
+        car.style.left = `${Math.min(Math.max(10 + speed / 2, 10), 90)}%`;
+        trackLine.style.animationDuration = `${Math.max(0.5, 5 - speed / 20)}s`;
       }
-
-      function createObstacle() {
-        const obstacle = document.createElement("div");
-        obstacle.classList.add("obstacle");
-        obstacle.style.left = `${Math.random() * 80 + 10}%`;
-        track.appendChild(obstacle);
-
-        setTimeout(() => {
-          track.removeChild(obstacle);
-        }, 3000);
-      }
-
-      function createPowerUp() {
-        const powerUp = document.createElement("div");
-        powerUp.classList.add("power-up");
-        powerUp.style.left = `${Math.random() * 80 + 10}%`;
-        track.appendChild(powerUp);
-
-        setTimeout(() => {
-          track.removeChild(powerUp);
-        }, 5000);
-      }
-
-      function checkCollisions() {
-        const carRect = car.getBoundingClientRect();
-        const obstacles = document.querySelectorAll(".obstacle");
-        const powerUps = document.querySelectorAll(".power-up");
-
-        obstacles.forEach((obstacle) => {
-          const obstacleRect = obstacle.getBoundingClientRect();
-          if (
-            carRect.left < obstacleRect.right &&
-            carRect.right > obstacleRect.left &&
-            carRect.top < obstacleRect.bottom &&
-            carRect.bottom > obstacleRect.top
-          ) {
-            speed = Math.max(0, speed - 10);
-            showFeedback("Hit an obstacle!", false);
-            wrongSound.play();
-          }
-        });
-
-        powerUps.forEach((powerUp) => {
-          const powerUpRect = powerUp.getBoundingClientRect();
-          if (
-            carRect.left < powerUpRect.right &&
-            carRect.right > powerUpRect.left &&
-            carRect.top < powerUpRect.bottom &&
-            carRect.bottom > powerUpRect.top
-          ) {
-            speed = Math.min(100, speed + 20);
-            showFeedback("Power-up!", true);
-            correctSound.play();
-            track.removeChild(powerUp);
-          }
-        });
-      }
-
-      function endGame() {
-        isGameOver = true;
-        clearInterval(gameInterval);
-        clearInterval(obstacleInterval);
-        clearInterval(powerUpInterval);
-        finalScoreElement.textContent = score;
-        finalTimeElement.textContent = time;
-        gameOverScreen.style.display = "block";
-
-        // Update leaderboard
-        leaderboard.push({ score, time });
-        leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
-        leaderboard = leaderboard.slice(0, 10); // Keep top 10
-        updateLeaderboard();
-      }
-
-      function updateLeaderboard() {
-        leaderboardList.innerHTML = "";
-        leaderboard.forEach((entry, index) => {
-          const li = document.createElement("li");
-          li.textContent = `Score: ${entry.score}, Time: ${entry.time}s`;
-          leaderboardList.appendChild(li);
-        });
-      }
+      let lapStartTime = 0;
+      let fastestLap = Infinity;
+      let fastestGame = Infinity;
+      let lapTimes = [];
+      let currentLapStartTime;
 
       function startGame() {
         isGameOver = false;
@@ -312,65 +566,205 @@
         time = 0;
         difficulty = "easy";
         streak = 0;
+        lapTimes = [];
+        currentLapStartTime = Date.now();
         updateProblem();
         updateGameState();
         gameOverScreen.style.display = "none";
+        userAnswer.value = "";
 
+        clearInterval(gameInterval);
         gameInterval = setInterval(() => {
           if (!isGameOver) {
             time++;
             updateGameState();
-            checkCollisions();
           }
         }, 1000);
+      }
 
-        obstacleInterval = setInterval(createObstacle, 3000);
-        powerUpInterval = setInterval(createPowerUp, 7000);
+      function showLapModal(lapTime) {
+        const modal = document.getElementById("lapModal");
+        const lapTimeSpan = document.getElementById("lapTime");
+        lapTimeSpan.textContent = lapTime.toFixed(2);
+        modal.style.display = "block";
+
+        const closeButton = modal.querySelector(".close-button");
+        closeButton.onclick = function () {
+          modal.style.display = "none";
+        };
+
+        window.onclick = function (event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        };
+      }
+
+      function checkAnswer() {
+        const userAnswerValue = parseInt(userAnswer.value);
+        if (userAnswerValue === currentProblem.answer) {
+          speed = Math.min(100, speed + 10);
+          score += 10;
+          streak++;
+          showFeedback("Correct!", true);
+          correctSound.play();
+
+          if (streak % 5 === 0) {
+            speed = Math.min(100, speed + 20);
+            showFeedback("Streak bonus!", true);
+          }
+
+          if (speed === 100) {
+            const lapTime = (Date.now() - currentLapStartTime) / 1000;
+            lapTimes.push(lapTime);
+            showLapModal(lapTime);
+            updateLeaderboard();
+
+            lap++;
+            if (lap > 3) {
+              endGame();
+            } else {
+              difficulty = lap === 2 ? "medium" : "hard";
+              speed = 50;
+              currentLapStartTime = Date.now();
+              showFeedback("Next lap!", true);
+            }
+          }
+        } else {
+          speed = Math.max(0, speed - 10);
+          streak = 0;
+          showFeedback("Wrong answer!", false);
+          wrongSound.play();
+        }
+        updateProblem();
+        updateGameState();
+        userAnswer.value = "";
+      }
+
+      function endGame() {
+        isGameOver = true;
+        clearInterval(gameInterval);
+        finalScoreElement.textContent = score;
+        finalTimeElement.textContent = time;
+        gameOverScreen.style.display = "block";
+
+        const fastestLap = Math.min(...lapTimes);
+        leaderboard.push({
+          score,
+          time,
+          lapTimes,
+          fastestLap,
+        });
+        leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+        leaderboard = leaderboard.slice(0, 10); // Keep top 10
+        updateLeaderboard();
+      }
+
+      function updateLeaderboard() {
+        leaderboardList.innerHTML = "";
+        leaderboard.forEach((entry, index) => {
+          const li = document.createElement("li");
+          const lapTimesStr = entry.lapTimes
+            ? entry.lapTimes.map((t) => t.toFixed(2)).join(", ")
+            : "N/A";
+          li.textContent = `Score: ${entry.score}, Time: ${
+            entry.time
+          }s, Lap Times: ${lapTimesStr}, Fastest Lap: ${
+            entry.fastestLap ? entry.fastestLap.toFixed(2) : "N/A"
+          }s`;
+          leaderboardList.appendChild(li);
+        });
+      }
+
+      function generateMathProblem(difficulty) {
+        const operations = ["+", "-", "*", "/"];
+        const operation =
+          operations[Math.floor(Math.random() * operations.length)];
+        let a, b;
+
+        switch (difficulty) {
+          case "easy":
+            a = Math.floor(Math.random() * 10) + 1;
+            b = Math.floor(Math.random() * 10) + 1;
+            break;
+          case "medium":
+            a = Math.floor(Math.random() * 50) + 1;
+            b = Math.floor(Math.random() * 50) + 1;
+            break;
+          case "hard":
+            a = Math.floor(Math.random() * 100) + 1;
+            b = Math.floor(Math.random() * 100) + 1;
+            break;
+        }
+
+        let problemText, answer;
+        switch (operation) {
+          case "+":
+            problemText = `${a} + ${b}`;
+            answer = a + b;
+            break;
+          case "-":
+            problemText = `${a} - ${b}`;
+            answer = a - b;
+            break;
+          case "*":
+            problemText = `${a} × ${b}`;
+            answer = a * b;
+            break;
+          case "/":
+            answer = a;
+            problemText = `${a * b} ÷ ${b}`;
+            break;
+        }
+
+        return { problemText, answer };
+      }
+
+      function updateProblem() {
+        currentProblem = generateMathProblem(difficulty);
+        problem.textContent = currentProblem.problemText;
+      }
+
+      function showFeedback(message, isCorrect) {
+        feedback.textContent = message;
+        feedback.style.color = isCorrect ? "#00ff00" : "#ff0000";
+        feedback.style.opacity = 1;
+        setTimeout(() => {
+          feedback.style.opacity = 0;
+        }, 1500);
+      }
+
+      function updateGameState() {
+        speedElement.textContent = speed;
+        scoreElement.textContent = score;
+        lapElement.textContent = lap;
+        timeElement.textContent = time;
+
+        car.style.left = `${Math.min(Math.max(10 + speed / 2, 10), 90)}%`;
+        trackLine.style.animationDuration = `${Math.max(0.5, 5 - speed / 20)}s`;
+      }
+
+      function quitGame() {
+        endGame();
+      }
+
+      function resetLeaderboard() {
+        leaderboard = [];
+        updateLeaderboard();
+        alert("Leaderboard has been reset!");
       }
 
       userAnswer.addEventListener("keyup", (e) => {
         if (e.key === "Enter") {
-          const userAnswerValue = parseInt(userAnswer.value);
-          if (userAnswerValue === currentProblem.answer) {
-            speed = Math.min(100, speed + 10);
-            score += 10;
-            streak++;
-            showFeedback("Correct!", true);
-            correctSound.play();
-
-            if (streak % 5 === 0) {
-              speed = Math.min(100, speed + 20);
-              showFeedback("Streak bonus!", true);
-            }
-
-            if (speed === 100) {
-              lap++;
-              if (lap > 3) {
-                endGame();
-              } else {
-                difficulty = lap === 2 ? "medium" : "hard";
-                speed = 50;
-                finishLine.style.opacity = 1;
-                finishLine.style.animation = "moveFinishLine 5s linear";
-                setTimeout(() => {
-                  finishLine.style.opacity = 0;
-                  finishLine.style.animation = "none";
-                }, 5000);
-              }
-            }
-          } else {
-            speed = Math.max(0, speed - 10);
-            streak = 0;
-            showFeedback("Wrong answer!", false);
-            wrongSound.play();
-          }
-          updateProblem();
-          updateGameState();
-          userAnswer.value = "";
+          checkAnswer();
         }
       });
 
+      submitAnswer.addEventListener("click", checkAnswer);
       restartButton.addEventListener("click", startGame);
+      quitButton.addEventListener("click", quitGame);
+      resetLeaderboardButton.addEventListener("click", resetLeaderboard);
+      // Initialize the game
       startGame();
     </script>
   </body>
