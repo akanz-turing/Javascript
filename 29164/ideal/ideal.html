@@ -434,7 +434,7 @@
       function startQuiz() {
         const mode = document.getElementById("quiz-mode").value;
         const region = document.getElementById("region").value;
-        currentQuiz = quizData[mode][region] || quizData[mode]["world"];
+        currentQuiz = quizData[mode]?.[region] || quizData[mode]?.["world"];
         currentQuestionIndex = 0;
         score = 0;
         if (currentQuiz && currentQuiz.length > 0) {
@@ -444,7 +444,10 @@
           alert(
             "No questions available for this combination. Try a different mode or region."
           );
-          return;
+          // Reset to default values or previous valid selection
+          document.getElementById("quiz-mode").value = "country-capital";
+          document.getElementById("region").value = "world";
+          startQuiz(); // Recursive call with default values
         }
       }
 
@@ -465,9 +468,14 @@
           optionsContainer.appendChild(button);
         });
 
-        if (marker) map.removeLayer(marker);
-        map.setView(question.coordinates, 5);
-        marker = L.marker(question.coordinates).addTo(map);
+        try {
+          if (marker) map.removeLayer(marker);
+          map.setView(question.coordinates, 5);
+          marker = L.marker(question.coordinates).addTo(map);
+        } catch (error) {
+          console.error("Error updating map:", error);
+          // Handle map error gracefully, e.g., display a message to the user
+        }
       }
 
       function selectOption(option) {
@@ -494,9 +502,13 @@
           selectedButton.classList.add("bg-green-500");
         } else {
           selectedButton.classList.add("bg-red-500");
-          document
-            .querySelector(`#options button:contains('${correctAnswer}')`)
-            .classList.add("bg-green-500");
+          // Find and highlight the correct answer
+          const buttons = document.querySelectorAll("#options button");
+          buttons.forEach((button) => {
+            if (button.textContent === correctAnswer) {
+              button.classList.add("bg-green-500");
+            }
+          });
         }
 
         setTimeout(() => {
