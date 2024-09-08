@@ -105,16 +105,18 @@
           if (board[row][col] === 0) {
             board[row][col] = currentPlayer;
             const cell = document.querySelector(
-              `[data-col="$ {col}"][data-row=" ${row}"]`
+              `[data-col="${col}"][data-row="${row}"]`
             );
             const piece = document.createElement("div");
-            piece.className = `w-14 h-14 rounded-full <INLINE_MATH>{currentPlayer === 1 ? 'bg-red-500' : 'bg-yellow-500'} animate__animated animate__slideInDown`;
+            piece.className = `w-14 h-14 rounded-full ${
+              currentPlayer === 1 ? "bg-red-500" : "bg-yellow-500"
+            } animate__animated animate__slideInDown`;
             cell.appendChild(piece);
             if (checkWin(row, col)) {
               document.getElementById("gameResult").classList.remove("hidden");
               document.getElementById(
                 "winnerMessage"
-              ).innerText = `</INLINE_MATH>{playerNames[currentPlayer]} wins!`;
+              ).innerText = `${playerNames[currentPlayer]} wins!`;
             } else if (isBoardFull()) {
               document.getElementById("gameResult").classList.remove("hidden");
               document.getElementById("winnerMessage").innerText =
@@ -165,7 +167,9 @@
       function updateTurnIndicator() {
         document.getElementById(
           "turnIndicator"
-        ).innerHTML = `Current Turn: <span class="$ {currentPlayer === 1 ? 'text-red-500' : 'text-yellow-500'}"> ${playerNames[currentPlayer]}</span>`;
+        ).innerHTML = `Current Turn: <span class="${
+          currentPlayer === 1 ? "text-red-500" : "text-yellow-500"
+        }">${playerNames[currentPlayer]}</span>`;
       }
     </script>
   </body>

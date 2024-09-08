@@ -64,98 +64,18 @@
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Array</h3>
               <canvas id="arrayChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="arrayOperation('insert')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Insert
-                </button>
-                <button
-                  onclick="arrayOperation('delete')"
-                  class="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-                <button
-                  onclick="arrayOperation('search')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Search
-                </button>
-              </div>
             </div>
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Linked List</h3>
               <canvas id="linkedListChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="linkedListOperation('insert')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Insert
-                </button>
-                <button
-                  onclick="linkedListOperation('delete')"
-                  class="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-                <button
-                  onclick="linkedListOperation('search')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Search
-                </button>
-              </div>
             </div>
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Binary Search Tree</h3>
               <canvas id="bstChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="bstOperation('insert')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Insert
-                </button>
-                <button
-                  onclick="bstOperation('delete')"
-                  class="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-                <button
-                  onclick="bstOperation('search')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Search
-                </button>
-              </div>
             </div>
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Hash Table</h3>
               <canvas id="hashTableChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="hashTableOperation('insert')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Insert
-                </button>
-                <button
-                  onclick="hashTableOperation('delete')"
-                  class="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-                <button
-                  onclick="hashTableOperation('search')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Search
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -165,44 +85,10 @@
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Sorting Algorithms</h3>
               <canvas id="sortingChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="runSortingAlgorithm('bubble')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Bubble Sort
-                </button>
-                <button
-                  onclick="runSortingAlgorithm('quick')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Quick Sort
-                </button>
-                <button
-                  onclick="runSortingAlgorithm('merge')"
-                  class="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Merge Sort
-                </button>
-              </div>
             </div>
             <div class="bg-white p-4 rounded shadow">
               <h3 class="text-lg mb-2">Search Algorithms</h3>
               <canvas id="searchChart"></canvas>
-              <div class="mt-4">
-                <button
-                  onclick="runSearchAlgorithm('linear')"
-                  class="bg-blue-500 text-white px-2 py-1 rounded"
-                >
-                  Linear Search
-                </button>
-                <button
-                  onclick="runSearchAlgorithm('binary')"
-                  class="bg-green-500 text-white px-2 py-1 rounded"
-                >
-                  Binary Search
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -249,6 +135,15 @@
         searchChart,
         comparisonChart;
 
+      const chartColors = [
+        "rgba(255, 99, 132, 0.5)",
+        "rgba(54, 162, 235, 0.5)",
+        "rgba(75, 192, 192, 0.5)",
+        "rgba(255, 206, 86, 0.5)",
+        "rgba(153, 102, 255, 0.5)",
+        "rgba(255, 159, 64, 0.5)",
+      ];
+
       function showView(viewId) {
         document
           .querySelectorAll(".view")
@@ -274,17 +169,17 @@
               {
                 label: "Insertion",
                 data: [1, 1, Math.log2(1000), 1],
-                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                backgroundColor: chartColors[0],
               },
               {
                 label: "Deletion",
                 data: [1, 1, Math.log2(1000), 1],
-                backgroundColor: "rgba(54, 162, 235, 0.5)",
+                backgroundColor: chartColors[1],
               },
               {
                 label: "Search",
                 data: [1000, 1000, Math.log2(1000), 1],
-                backgroundColor: "rgba(75, 192, 192, 0.5)",
+                backgroundColor: chartColors[2],
               },
             ],
           },
@@ -303,7 +198,7 @@
         });
       }
 
-      // Array Operations
+      // Updated Array Operations
       function createArrayChart() {
         const ctx = document.getElementById("arrayChart").getContext("2d");
         arrayChart = new Chart(ctx, {
@@ -314,16 +209,28 @@
               {
                 label: "Time Complexity",
                 data: [1, 1, 1000],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                  "rgba(75, 192, 192, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 3),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(1) - Best/Average",
+                        fillStyle: chartColors[0],
+                      },
+                      { text: "O(n) - Worst", fillStyle: chartColors[2] },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -337,23 +244,7 @@
         });
       }
 
-      function arrayOperation(operation) {
-        let data = arrayChart.data.datasets[0].data;
-        switch (operation) {
-          case "insert":
-            data[0] = 1;
-            break;
-          case "delete":
-            data[1] = 1;
-            break;
-          case "search":
-            data[2] = 1000;
-            break;
-        }
-        arrayChart.update();
-      }
-
-      // Linked List Operations
+      // Updated Linked List Operations
       function createLinkedListChart() {
         const ctx = document.getElementById("linkedListChart").getContext("2d");
         linkedListChart = new Chart(ctx, {
@@ -364,16 +255,28 @@
               {
                 label: "Time Complexity",
                 data: [1, 1, 1000],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                  "rgba(75, 192, 192, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 3),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(1) - Insert/Delete",
+                        fillStyle: chartColors[0],
+                      },
+                      { text: "O(n) - Search", fillStyle: chartColors[2] },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -387,23 +290,7 @@
         });
       }
 
-      function linkedListOperation(operation) {
-        let data = linkedListChart.data.datasets[0].data;
-        switch (operation) {
-          case "insert":
-            data[0] = 1;
-            break;
-          case "delete":
-            data[1] = 1;
-            break;
-          case "search":
-            data[2] = 1000;
-            break;
-        }
-        linkedListChart.update();
-      }
-
-      // Binary Search Tree Operations
+      // Updated Binary Search Tree Operations
       function createBSTChart() {
         const ctx = document.getElementById("bstChart").getContext("2d");
         bstChart = new Chart(ctx, {
@@ -414,16 +301,39 @@
               {
                 label: "Time Complexity",
                 data: [Math.log2(1000), Math.log2(1000), Math.log2(1000)],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                  "rgba(75, 192, 192, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 3),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(log n) - Insert (Average)",
+                        fillStyle: chartColors[0],
+                      },
+                      {
+                        text: "O(log n) - Delete (Average)",
+                        fillStyle: chartColors[1],
+                      },
+                      {
+                        text: "O(log n) - Search (Average)",
+                        fillStyle: chartColors[2],
+                      },
+                      {
+                        text: "O(n) - Insert/Delete/Search (Worst)",
+                        fillStyle: chartColors[3],
+                      },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -437,19 +347,7 @@
         });
       }
 
-      function bstOperation(operation) {
-        let data = bstChart.data.datasets[0].data;
-        switch (operation) {
-          case "insert":
-          case "delete":
-          case "search":
-            data[0] = data[1] = data[2] = Math.log2(1000);
-            break;
-        }
-        bstChart.update();
-      }
-
-      // Hash Table Operations
+      // Updated Hash Table Operations
       function createHashTableChart() {
         const ctx = document.getElementById("hashTableChart").getContext("2d");
         hashTableChart = new Chart(ctx, {
@@ -460,16 +358,39 @@
               {
                 label: "Time Complexity",
                 data: [1, 1, 1],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                  "rgba(75, 192, 192, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 3),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(1) - Insert (Average)",
+                        fillStyle: chartColors[0],
+                      },
+                      {
+                        text: "O(1) - Delete (Average)",
+                        fillStyle: chartColors[1],
+                      },
+                      {
+                        text: "O(1) - Search (Average)",
+                        fillStyle: chartColors[2],
+                      },
+                      {
+                        text: "O(n) - Insert/Delete/Search (Worst)",
+                        fillStyle: chartColors[3],
+                      },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -482,20 +403,7 @@
           },
         });
       }
-
-      function hashTableOperation(operation) {
-        let data = hashTableChart.data.datasets[0].data;
-        switch (operation) {
-          case "insert":
-          case "delete":
-          case "search":
-            data[0] = data[1] = data[2] = 1;
-            break;
-        }
-        hashTableChart.update();
-      }
-
-      // Sorting Algorithms
+      // Updated Sorting Algorithms
       function createSortingChart() {
         const ctx = document.getElementById("sortingChart").getContext("2d");
         sortingChart = new Chart(ctx, {
@@ -506,16 +414,31 @@
               {
                 label: "Time Complexity",
                 data: [1000000, 10000, 10000],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                  "rgba(75, 192, 192, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 3),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(n²) - Bubble Sort",
+                        fillStyle: chartColors[0],
+                      },
+                      {
+                        text: "O(n log n) - Quick/Merge Sort",
+                        fillStyle: chartColors[1],
+                      },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -529,21 +452,7 @@
         });
       }
 
-      function runSortingAlgorithm(algorithm) {
-        let data = sortingChart.data.datasets[0].data;
-        switch (algorithm) {
-          case "bubble":
-            data[0] = 1000000;
-            break;
-          case "quick":
-          case "merge":
-            data[1] = data[2] = 10000;
-            break;
-        }
-        sortingChart.update();
-      }
-
-      // Search Algorithms
+      // Updated Search Algorithms
       function createSearchChart() {
         const ctx = document.getElementById("searchChart").getContext("2d");
         searchChart = new Chart(ctx, {
@@ -554,15 +463,31 @@
               {
                 label: "Time Complexity",
                 data: [1000, 10],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.5)",
-                  "rgba(54, 162, 235, 0.5)",
-                ],
+                backgroundColor: chartColors.slice(0, 2),
               },
             ],
           },
           options: {
             responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  generateLabels: function (chart) {
+                    return [
+                      {
+                        text: "O(n) - Linear Search",
+                        fillStyle: chartColors[0],
+                      },
+                      {
+                        text: "O(log n) - Binary Search",
+                        fillStyle: chartColors[1],
+                      },
+                    ];
+                  },
+                },
+              },
+            },
             scales: {
               y: {
                 beginAtZero: true,
@@ -575,20 +500,6 @@
           },
         });
       }
-
-      function runSearchAlgorithm(algorithm) {
-        let data = searchChart.data.datasets[0].data;
-        switch (algorithm) {
-          case "linear":
-            data[0] = 1000;
-            break;
-          case "binary":
-            data[1] = 10;
-            break;
-        }
-        searchChart.update();
-      }
-
       // Comparison Tool
       function compareStructures() {
         const structure1 = document.getElementById("compare1").value;
@@ -600,12 +511,12 @@
             {
               label: structure1,
               data: getDataForStructure(structure1),
-              backgroundColor: "rgba(255, 99, 132, 0.5)",
+              backgroundColor: chartColors[0],
             },
             {
               label: structure2,
               data: getDataForStructure(structure2),
-              backgroundColor: "rgba(54, 162, 235, 0.5)",
+              backgroundColor: chartColors[1],
             },
           ],
         };
