@@ -146,7 +146,7 @@
           gameBoard.appendChild(card);
         });
 
-        startButton.disabled = true;
+        startButton.style.display = "none"; // Hide the start button
         gameInterval = setInterval(() => {
           timer++;
           timerDisplay.textContent = `Time: ${timer}s`;
@@ -189,10 +189,9 @@
 
       function endGame() {
         clearInterval(gameInterval);
-        startButton.disabled = false;
+        startButton.style.display = "inline-block"; // Show the start button again
         alert(`Game Over! Your score: ${score}, Time taken: ${timer} seconds`);
       }
-
       startButton.addEventListener("click", startGame);
     </script>
   </body>
