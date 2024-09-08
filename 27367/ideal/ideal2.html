@@ -152,7 +152,7 @@
           isMetric ? "m/s" : "mph"
         }`;
       }
-
+      // Modify other functions to handle errors
       async function getWeatherData(city) {
         try {
           const response = await fetch(
@@ -168,11 +168,25 @@
           }
           return data;
         } catch (error) {
-          console.error("Error fetching weather data:", error);
-          throw error;
+          console.warn("Error fetching weather data:", error);
+          throw error; // Re-throw the error to be handled by the calling function
         }
       }
 
+      async function addCity() {
+        const city = document.getElementById("cityInput").value;
+        if (city && !cities.includes(city)) {
+          try {
+            await getWeatherData(city);
+            cities.push(city);
+            updateDashboard();
+          } catch (error) {
+            alert(
+              `Unable to find weather data for ${city}. Please try a different city name.`
+            );
+          }
+        }
+      }
       async function getGeneralLocation(city) {
         try {
           const response = await fetch(
@@ -190,6 +204,7 @@
       }
 
       async function getHistoricalData(city) {
+        // In a real application, you would fetch actual historical data
         return Array(30)
           .fill()
           .map((_, i) => ({
@@ -198,34 +213,25 @@
           }));
       }
 
-      async function addCity() {
-        const city = document.getElementById("cityInput").value;
-        if (city && !cities.includes(city)) {
-          try {
-            await getWeatherData(city);
-            cities.push(city);
-            updateDashboard();
-          } catch (error) {
-            alert(
-              `Unable to find weather data for ${city}. Please try a different city name.`
-            );
-          }
-        }
-      }
-
       function removeCity(city) {
         cities = cities.filter((c) => c !== city);
         updateDashboard();
       }
 
+      // Modify the updateDashboard function to handle errors gracefully
       async function updateDashboard() {
-        updateCityList();
-        await updateHourlyForecast();
-        await updateTemperatureChart();
-        await updatePrecipitationChart();
-        await updateWindSpeedChart();
-        await updateComparisonChart();
-        await updateHistoricalChart();
+        try {
+          updateCityList();
+          await updateHourlyForecast();
+          await updateTemperatureChart();
+          await updatePrecipitationChart();
+          await updateWindSpeedChart();
+          await updateComparisonChart();
+          await updateHistoricalChart();
+        } catch (error) {
+          console.warn("Error updating dashboard:", error);
+          // Optionally, display a user-friendly message on the UI
+        }
       }
 
       function updateCityList() {
@@ -268,16 +274,28 @@
 
         hourlyContainer.innerHTML = hourlyHTML;
       }
-
       async function updateTemperatureChart() {
         if (cities.length === 0) return;
-        const data = await getWeatherData(cities[0]);
-        const labels = data.list
+
+        const datasets = await Promise.all(
+          cities.map(async (city) => {
+            const data = await getWeatherData(city);
+            return {
+              label: city,
+              data: data.list
+                .slice(0, 7)
+                .map((item) => convertTemperature(item.main.temp)),
+              borderColor: `rgb(${Math.random() * 255},${Math.random() * 255},${
+                Math.random() * 255
+              })`,
+              tension: 0.1,
+            };
+          })
+        );
+
+        const labels = (await getWeatherData(cities[0])).list
           .slice(0, 7)
           .map((item) => moment(item.dt_txt).format("MMM D"));
-        const temperatures = data.list
-          .slice(0, 7)
-          .map((item) => convertTemperature(item.main.temp));
 
         if (temperatureChart) temperatureChart.destroy();
         temperatureChart = new Chart(
@@ -286,21 +304,14 @@
             type: "line",
             data: {
               labels: labels,
-              datasets: [
-                {
-                  label: `Temperature (°${isMetric ? "C" : "F"})`,
-                  data: temperatures,
-                  borderColor: "rgb(75, 192, 192)",
-                  tension: 0.1,
-                },
-              ],
+              datasets: datasets,
             },
             options: {
               responsive: true,
               plugins: {
                 title: {
                   display: true,
-                  text: `7-Day Temperature Forecast for ${cities[0]}`,
+                  text: `7-Day Temperature Forecast`,
                   color: isDarkMode ? "white" : "black",
                 },
               },
@@ -319,13 +330,27 @@
 
       async function updatePrecipitationChart() {
         if (cities.length === 0) return;
-        const data = await getWeatherData(cities[0]);
-        const labels = data.list
+
+        const datasets = await Promise.all(
+          cities.map(async (city) => {
+            const data = await getWeatherData(city);
+            return {
+              label: city,
+              data: data.list.slice(0, 7).map((item) => (item.pop || 0) * 100), // Use 0 if pop is undefined
+              backgroundColor: `rgba(${Math.random() * 255},${
+                Math.random() * 255
+              },${Math.random() * 255},0.5)`,
+              borderColor: `rgb(${Math.random() * 255},${Math.random() * 255},${
+                Math.random() * 255
+              })`,
+              borderWidth: 1,
+            };
+          })
+        );
+
+        const labels = (await getWeatherData(cities[0])).list
           .slice(0, 7)
           .map((item) => moment(item.dt_txt).format("MMM D"));
-        const precipitation = data.list
-          .slice(0, 7)
-          .map((item) => item.pop * 100);
 
         if (precipitationChart) precipitationChart.destroy();
         precipitationChart = new Chart(
@@ -334,22 +359,14 @@
             type: "bar",
             data: {
               labels: labels,
-              datasets: [
-                {
-                  label: "Precipitation (%)",
-                  data: precipitation,
-                  backgroundColor: "rgba(54, 162, 235, 0.5)",
-                  borderColor: "rgb(54, 162, 235)",
-                  borderWidth: 1,
-                },
-              ],
+              datasets: datasets,
             },
             options: {
               responsive: true,
               plugins: {
                 title: {
                   display: true,
-                  text: `7-Day Precipitation Forecast for ${cities[0]}`,
+                  text: `7-Day Precipitation Forecast`,
                   color: isDarkMode ? "white" : "black",
                 },
               },
@@ -370,34 +387,40 @@
 
       async function updateWindSpeedChart() {
         if (cities.length === 0) return;
-        const data = await getWeatherData(cities[0]);
-        const labels = data.list
+
+        const datasets = await Promise.all(
+          cities.map(async (city) => {
+            const data = await getWeatherData(city);
+            return {
+              label: city,
+              data: data.list
+                .slice(0, 7)
+                .map((item) => convertWindSpeed(item.wind.speed)),
+              borderColor: `rgb(${Math.random() * 255},${Math.random() * 255},${
+                Math.random() * 255
+              })`,
+              tension: 0.1,
+            };
+          })
+        );
+
+        const labels = (await getWeatherData(cities[0])).list
           .slice(0, 7)
           .map((item) => moment(item.dt_txt).format("MMM D"));
-        const windSpeeds = data.list
-          .slice(0, 7)
-          .map((item) => convertWindSpeed(item.wind.speed));
 
         if (windSpeedChart) windSpeedChart.destroy();
         windSpeedChart = new Chart(document.getElementById("windSpeedChart"), {
           type: "line",
           data: {
             labels: labels,
-            datasets: [
-              {
-                label: `Wind Speed (${isMetric ? "m/s" : "mph"})`,
-                data: windSpeeds,
-                borderColor: "rgb(255, 159, 64)",
-                tension: 0.1,
-              },
-            ],
+            datasets: datasets,
           },
           options: {
             responsive: true,
             plugins: {
               title: {
                 display: true,
-                text: `7-Day Wind Speed Forecast for ${cities[0]}`,
+                text: `7-Day Wind Speed Forecast`,
                 color: isDarkMode ? "white" : "black",
               },
             },
@@ -412,7 +435,6 @@
           },
         });
       }
-
       async function updateComparisonChart() {
         const datasets = await Promise.all(
           cities.map(async (city) => {
@@ -468,50 +490,65 @@
           }
         );
       }
-
       async function updateHistoricalChart() {
         if (cities.length === 0) return;
-        const historicalData = await getHistoricalData(cities[0]);
 
-        if (historicalChart) historicalChart.destroy();
-        historicalChart = new Chart(
-          document.getElementById("historicalChart"),
-          {
-            type: "line",
-            data: {
-              labels: historicalData.map((item) => item.date),
-              datasets: [
-                {
-                  label: `Temperature (°${isMetric ? "C" : "F"})`,
-                  data: historicalData.map((item) =>
-                    convertTemperature(item.temp)
-                  ),
-                  borderColor: "rgb(255, 99, 132)",
-                  tension: 0.1,
+        try {
+          const datasets = await Promise.all(
+            cities.map(async (city) => {
+              const historicalData = await getHistoricalData(city);
+              return {
+                label: city,
+                data: historicalData.map((item) =>
+                  convertTemperature(item.temp)
+                ),
+                borderColor: `rgb(${Math.random() * 255},${
+                  Math.random() * 255
+                },${Math.random() * 255})`,
+                tension: 0.1,
+              };
+            })
+          );
+
+          const labels = (await getHistoricalData(cities[0])).map(
+            (item) => item.date
+          );
+
+          if (historicalChart) historicalChart.destroy();
+          historicalChart = new Chart(
+            document.getElementById("historicalChart"),
+            {
+              type: "line",
+              data: {
+                labels: labels,
+                datasets: datasets,
+              },
+              options: {
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Historical Data & Climate Trends",
+                    color: isDarkMode ? "white" : "black",
+                  },
                 },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                title: {
-                  display: true,
-                  text: `Historical Data for ${cities[0]}`,
-                  color: isDarkMode ? "white" : "black",
+                scales: {
+                  x: {
+                    ticks: { color: isDarkMode ? "white" : "black" },
+                  },
+                  y: {
+                    ticks: { color: isDarkMode ? "white" : "black" },
+                  },
                 },
               },
-              scales: {
-                x: {
-                  ticks: { color: isDarkMode ? "white" : "black" },
-                },
-                y: {
-                  ticks: { color: isDarkMode ? "white" : "black" },
-                },
-              },
-            },
-          }
-        );
+            }
+          );
+        } catch (error) {
+          console.warn("Error updating historical chart:", error);
+          // Optionally, display a user-friendly message on the UI
+        }
       }
+
       async function getUserLocation() {
         return new Promise((resolve, reject) => {
           if (!navigator.geolocation) {
