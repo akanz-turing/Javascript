@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skyscraper Typer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #game-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+      }
+      #skyscraper {
+        width: 100px;
+        background: #333;
+        margin: auto;
+        position: relative;
+      }
+      .floor {
+        width: 100%;
+        background: #666;
+        margin: 2px 0;
+        transition: all 0.5s;
+      }
+      #typing-area,
+      #progress-bar,
+      #score {
+        width: 80%;
+        text-align: center;
+      }
+      #progress-bar {
+        height: 20px;
+        background: #e0e0e0;
+      }
+      #progress {
+        width: 100%;
+        height: 100%;
+        background: #4caf50;
+        transition: width 0.5s;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="skyscraper"></div>
+      <div id="typing-area">
+        <p id="sentence"></p>
+        <input type="text" id="type-input" autocomplete="off" autofocus />
+      </div>
+      <div id="progress-bar"><div id="progress"></div></div>
+      <div id="score">Floors: 0 | Time: 90s</div>
+      <div id="leaderboard"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script>
+      // Game logic here
+      document.addEventListener("DOMContentLoaded", function () {
+        let floors = 0,
+          timeLeft = 90,
+          currentSentence = "",
+          inputField = document.getElementById("type-input");
+        let skyscraper = document.getElementById("skyscraper");
+        let progress = document.getElementById("progress");
+        let scoreDisplay = document.getElementById("score");
+
+        function generateSentence() {
+          // Function to generate random sentences
+          return "This is a test sentence for typing.";
+        }
+
+        function startGame() {
+          updateSentence();
+          startTimer();
+          inputField.addEventListener("input", checkTyping);
+        }
+
+        function updateSentence() {
+          currentSentence = generateSentence();
+          document.getElementById("sentence").textContent = currentSentence;
+          inputField.value = "";
+          updateProgressBar(10); // Reset progress bar for new sentence
+        }
+
+        function checkTyping() {
+          let userText = this.value;
+          if (currentSentence.startsWith(userText)) {
+            let accuracy = (userText.length / currentSentence.length) * 10;
+            updateProgressBar(accuracy);
+            if (userText === currentSentence) {
+              buildFloor(userText.length === currentSentence.length);
+              updateSentence();
+            }
+          }
+        }
+
+        function buildFloor(isPerfect) {
+          let floor = document.createElement("div");
+          floor.className = "floor";
+          floor.style.height = "10px";
+          if (!isPerfect)
+            floor.style.transform = `translateX(${
+              Math.random() > 0.5 ? "-" : ""
+            }${Math.random() * 10}px)`;
+          skyscraper.appendChild(floor);
+          floors++;
+          // Animation for boost or perfect alignment
+          if (isPerfect)
+            anime({ targets: floor, scaleY: [0, 1], easing: "easeOutExpo" });
+        }
+
+        function updateProgressBar(percent) {
+          progress.style.width = `${percent * 10}%`;
+        }
+
+        function startTimer() {
+          let timer = setInterval(function () {
+            timeLeft--;
+            scoreDisplay.textContent = `Floors: ${floors} | Time: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              endGame();
+            }
+          }, 1000);
+        }
+
+        function endGame() {
+          alert("Game Over! You built " + floors + " floors.");
+          // Here you would update leaderboard and offer restart
+        }
+
+        startGame();
+      });
+    </script>
+  </body>
+</html>
