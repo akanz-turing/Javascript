@@ -5,138 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Skyscraper Typer</title>
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
       #game-container {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-around;
+        max-width: 800px;
+        margin: auto;
+        text-align: center;
       }
       #skyscraper {
+        height: 300px;
         width: 100px;
-        background: #333;
-        margin: auto;
+        background: #ddd;
+        margin: 20px auto;
         position: relative;
       }
       .floor {
         width: 100%;
-        background: #666;
+        height: 10px;
+        background: #333;
         margin: 2px 0;
-        transition: all 0.5s;
+        opacity: 0;
       }
-      #typing-area,
-      #progress-bar,
-      #score {
+      #typing-area {
+        margin: 20px;
+      }
+      #sentence {
+        font-size: 1.4em;
+        margin-bottom: 10px;
+      }
+      #user-input {
         width: 80%;
-        text-align: center;
+        padding: 10px;
+        font-size: 1em;
       }
       #progress-bar {
-        height: 20px;
-        background: #e0e0e0;
+        width: 100%;
+        background: #f3f3f3;
+        border: 1px solid #ccc;
       }
       #progress {
+        height: 20px;
         width: 100%;
-        height: 100%;
         background: #4caf50;
         transition: width 0.5s;
+      }
+      #leaderboard {
+        width: 100%;
+        margin-top: 20px;
+      }
+      #leaderboard td,
+      #leaderboard th {
+        padding: 8px;
+      }
+      @media (max-width: 768px) {
+        #user-input {
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
     <div id="game-container">
+      <h1>Skyscraper Typer</h1>
       <div id="skyscraper"></div>
       <div id="typing-area">
-        <p id="sentence"></p>
-        <input type="text" id="type-input" autocomplete="off" autofocus />
+        <div id="sentence"></div>
+        <input type="text" id="user-input" placeholder="Start typing here..." />
+        <div id="progress-bar"><div id="progress"></div></div>
       </div>
-      <div id="progress-bar"><div id="progress"></div></div>
-      <div id="score">Floors: 0 | Time: 90s</div>
+      <button onclick="restartGame()">Restart</button>
       <div id="leaderboard"></div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-      // Game logic here
-      document.addEventListener("DOMContentLoaded", function () {
-        let floors = 0,
-          timeLeft = 90,
-          currentSentence = "",
-          inputField = document.getElementById("type-input");
-        let skyscraper = document.getElementById("skyscraper");
-        let progress = document.getElementById("progress");
-        let scoreDisplay = document.getElementById("score");
+      const sentences = [
+        "The quick brown fox jumps over the lazy dog.",
+        "Programming is not just about what you know; it's about what you can figure out.",
+        "Build a skyscraper with your typing skills.",
+        // Add more sentences here
+      ];
 
-        function generateSentence() {
-          // Function to generate random sentences
-          return "This is a test sentence for typing.";
-        }
+      let floors = 0,
+        gameTime = 90,
+        sentenceTime = 10,
+        currentSentence = "";
+      let gameTimer, sentenceTimer;
 
-        function startGame() {
-          updateSentence();
-          startTimer();
-          inputField.addEventListener("input", checkTyping);
-        }
+      function startGame() {
+        floors = 0;
+        updateSkyscraper();
+        nextSentence();
+        gameTimer = setInterval(() => {
+          gameTime--;
+          if (gameTime <= 0) endGame();
+        }, 1000);
+      }
 
-        function updateSentence() {
-          currentSentence = generateSentence();
-          document.getElementById("sentence").textContent = currentSentence;
-          inputField.value = "";
-          updateProgressBar(10); // Reset progress bar for new sentence
-        }
+      function nextSentence() {
+        currentSentence =
+          sentences[Math.floor(Math.random() * sentences.length)];
+        $("#sentence").text(currentSentence);
+        $("#user-input").val("").focus();
+        $("#progress").css("width", "100%");
+        clearInterval(sentenceTimer);
+        sentenceTime = 10;
+        sentenceTimer = setInterval(updateSentenceProgress, 1000);
+      }
 
-        function checkTyping() {
-          let userText = this.value;
-          if (currentSentence.startsWith(userText)) {
-            let accuracy = (userText.length / currentSentence.length) * 10;
-            updateProgressBar(accuracy);
-            if (userText === currentSentence) {
-              buildFloor(userText.length === currentSentence.length);
-              updateSentence();
-            }
-          }
-        }
+      function updateSentenceProgress() {
+        sentenceTime--;
+        let width = (sentenceTime / 10) * 100;
+        $("#progress").css("width", width + "%");
+        if (sentenceTime <= 0) nextSentence();
+      }
 
-        function buildFloor(isPerfect) {
-          let floor = document.createElement("div");
-          floor.className = "floor";
-          floor.style.height = "10px";
-          if (!isPerfect)
-            floor.style.transform = `translateX(${
-              Math.random() > 0.5 ? "-" : ""
-            }${Math.random() * 10}px)`;
-          skyscraper.appendChild(floor);
+      function updateSkyscraper() {
+        $("#skyscraper").append(
+          '<div class="floor animate__animated animate__fadeInUp"></div>'
+        );
+        $(".floor").css("opacity", 1);
+      }
+
+      $("#user-input").on("input", function () {
+        if ($(this).val() === currentSentence) {
           floors++;
-          // Animation for boost or perfect alignment
-          if (isPerfect)
-            anime({ targets: floor, scaleY: [0, 1], easing: "easeOutExpo" });
+          updateSkyscraper();
+          nextSentence();
         }
-
-        function updateProgressBar(percent) {
-          progress.style.width = `${percent * 10}%`;
-        }
-
-        function startTimer() {
-          let timer = setInterval(function () {
-            timeLeft--;
-            scoreDisplay.textContent = `Floors: ${floors} | Time: ${timeLeft}s`;
-            if (timeLeft <= 0) {
-              clearInterval(timer);
-              endGame();
-            }
-          }, 1000);
-        }
-
-        function endGame() {
-          alert("Game Over! You built " + floors + " floors.");
-          // Here you would update leaderboard and offer restart
-        }
-
-        startGame();
       });
+
+      function endGame() {
+        clearInterval(gameTimer);
+        clearInterval(sentenceTimer);
+        alert("Game Over! You built " + floors + " floors.");
+        // Here you would update leaderboard, possibly with an AJAX call or local storage
+      }
+
+      function restartGame() {
+        clearInterval(gameTimer);
+        clearInterval(sentenceTimer);
+        gameTime = 90;
+        startGame();
+      }
+
+      startGame();
     </script>
   </body>
 </html>

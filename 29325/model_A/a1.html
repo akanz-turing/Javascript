@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skyscraper Typing Game</title>
+    <title>Skyscraper Typer</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
@@ -15,205 +15,211 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
+        background: #f0f0f0;
         margin: 0;
-        background-color: #f0f0f0;
-        overflow: hidden;
       }
       #game-container {
-        position: relative;
-        width: 100%;
-        max-width: 800px;
+        width: 80%;
+        max-width: 600px;
         text-align: center;
       }
       #skyscraper {
-        width: 200px;
+        width: 100px;
+        height: 200px;
         margin: 20px auto;
-        background: #ddd;
-        border: 2px solid #000;
+        background: #d3d3d3;
         position: relative;
       }
       .floor {
-        height: 20px;
-        background: #888;
+        width: 100%;
+        height: 10px;
+        background: #007bff;
         margin: 2px 0;
-        transition: all 0.5s;
       }
       #sentence,
       #input,
-      #progress,
-      #score,
-      #timer {
+      #progress-bar,
+      #timer,
+      #score {
         margin: 10px 0;
       }
-      #input {
-        width: 80%;
-        padding: 10px;
-        font-size: 16px;
-      }
-      #progress {
-        width: 80%;
+      #progress-bar {
         height: 20px;
         background: #e0e0e0;
-        margin: auto;
       }
-      #progress-bar {
+      #progress {
         height: 100%;
         width: 100%;
-        background: #4caf50;
-        transition: width 0.1s linear;
+        background: green;
+        transition: width 0.5s linear;
       }
       #leaderboard {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: white;
-        padding: 10px;
-        border: 1px solid #ccc;
+        margin-top: 20px;
+      }
+      @media (max-width: 600px) {
+        #game-container {
+          width: 95%;
+        }
       }
     </style>
   </head>
   <body>
     <div id="game-container">
-      <div id="leaderboard"></div>
+      <h1>Skyscraper Typer</h1>
       <div id="skyscraper"></div>
-      <div id="sentence">Type this sentence to build!</div>
-      <input
-        type="text"
-        id="input"
-        autocomplete="off"
-        placeholder="Start typing here..."
-      />
-      <div id="progress"><div id="progress-bar"></div></div>
-      <div id="score">Floors: 0</div>
-      <div id="timer">Time Left: 90s</div>
-      <button onclick="resetGame()">Restart</button>
+      <div id="sentence">Start typing to build!</div>
+      <input type="text" id="input" placeholder="Type here" disabled />
+      <div id="progress-bar"><div id="progress"></div></div>
+      <div>Time Left: <span id="timer">90</span>s</div>
+      <div>Score: <span id="score">0</span></div>
+      <button onclick="startGame()">Start</button>
+      <button onclick="resetGame()" style="display: none">Restart</button>
+
+      <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard-list"></ul>
+      </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
     <script>
-      const sentences = [
-        "The quick brown fox jumps over the lazy dog.",
-        "Programming can be fun with the right challenge.",
-        "Skyscrapers touch the sky, much like dreams touch reality.",
-        "Every new floor is a step towards the clouds.",
-        "Type swiftly, build high, aim for the sky!",
-      ];
-      let currentSentence = "";
-      let floors = 0;
-      let gameTime = 90;
-      let timer;
-      let sentenceTimer;
-      let boost = false;
-      const skyscraper = document.getElementById("skyscraper");
-      const input = document.getElementById("input");
-      const progressBar = document.getElementById("progress-bar");
-      const scoreDisplay = document.getElementById("score");
-      const timerDisplay = document.getElementById("timer");
-      const leaderboard = document.getElementById("leaderboard");
+      // JavaScript code will go here
+      document.addEventListener("DOMContentLoaded", (event) => {
+        let currentSentence = "";
+        let score = 0;
+        let floors = 0;
+        let gameInterval;
+        let sentenceInterval;
+        const sentences = [
+          "The quick brown fox jumps over the lazy dog",
+          "A journey of a thousand miles begins with a single step",
+          "To be or not to be, that is the question",
+          // Add more sentences here
+        ];
 
-      function startGame() {
-        currentSentence = getRandomSentence();
-        document.getElementById("sentence").textContent = currentSentence;
-        input.value = "";
-        input.focus();
-        startSentenceTimer();
-        startMainTimer();
-      }
+        function startGame() {
+          document.querySelector("#input").disabled = false;
+          document.querySelector(
+            'button[onclick="startGame()"]'
+          ).style.display = "none";
+          document.querySelector(
+            'button[onclick="resetGame()"]'
+          ).style.display = "inline";
+          score = 0;
+          floors = 0;
+          updateScore();
+          generateSentence();
+          startTimers();
+        }
 
-      function getRandomSentence() {
-        return sentences[Math.floor(Math.random() * sentences.length)];
-      }
+        function resetGame() {
+          clearInterval(gameInterval);
+          clearInterval(sentenceInterval);
+          document.querySelector("#timer").textContent = "90";
+          startGame();
+        }
 
-      function startSentenceTimer() {
-        let timeLeft = 10;
-        progressBar.style.width = "100%";
-        sentenceTimer = setInterval(() => {
-          timeLeft -= 0.1;
-          progressBar.style.width = (timeLeft / 10) * 100 + "%";
-          if (timeLeft <= 0) {
-            clearInterval(sentenceTimer);
-            handleSentenceEnd(false); // Time's up
-          }
-        }, 100);
-      }
-
-      function startMainTimer() {
-        timer = setInterval(() => {
-          gameTime--;
-          timerDisplay.textContent = `Time Left: ${gameTime}s`;
-          if (gameTime <= 0) {
-            endGame();
-          }
-        }, 1000);
-      }
-
-      function handleSentenceEnd(isCorrect) {
-        clearInterval(sentenceTimer);
-        if (isCorrect) {
-          addFloor();
-          if (boost) {
-            // Add boost effect here, like animation or visual effects
-            skyscraper.lastChild.classList.add("animate__flash");
-          }
-          currentSentence = getRandomSentence();
+        function generateSentence() {
+          currentSentence =
+            sentences[Math.floor(Math.random() * sentences.length)];
           document.getElementById("sentence").textContent = currentSentence;
+          document.getElementById("input").value = "";
           startSentenceTimer();
-        } else {
-          // Misalignment or game over logic here
-          if (floors > 0) {
-            let lastFloor = skyscraper.lastChild;
-            lastFloor.style.marginLeft = `${Math.random() > 0.5 ? "-" : ""}${
-              Math.random() * 10
-            }px`;
-            if (Math.random() < 0.3) {
-              // 30% chance to end game due to instability
+        }
+
+        function startTimers() {
+          let timeLeft = 90;
+          let sentenceTimeLeft = 10;
+          gameInterval = setInterval(() => {
+            if (timeLeft <= 0) {
               endGame();
+            } else {
+              timeLeft--;
+              document.getElementById("timer").textContent = timeLeft;
             }
+          }, 1000);
+
+          sentenceInterval = setInterval(() => {
+            if (sentenceTimeLeft <= 0) {
+              generateSentence();
+            } else {
+              sentenceTimeLeft--;
+              updateProgressBar(sentenceTimeLeft);
+            }
+          }, 1000);
+        }
+
+        function startSentenceTimer() {
+          clearInterval(sentenceInterval);
+          let sentenceTimeLeft = 10;
+          sentenceInterval = setInterval(() => {
+            if (sentenceTimeLeft <= 0) {
+              generateSentence();
+            } else {
+              sentenceTimeLeft--;
+              updateProgressBar(sentenceTimeLeft);
+            }
+          }, 1000);
+        }
+
+        function updateProgressBar(timeLeft) {
+          const progress = document.getElementById("progress");
+          progress.style.width = `${(timeLeft / 10) * 100}%`;
+        }
+
+        function updateScore() {
+          document.getElementById("score").textContent = score;
+          addFloor();
+        }
+
+        function addFloor() {
+          const skyscraper = document.getElementById("skyscraper");
+          const floor = document.createElement("div");
+          floor.className = "floor animate__animated animate__fadeInUp";
+          skyscraper.appendChild(floor);
+          floors++;
+        }
+
+        function checkTyping() {
+          if (this.value === currentSentence) {
+            score++;
+            updateScore();
+            generateSentence();
           }
         }
-        input.value = "";
-      }
 
-      function addFloor() {
-        const floor = document.createElement("div");
-        floor.className = "floor";
-        skyscraper.appendChild(floor);
-        floors++;
-        scoreDisplay.textContent = `Floors: ${floors}`;
-        // Here you would update the background or add animations for height changes
-      }
-
-      function endGame() {
-        clearInterval(timer);
-        clearInterval(sentenceTimer);
-        alert(`Game Over! You built ${floors} floors.`);
-        // Add to leaderboard logic here
-        updateLeaderboard("Player", floors);
-      }
-
-      function updateLeaderboard(name, score) {
-        // This is a simple example. In a real scenario, you'd save this to a server.
-        leaderboard.innerHTML += `<p>${name}: ${score}</p>`;
-      }
-
-      function resetGame() {
-        clearInterval(timer);
-        clearInterval(sentenceTimer);
-        floors = 0;
-        gameTime = 90;
-        skyscraper.innerHTML = "";
-        scoreDisplay.textContent = "Floors: 0";
-        timerDisplay.textContent = "Time Left: 90s";
-        startGame();
-      }
-
-      input.addEventListener("input", function () {
-        if (input.value === currentSentence) {
-          boost = parseInt(progressBar.style.width) > 50; // If more than 50% time left, it's a boost
-          handleSentenceEnd(true);
+        function endGame() {
+          clearInterval(gameInterval);
+          clearInterval(sentenceInterval);
+          document.querySelector("#input").disabled = true;
+          updateLeaderboard();
         }
-      });
 
-      startGame();
+        function updateLeaderboard() {
+          let leaderboard = JSON.parse(
+            localStorage.getItem("leaderboard") || "[]"
+          );
+          leaderboard.push({ name: "Player", score: score });
+          leaderboard.sort((a, b) => b.score - a.score).splice(5); // Keep top 5
+          localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+          displayLeaderboard(leaderboard);
+        }
+
+        function displayLeaderboard(leaderboard) {
+          const list = document.getElementById("leaderboard-list");
+          list.innerHTML = "";
+          leaderboard.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+            list.appendChild(li);
+          });
+        }
+
+        document.getElementById("input").addEventListener("input", checkTyping);
+        displayLeaderboard(
+          JSON.parse(localStorage.getItem("leaderboard") || "[]")
+        );
+      });
     </script>
   </body>
 </html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skyscraper Typing Game</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #87ceeb, #4682b4);
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      #game-container {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        width: 100%;
+      }
+
+      #game-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      #skyscraper-container {
+        position: relative;
+        width: 300px;
+        height: 500px;
+      }
+
+      #skyscraper {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #333;
+        background-color: #f0f0f0;
+        display: flex;
+        flex-direction: column-reverse;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .floor {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 60px;
+        background-color: #4caf50;
+        border-top: 2px solid #333;
+        transition: all 0.5s ease;
+      }
+
+      .window {
+        width: 40px;
+        height: 40px;
+        background-color: #87ceeb;
+        border: 2px solid #333;
+      }
+
+      #game-info {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      #typing-area {
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      #sentence {
+        font-size: 18px;
+        margin-bottom: 10px;
+        text-align: center;
+        min-height: 50px;
+      }
+
+      #input-container {
+        display: flex;
+        gap: 10px;
+      }
+
+      #user-input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #4caf50;
+        border-radius: 5px;
+        background-color: #e8f5e9;
+      }
+
+      #enter-btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #enter-btn:hover {
+        background-color: #45a049;
+      }
+
+      #progress-bar {
+        width: 100%;
+        height: 10px;
+        background-color: #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
+        overflow: hidden;
+      }
+
+      #progress-fill {
+        height: 100%;
+        width: 0;
+        background-color: #4caf50;
+        transition: width 0.5s ease-in-out;
+      }
+
+      #leaderboard {
+        flex: 0 0 300px;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      #leaderboard h2 {
+        text-align: center;
+        margin-top: 0;
+      }
+
+      #leaderboard-list {
+        padding-left: 20px;
+      }
+
+      #leaderboard-list li {
+        margin-bottom: 10px;
+      }
+
+      #game-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      #game-controls button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #game-controls button:hover {
+        background-color: #2980b9;
+      }
+
+      #sound-toggle {
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      @keyframes dropFloor {
+        0% {
+          transform: translateY(-60px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .dropping {
+        animation: dropFloor 0.5s ease-out;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal h2 {
+        color: #4caf50;
+        margin-bottom: 20px;
+      }
+
+      .modal p {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+
+      #close-modal {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      #close-modal:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="game-area">
+        <div id="skyscraper-container">
+          <div id="skyscraper"></div>
+          <div id="crane"></div>
+        </div>
+        <div id="game-info">
+          <div id="score">Score: <span id="score-value">0</span></div>
+          <div id="time">Time: <span id="time-value">90</span></div>
+        </div>
+        <div id="typing-area">
+          <p id="sentence"></p>
+          <div id="input-container">
+            <input type="text" id="user-input" autocomplete="off" />
+            <button id="enter-btn">Enter</button>
+          </div>
+          <div id="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+      </div>
+      <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ol id="leaderboard-list"></ol>
+      </div>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+      <div class="modal-content">
+        <h2>Game Over!</h2>
+        <p>Your score: <span id="final-score"></span></p>
+        <p>Floors built: <span id="final-floors"></span></p>
+        <button id="close-modal">Play Again</button>
+      </div>
+    </div>
+    <div id="game-controls">
+      <button id="start-btn">Start Game</button>
+      <button id="reset-btn">Reset Game</button>
+    </div>
+    <script>
+      class SkyscraperTypingGame {
+        constructor() {
+          this.totalTime = 90;
+          this.remainingTime = this.totalTime;
+          this.score = 0;
+          this.floors = 0;
+          this.currentSentence = "";
+          this.gameState = "ready";
+          this.sentences = [
+            "The quick brown fox jumps over the lazy dog.",
+            "A journey of a thousand miles begins with a single step.",
+            "To be or not to be, that is the question.",
+            "All that glitters is not gold.",
+            "Where there's a will, there's a way.",
+          ];
+          this.timer = null;
+          this.progressTimer = null;
+        }
+
+        start() {
+          this.gameState = "playing";
+          this.score = 0;
+          this.floors = 0;
+          this.remainingTime = this.totalTime;
+          this.nextSentence();
+          this.startTimer();
+          if (startBtn) startBtn.style.display = "none";
+          if (resetBtn) resetBtn.style.display = "none";
+        }
+
+        startTimer() {
+          clearInterval(this.timer);
+          this.timer = setInterval(() => {
+            this.remainingTime--;
+            if (this.remainingTime <= 0) {
+              this.endGame();
+            }
+            updateUI();
+          }, 1000);
+        }
+
+        nextSentence() {
+          this.currentSentence =
+            this.sentences[Math.floor(Math.random() * this.sentences.length)];
+          this.resetProgressBar();
+        }
+
+        resetProgressBar() {
+          clearInterval(this.progressTimer);
+          const progressFill = document.getElementById("progress-fill");
+          if (progressFill) progressFill.style.width = "0%";
+
+          this.progressTimer = setInterval(() => {
+            const progressFill = document.getElementById("progress-fill");
+            if (progressFill) {
+              const currentWidth = parseFloat(progressFill.style.width) || 0;
+              if (currentWidth < 100) {
+                progressFill.style.width = `${currentWidth + 1}%`;
+              } else {
+                clearInterval(this.progressTimer);
+                this.failedSentence();
+              }
+            }
+          }, 100);
+        }
+
+        checkInput(input) {
+          if (input === this.currentSentence) {
+            clearInterval(this.progressTimer);
+            this.score += 10;
+            this.floors++;
+            this.addFloor();
+            this.nextSentence();
+            return true;
+          }
+          return false;
+        }
+
+        failedSentence() {
+          this.nextSentence();
+        }
+
+        addFloor() {
+          const skyscraper = document.getElementById("skyscraper");
+          if (skyscraper) {
+            const floor = document.createElement("div");
+            floor.className = "floor dropping";
+            for (let i = 0; i < 4; i++) {
+              const window = document.createElement("div");
+              window.className = "window";
+              floor.appendChild(window);
+            }
+            skyscraper.prepend(floor);
+          }
+        }
+
+        endGame() {
+          clearInterval(this.timer);
+          clearInterval(this.progressTimer);
+          this.gameState = "ended";
+          this.updateLeaderboard();
+          this.showGameOverModal();
+        }
+
+        updateLeaderboard() {
+          let leaderboard = JSON.parse(
+            localStorage.getItem("leaderboard") || "[]"
+          );
+          leaderboard.push({ score: this.score, floors: this.floors });
+          leaderboard.sort((a, b) => b.score - a.score);
+          leaderboard = leaderboard.slice(0, 5); // Keep top 5
+          localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+          updateLeaderboardDisplay();
+        }
+
+        restart() {
+          clearInterval(this.timer);
+          clearInterval(this.progressTimer);
+          this.gameState = "ready";
+          this.score = 0;
+          this.floors = 0;
+          this.remainingTime = this.totalTime;
+          document.getElementById("skyscraper").innerHTML = "";
+          startBtn.style.display = "inline-block";
+          resetBtn.style.display = "inline-block";
+          updateUI();
+          updateLeaderboardDisplay();
+        }
+        reset() {
+          localStorage.removeItem("leaderboard"); // Clear leaderboard
+          this.restart();
+          //   updateUI();
+          //   updateLeaderboardDisplay();
+        }
+
+        showGameOverModal() {
+          const modal = document.getElementById("game-over-modal");
+          const finalScore = document.getElementById("final-score");
+          const finalFloors = document.getElementById("final-floors");
+          if (modal && finalScore && finalFloors) {
+            finalScore.textContent = this.score;
+            finalFloors.textContent = this.floors;
+            modal.style.display = "block";
+          }
+        }
+      }
+
+      const game = new SkyscraperTypingGame();
+
+      // DOM elements
+      const sentence = document.getElementById("sentence");
+      const userInput = document.getElementById("user-input");
+      const enterBtn = document.getElementById("enter-btn");
+      const scoreValue = document.getElementById("score-value");
+      const timeValue = document.getElementById("time-value");
+      const startBtn = document.getElementById("start-btn");
+      const resetBtn = document.getElementById("reset-btn");
+      const leaderboardList = document.getElementById("leaderboard-list");
+      const closeModalBtn = document.getElementById("close-modal");
+
+      function updateUI() {
+        if (sentence) sentence.textContent = game.currentSentence;
+        if (scoreValue) scoreValue.textContent = game.score;
+        if (timeValue) timeValue.textContent = Math.max(0, game.remainingTime);
+      }
+
+      function updateLeaderboardDisplay() {
+        if (leaderboardList) {
+          const leaderboard = JSON.parse(
+            localStorage.getItem("leaderboard") || "[]"
+          );
+          leaderboardList.innerHTML = "";
+          leaderboard.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${index + 1}. Score: ${entry.score}, Floors: ${
+              entry.floors
+            }`;
+            leaderboardList.appendChild(li);
+          });
+        }
+      }
+
+      function handleEnter() {
+        if (game.gameState === "playing" && userInput) {
+          if (game.checkInput(userInput.value)) {
+            userInput.value = "";
+            updateUI();
+          }
+        }
+      }
+
+      if (userInput) {
+        userInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            handleEnter();
+          }
+        });
+      }
+
+      if (enterBtn) {
+        enterBtn.addEventListener("click", handleEnter);
+      }
+
+      if (startBtn) {
+        startBtn.addEventListener("click", () => {
+          game.start();
+          updateUI();
+          if (userInput) {
+            userInput.value = "";
+            userInput.focus();
+          }
+        });
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          game.reset();
+          if (userInput) userInput.value = "";
+        });
+      }
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+          const modal = document.getElementById("game-over-modal");
+          game.restart();
+          if (modal) modal.style.display = "none";
+          if (userInput) userInput.focus();
+        });
+      }
+
+      // Add a window click event to close the modal if clicked outside
+      window.addEventListener("click", (event) => {
+        const modal = document.getElementById("game-over-modal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+          game.reset();
+          if (userInput) userInput.focus();
+        }
+      });
+
+      // Initialize UI
+      updateUI();
+      updateLeaderboardDisplay();
+    </script>
+  </body>
+</html>
