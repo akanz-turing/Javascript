@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed Typing Racer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #f4f4f4;
+      }
+      .game-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+      }
+      .race-track {
+        height: 200px;
+        background: #555;
+        position: relative;
+        overflow: hidden;
+      }
+      .car {
+        width: 50px;
+        height: 30px;
+        position: absolute;
+        bottom: 10px;
+        transition: left 0.1s;
+      }
+      #playerCar {
+        background: blue;
+        left: 0;
+      }
+      .opponent {
+        background: red;
+      }
+      .text-track {
+        height: 50px;
+        background: #fff;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .word {
+        display: inline-block;
+        margin-right: 10px;
+        transition: transform 0.5s;
+      }
+      #inputField {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      #stats,
+      #leaderboard {
+        margin-top: 20px;
+        background: white;
+        padding: 10px;
+      }
+      .finish-line {
+        position: absolute;
+        right: 0;
+        height: 100%;
+        width: 2px;
+        background: black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container">
+      <input type="text" id="username" placeholder="Enter your username" />
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button onclick="startGame()">Start Race</button>
+      <div class="race-track">
+        <div id="playerCar" class="car"><i class="fas fa-car"></i></div>
+        <!-- Opponent cars will be added here dynamically -->
+        <div class="finish-line"></div>
+      </div>
+      <div class="text-track" id="textTrack"></div>
+      <input
+        type="text"
+        id="inputField"
+        oninput="checkWord()"
+        placeholder="Type here as the words appear..."
+      />
+      <div id="stats">
+        Speed: <span id="speed">0</span> wpm | Accuracy:
+        <span id="accuracy">100</span>% | Time: <span id="time">0</span>s
+      </div>
+      <div id="leaderboard">Leaderboard will load here...</div>
+    </div>
+
+    <script>
+      // Game logic goes here
+      let gameInterval,
+        words,
+        currentWordIndex = 0,
+        typedWords = [],
+        errors = 0,
+        startTime,
+        playerSpeed = 0,
+        gameRunning = false;
+      const carSpeedFactor = 0.5; // Adjust this to change how typing speed affects car speed
+      const textTrack = document.getElementById("textTrack");
+      const playerCar = document.getElementById("playerCar");
+
+      function startGame() {
+        if (gameRunning) return;
+        gameRunning = true;
+        const username = document.getElementById("username").value;
+        const difficulty = document.getElementById("difficulty").value;
+        // Here you would fetch a text passage or use a predefined one
+        words = "Your long text passage goes here...".split(" ");
+        currentWordIndex = 0;
+        typedWords = [];
+        errors = 0;
+        displayWords();
+        startTime = Date.now();
+        gameInterval = setInterval(updateGame, 100);
+        updateCarPosition();
+        // Add opponents based on difficulty
+      }
+
+      function displayWords() {
+        textTrack.innerHTML = words
+          .slice(currentWordIndex, currentWordIndex + 50)
+          .map((word) => `<span class="word">${word}</span>`)
+          .join("");
+      }
+
+      function checkWord() {
+        const inputField = document.getElementById("inputField");
+        if (words[currentWordIndex] === inputField.value.trim()) {
+          typedWords.push(words[currentWordIndex]);
+          currentWordIndex++;
+          if (currentWordIndex < words.length) {
+            displayWords();
+            updateCarPosition(true);
+          } else {
+            endGame();
+          }
+          inputField.value = "";
+        }
+      }
+
+      function updateCarPosition(correct = false) {
+        if (correct) playerSpeed += 5;
+        else playerSpeed = Math.max(playerSpeed - 2, 0);
+        const trackWidth = document.querySelector(".race-track").offsetWidth;
+        const position = Math.min(
+          (typedWords.length / words.length) * trackWidth,
+          trackWidth - 50
+        );
+        playerCar.style.left = `${position}px`;
+      }
+
+      function updateGame() {
+        const currentTime = Date.now();
+        document.getElementById("time").innerText = (
+          (currentTime - startTime) /
+          1000
+        ).toFixed(1);
+        document.getElementById("speed").innerText = calculateSpeed();
+        document.getElementById("accuracy").innerText = calculateAccuracy();
+      }
+
+      function calculateSpeed() {
+        const minutes = (Date.now() - startTime) / 60000;
+        return Math.round(typedWords.length / 5 / minutes) || 0;
+      }
+
+      function calculateAccuracy() {
+        const correctWords = typedWords.length - errors;
+        return typedWords.length > 0
+          ? Math.round((correctWords / typedWords.length) * 100)
+          : 100;
+      }
+
+      function endGame() {
+        clearInterval(gameInterval);
+        gameRunning = false;
+        // Add finish line animation and update leaderboard here
+        alert("Race Completed!");
+        updateLeaderboard();
+      }
+
+      function updateLeaderboard() {
+        // This function should fetch or update leaderboard data
+        // Here you would typically send data to a server or update local storage
+      }
+
+      // Sound effects would be added here with appropriate triggers
+    </script>
+  </body>
+</html>

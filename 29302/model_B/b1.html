@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speed Typing Race</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #gameArea {
+        position: relative;
+        height: 300px;
+        background: url("racetrack.jpg") no-repeat center center;
+        background-size: cover;
+      }
+      .car {
+        position: absolute;
+        width: 50px;
+        transition: left 0.1s;
+      }
+      #wordTrack {
+        overflow: hidden;
+        white-space: nowrap;
+        background: #f0f0f0;
+        padding: 10px;
+      }
+      .word {
+        display: inline-block;
+        margin-right: 20px;
+      }
+      #inputArea {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Speed Typing Race</h1>
+      <div id="setup">
+        <input
+          id="username"
+          placeholder="Enter your username"
+          class="form-control"
+        />
+        <select id="difficulty" class="form-control mt-2">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button onclick="startGame()" class="btn btn-primary mt-2">
+          Start Race
+        </button>
+      </div>
+      <div id="gameArea" style="display: none">
+        <!-- Cars will be dynamically added here -->
+      </div>
+      <div id="wordTrack"></div>
+      <div id="inputArea">
+        <input
+          type="text"
+          id="userInput"
+          class="form-control"
+          oninput="checkWord()"
+          disabled
+        />
+      </div>
+      <div id="leaderboard" class="mt-4"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+      let words = "Your long passage here...".split(" ");
+      let currentWordIndex = 0;
+      let playerSpeed = 0;
+      let accuracy = 100;
+      let gameRunning = false;
+      let playerCar,
+        opponentCars = [];
+
+      function startGame() {
+        if (document.getElementById("username").value === "") return;
+        document.getElementById("setup").style.display = "none";
+        document.getElementById("gameArea").style.display = "block";
+        document.getElementById("userInput").disabled = false;
+        setupRaceTrack();
+        gameRunning = true;
+        renderWords();
+      }
+
+      function setupRaceTrack() {
+        const gameArea = document.getElementById("gameArea");
+        playerCar = createCar("player");
+        gameArea.appendChild(playerCar);
+        // Add opponent cars based on difficulty
+      }
+
+      function createCar(className) {
+        let car = document.createElement("img");
+        car.src = "car-icon.png"; // Assume you have this image
+        car.className = "car " + className;
+        car.style.left = "10px";
+        return car;
+      }
+
+      function renderWords() {
+        let track = document.getElementById("wordTrack");
+        track.innerHTML = words
+          .slice(currentWordIndex, currentWordIndex + 20)
+          .map((word) => `<span class="word">${word}</span>`)
+          .join("");
+      }
+
+      function checkWord() {
+        if (!gameRunning) return;
+        let input = document.getElementById("userInput").value;
+        if (input.trim() === words[currentWordIndex]) {
+          // Correct word
+          currentWordIndex++;
+          playerSpeed += 5; // Speed up the car
+          updateCarPosition();
+          renderWords();
+          document.getElementById("userInput").value = "";
+        } else {
+          // Incorrect word
+          accuracy -= 5; // Decrease accuracy
+          // Visual feedback for incorrect word
+        }
+      }
+
+      function updateCarPosition() {
+        let position = parseInt(playerCar.style.left) + playerSpeed;
+        playerCar.style.left = position + "px";
+        // Update opponent cars similarly but with AI logic
+      }
+
+      // Leaderboard and sound effects logic would be added here
+
+      // Responsive design and touch controls would require additional CSS and JS tweaks
+    </script>
+  </body>
+</html>
