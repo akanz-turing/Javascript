@@ -8,93 +8,81 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
-    <script src="anime.min.js"></script>
-    <style>
-      /* Custom styles can go here or be integrated into Tailwind classes */
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
   </head>
   <body class="bg-gray-100 font-sans">
     <header class="bg-blue-600 text-white p-4">
-      <h1 class="text-2xl">LLM Visualization and Education Tool</h1>
+      <h1 class="text-2xl">LLM Visualization and Learning Tool</h1>
     </header>
 
-    <main class="p-4">
+    <main class="container mx-auto p-4">
       <!-- LLM Comparison Section -->
-      <section id="comparison" class="mb-8">
+      <section id="comparison" class="my-8">
         <h2 class="text-xl mb-4">LLM Comparison</h2>
-        <div class="flex flex-wrap">
-          <!-- Here would go the interactive chart components -->
-          <canvas id="llmChart" class="w-full md:w-1/2 p-2"></canvas>
-        </div>
-        <!-- Controls for chart interactivity -->
+        <canvas id="llmChart"></canvas>
       </section>
 
       <!-- Explanatory Cards -->
-      <section
-        id="explanations"
-        class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-      >
-        <!-- Cards for ML concepts would be dynamically generated here -->
-        <div class="card bg-white p-4 rounded-lg shadow">...</div>
+      <section id="explanations" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Cards for each topic with expandable content -->
       </section>
 
       <!-- Flow Diagram -->
-      <section id="flowDiagram" class="my-8">
+      <section id="flow" class="my-8">
         <h2 class="text-xl mb-4">LLM Development Flow</h2>
-        <!-- SVG or Canvas for diagram -->
-        <div id="diagramContainer"></div>
+        <div id="flowDiagram" class="bg-white p-4 rounded shadow">
+          <!-- SVG or canvas for diagram -->
+        </div>
       </section>
 
       <!-- ML Fundamentals -->
-      <section id="fundamentals">
+      <section id="fundamentals" class="my-8">
         <h2 class="text-xl mb-4">Machine Learning Fundamentals</h2>
-        <!-- Interactive or animated explanations -->
+        <!-- Interactive elements explaining ML concepts -->
       </section>
 
-      <!-- Glossary and References -->
-      <section>
-        <div id="glossary" class="mb-4"></div>
-        <div id="references"></div>
+      <!-- Glossary -->
+      <section id="glossary" class="my-8">
+        <h2 class="text-xl mb-4">Glossary</h2>
+        <ul class="list-disc pl-5">
+          <!-- Glossary terms -->
+        </ul>
+      </section>
+
+      <!-- References -->
+      <section id="references" class="my-8">
+        <h2 class="text-xl mb-4">References</h2>
+        <ul class="list-disc pl-5">
+          <!-- Links to external resources -->
+        </ul>
       </section>
     </main>
 
     <script>
-      // JavaScript code for interactivity, data fetching, chart rendering, etc., would go here
       document.addEventListener("DOMContentLoaded", (event) => {
-        // Initialize charts, fetch data, setup animations, etc.
-        function initCharts() {
-          const ctx = document.getElementById("llmChart").getContext("2d");
-          const chart = new Chart(ctx, {
-            // Chart configuration for comparison
-          });
-        }
-
-        function fetchAndUpdateData() {
-          // Fetch data from an API or a static JSON file
-          fetch("path/to/llm/data")
-            .then((response) => response.json())
-            .then((data) => {
-              // Update charts or other elements with new data
-            });
-        }
-
-        // Initialization
-        initCharts();
-        fetchAndUpdateData();
-
-        // Example of setting up an animation for the flow diagram
-        anime({
-          targets: "#diagramContainer path",
-          strokeDashoffset: [anime.setDashoffset, 0],
-          easing: "easeInOutSine",
-          duration: 1500,
-          delay: function (el, i) {
-            return i * 250;
+        // JavaScript for initializing charts, animations, and interactivity
+        const ctx = document.getElementById("llmChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            // Data for LLM comparison
           },
-          direction: "alternate",
+          options: {
+            // Chart options
+          },
+        });
+
+        // Example for animation
+        anime({
+          targets: "#flowDiagram div",
+          translateX: 250,
+          rotate: "1turn",
+          duration: 3000,
           loop: true,
         });
+
+        // Expandable cards logic, interactive elements, etc., would go here
       });
     </script>
   </body>

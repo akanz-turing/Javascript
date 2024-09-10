@@ -12,131 +12,89 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
   </head>
   <body class="bg-gray-100 p-4">
-    <!-- Navigation or Header -->
-    <header class="text-center p-4 mb-8">
-      <h1 class="text-4xl font-bold">LLM Visualization and Learning Tool</h1>
+    <header class="text-center py-8">
+      <h1 class="text-4xl font-bold">LLM Visualization Tool</h1>
     </header>
 
-    <!-- LLM Comparison Section -->
-    <section id="llm-comparison" class="mb-8">
-      <h2 class="text-2xl mb-4">LLM Comparison</h2>
-      <select id="metric-select" class="mb-4 p-2 border rounded"></select>
-      <canvas id="comparison-chart"></canvas>
-    </section>
+    <main class="container mx-auto">
+      <!-- LLM Comparison Section -->
+      <section id="comparison" class="mb-10">
+        <h2 class="text-2xl mb-4">LLM Comparison</h2>
+        <canvas id="llmChart" width="400" height="200"></canvas>
+      </section>
 
-    <!-- In-depth Explanations -->
-    <section
-      id="explanations"
-      class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
-    >
-      <!-- Cards for different topics -->
-    </section>
+      <!-- In-depth Explanations -->
+      <section id="explanations" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded shadow">...</div>
+        <!-- More cards for different topics -->
+      </section>
 
-    <!-- Flow Diagram -->
-    <section id="flow-diagram" class="mb-8">
-      <h2 class="text-2xl mb-4">LLM Development Flow</h2>
-      <div id="diagram-container"></div>
-    </section>
+      <!-- Flow Diagram -->
+      <section id="flow-diagram" class="my-10">
+        <h2 class="text-2xl">LLM Development Flow</h2>
+        <div id="flowCanvas" class="bg-white p-5"></div>
+      </section>
 
-    <!-- Machine Learning Fundamentals -->
-    <section id="ml-fundamentals" class="mb-8">
-      <h2 class="text-2xl mb-4">ML Fundamentals</h2>
-      <!-- Interactive widgets or cards -->
-    </section>
+      <!-- ML Fundamentals -->
+      <section id="ml-fundamentals">
+        <h2 class="text-2xl">Machine Learning Fundamentals</h2>
+        <div class="flex flex-wrap -mx-2">
+          <div class="w-full md:w-1/2 px-2 mb-4">
+            <div class="bg-white p-4 rounded shadow">
+              Concept Explanation...
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <!-- Glossary -->
-    <section id="glossary" class="mb-8">
-      <h2 class="text-2xl mb-4">Glossary</h2>
-      <dl class="space-y-4">
-        <!-- Terms will be dynamically added here -->
-      </dl>
-    </section>
+      <!-- Glossary -->
+      <section id="glossary" class="mt-10">
+        <h2 class="text-2xl">Glossary</h2>
+        <dl class="divide-y divide-gray-200">
+          <div class="py-3">
+            <dt>Term</dt>
+            <dd>Definition...</dd>
+          </div>
+        </dl>
+      </section>
 
-    <!-- References -->
-    <section id="references">
-      <h2 class="text-2xl mb-4">References</h2>
-      <ul class="list-disc pl-5">
-        <!-- Links will be added here -->
-      </ul>
-    </section>
+      <!-- References -->
+      <section id="references" class="mt-10">
+        <h2 class="text-2xl">References</h2>
+        <ul class="list-disc pl-5">
+          <li><a href="#" class="text-blue-500">Resource Link</a></li>
+        </ul>
+      </section>
+    </main>
 
     <script>
-      // JavaScript for dynamic content, chart creation, and interactivity
-      document.addEventListener("DOMContentLoaded", function () {
-        // Fetch data for charts, glossary, etc.
-        fetch("path/to/your/data.json")
-          .then((response) => response.json())
-          .then((data) => {
-            setupComparisonChart(data.models);
-            populateGlossary(data.glossary);
-            // Populate other sections similarly
-          });
-
-        function setupComparisonChart(models) {
-          const ctx = document
-            .getElementById("comparison-chart")
-            .getContext("2d");
-          const metricSelect = document.getElementById("metric-select");
-
-          // Populate metric options
-          Object.keys(models[0].metrics).forEach((metric) => {
-            let option = document.createElement("option");
-            option.text = metric;
-            metricSelect.add(option);
-          });
-
-          // Initial chart setup
-          let chart = new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels: models.map((model) => model.name),
-              datasets: [
-                {
-                  label: metricSelect.value,
-                  data: models.map(
-                    (model) => model.metrics[metricSelect.value]
-                  ),
-                  // ... other chart configurations
-                },
-              ],
-            },
-            options: {
-              // Chart options for interactivity, responsiveness etc.
-            },
-          });
-
-          // Update chart on metric change
-          metricSelect.onchange = function (event) {
-            chart.data.datasets[0].label = event.target.value;
-            chart.data.datasets[0].data = models.map(
-              (model) => model.metrics[event.target.value]
-            );
-            chart.update();
-          };
-        }
-
-        function populateGlossary(terms) {
-          const glossarySection = document.getElementById("glossary");
-          terms.forEach((term) => {
-            const dt = document.createElement("dt");
-            const dd = document.createElement("dd");
-            dt.textContent = term.term;
-            dd.textContent = term.definition;
-            glossarySection.appendChild(dt);
-            glossarySection.appendChild(dd);
-          });
-        }
-
-        // Additional functions for other sections would follow similar patterns
+      // JavaScript for Chart.js
+      var ctx = document.getElementById("llmChart").getContext("2d");
+      var myChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          // Chart data goes here
+        },
+        options: {
+          responsive: true,
+          // Additional options for interactivity
+        },
       });
 
-      // Animation for sections when they come into view could be implemented with GSAP
-      gsap.from(".mb-8", {
+      // GSAP for animations, especially for the flow diagram
+      gsap.from("#flowCanvas", {
+        duration: 2,
+        x: -100,
         opacity: 0,
-        y: 50,
-        duration: 1,
-        stagger: 0.3,
-        ease: "power2.out",
+        ease: "back.out(1.7)",
+      });
+
+      // Example of interactive element
+      document.querySelectorAll(".expandable").forEach((item) => {
+        item.addEventListener("click", function () {
+          this.classList.toggle("expanded");
+          // Expand or collapse content with animation
+        });
       });
     </script>
   </body>
