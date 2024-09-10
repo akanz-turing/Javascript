@@ -1,29 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LLM Visualization Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+                950: "#172554",
+              },
+            },
+          },
+          fontFamily: {
+            body: [
+              "Inter",
+              "ui-sans-serif",
+              "system-ui",
+              "-apple-system",
+              "system-ui",
+              "Segoe UI",
+              "Roboto",
+              "Helvetica Neue",
+              "Arial",
+              "Noto Sans",
+              "sans-serif",
+              "Apple Color Emoji",
+              "Segoe UI Emoji",
+              "Segoe UI Symbol",
+              "Noto Color Emoji",
+            ],
+            sans: [
+              "Inter",
+              "ui-sans-serif",
+              "system-ui",
+              "-apple-system",
+              "system-ui",
+              "Segoe UI",
+              "Roboto",
+              "Helvetica Neue",
+              "Arial",
+              "Noto Sans",
+              "sans-serif",
+              "Apple Color Emoji",
+              "Segoe UI Emoji",
+              "Segoe UI Symbol",
+              "Noto Color Emoji",
+            ],
+          },
+        },
+      };
+    </script>
   </head>
-  <body class="bg-gray-100">
-    <header class="bg-blue-600 text-white p-4">
-      <h1 class="text-2xl font-bold">LLM Visualization Tool</h1>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-colors duration-300 ease-in-out"
+  >
+    <header class="bg-primary-600 dark:bg-primary-800 text-white p-4 shadow-md">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold">LLM Visualization Tool</h1>
+        <button
+          id="darkModeToggle"
+          class="p-2 rounded-full bg-primary-700 dark:bg-primary-600 hover:bg-primary-800 dark:hover:bg-primary-700 transition-colors"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            ></path>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <main class="container mx-auto p-4">
       <section id="llm-comparison" class="mb-8">
         <h2 class="text-xl font-semibold mb-4">LLM Comparison</h2>
-        <div
-          id="comparison-charts"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
+        <div id="comparison-charts" class="space-y-8">
           <!-- Charts will be inserted here -->
-        </div>
-        <div id="interactive-comparison" class="mt-4">
-          <!-- Interactive comparison controls -->
         </div>
       </section>
 
@@ -36,7 +112,10 @@
 
       <section id="llm-flow-diagram" class="mb-8">
         <h2 class="text-xl font-semibold mb-4">LLM Development Flow</h2>
-        <div id="flow-diagram">
+        <div
+          id="flow-diagram"
+          class="bg-white dark:bg-gray-800 p-4 rounded shadow"
+        >
           <!-- Flow diagram will be inserted here -->
         </div>
       </section>
@@ -45,97 +124,199 @@
         <h2 class="text-xl font-semibold mb-4">
           Machine Learning Fundamentals
         </h2>
-        <div id="fundamentals-widget">
+        <div
+          id="fundamentals-widget"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
           <!-- ML fundamentals widget will be inserted here -->
         </div>
       </section>
 
       <section id="glossary" class="mb-8">
         <h2 class="text-xl font-semibold mb-4">Glossary</h2>
-        <div id="glossary-content">
+        <div
+          id="glossary-content"
+          class="bg-white dark:bg-gray-800 p-4 rounded shadow"
+        >
           <!-- Glossary terms will be inserted here -->
         </div>
       </section>
 
       <section id="references" class="mb-8">
         <h2 class="text-xl font-semibold mb-4">References</h2>
-        <div id="references-content">
+        <div
+          id="references-content"
+          class="bg-white dark:bg-gray-800 p-4 rounded shadow"
+        >
           <!-- Reference links will be inserted here -->
         </div>
       </section>
     </main>
 
-    <footer class="bg-gray-200 p-4 text-center">
+    <footer class="bg-gray-200 dark:bg-gray-800 p-4 text-center">
       <p>&copy; 2024 LLM Visualization Tool. All rights reserved.</p>
     </footer>
 
     <script>
+      // Global array to store chart instances
+      let chartInstances = [];
       // Mock data for LLM comparison
       const llmData = {
-        models: ["GPT-4", "Claude 3", "LLaMA", "Gemini", "Perplexity"],
+        models: ["GPT-4", "Claude 3", "LLaMA 2", "Gemini", "Perplexity"],
         metrics: {
-          modelSize: [175, 150, 65, 120, 80],
-          inferenceSpeed: [100, 120, 90, 110, 105],
-          costPerToken: [0.03, 0.025, 0.02, 0.028, 0.022],
+          trainingData: [45, 40, 25, 35, 20],
+          inferenceSpeed: [15, 18, 10, 14, 12],
           accuracy: [95, 93, 89, 92, 90],
+          reasoningCapabilities: [9.2, 9.0, 8.5, 8.8, 8.6],
+          generationQuality: [9.5, 9.3, 8.8, 9.1, 8.9],
         },
       };
 
       // Function to create comparison charts
       function createComparisonCharts() {
-        const ctx = document.createElement("canvas");
-        document.getElementById("comparison-charts").appendChild(ctx);
-
-        new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: llmData.models,
-            datasets: [
-              {
-                label: "Model Size (B parameters)",
-                data: llmData.metrics.modelSize,
-                backgroundColor: "rgba(75, 192, 192, 0.6)",
-              },
-            ],
+        const metricsToDisplay = [
+          { key: "trainingData", label: "Training Data (Trillion Tokens)" },
+          { key: "inferenceSpeed", label: "Inference Speed (ms per Token)" },
+          { key: "accuracy", label: "Accuracy (%)" },
+          {
+            key: "reasoningCapabilities",
+            label: "Reasoning Capabilities (1-10)",
           },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
+          { key: "generationQuality", label: "Generation Quality (1-10)" },
+        ];
+
+        const chartsContainer = document.getElementById("comparison-charts");
+
+        const colors = [
+          "rgba(255, 99, 132, 0.6)",
+          "rgba(54, 162, 235, 0.6)",
+          "rgba(255, 206, 86, 0.6)",
+          "rgba(75, 192, 192, 0.6)",
+          "rgba(153, 102, 255, 0.6)",
+        ];
+
+        metricsToDisplay.forEach((metric) => {
+          const chartContainer = document.createElement("div");
+          chartContainer.className =
+            "bg-white dark:bg-gray-800 p-4 rounded shadow mb-8";
+          chartContainer.style.height = "30vh"; // Set height to 30% of viewport height
+          const canvas = document.createElement("canvas");
+          chartContainer.appendChild(canvas);
+          chartsContainer.appendChild(chartContainer);
+
+          const ctx = canvas.getContext("2d");
+          const chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: [metric.label],
+              datasets: llmData.models.map((model, index) => ({
+                label: model,
+                data: [llmData.metrics[metric.key][index]],
+                backgroundColor: colors[index],
+                borderColor: colors[index].replace("0.6", "1"),
+                borderWidth: 1,
+              })),
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: "top",
+                  labels: {
+                    color: getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue("--color-text-primary"),
+                    font: {
+                      size: 12,
+                    },
+                  },
+                },
+                title: {
+                  display: true,
+                  text: metric.label,
+                  color: getComputedStyle(
+                    document.documentElement
+                  ).getPropertyValue("--color-text-primary"),
+                  font: {
+                    size: 16,
+                    weight: "bold",
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    color: getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue("--color-text-primary"),
+                  },
+                },
+                x: {
+                  ticks: {
+                    color: getComputedStyle(
+                      document.documentElement
+                    ).getPropertyValue("--color-text-primary"),
+                  },
+                },
               },
             },
-          },
-        });
+          });
 
-        // Add more charts for other metrics...
+          // Add the chart instance to our global array
+          chartInstances.push(chart);
+        });
       }
+
+      // LLM concepts data
+      const llmConcepts = {
+        "Neural Networks & Transformers": `Neural networks are computing systems inspired by biological neural networks. Transformers are a type of neural network architecture that uses self-attention mechanisms. They're particularly effective for processing sequential data like text.`,
+        "LLM Training Process": `LLMs are trained in several stages: pre-training on a large corpus of text data, fine-tuning on specific tasks or domains, and often reinforcement learning from human feedback (RLHF) to align the model with human preferences and improve safety.`,
+        "Model Architectures": `Different LLMs use various architectures. For example, GPT models use a decoder-only transformer, while models like BERT use an encoder-only architecture. The choice of architecture impacts the model's capabilities and efficiency.`,
+        "Practical Applications": `LLMs have numerous applications, including natural language processing tasks like translation, summarization, and question-answering. They're also used in code generation, creative writing, and as conversational AI agents.`,
+        "Ethical Considerations": `The development and use of LLMs raise important ethical questions, including issues of bias, misinformation, privacy, and the potential for misuse. Responsible AI practices aim to address these concerns through careful design and deployment strategies.`,
+      };
 
       // Function to create explanatory widgets
       function createExplanatoryWidgets() {
-        const topics = [
-          "Neural Networks & Transformers",
-          "LLM Training Process",
-          "Model Architectures",
-          "Practical Applications",
-          "Ethical Considerations",
-        ];
-
         const widgetsContainer = document
           .getElementById("explanatory-widgets")
           .querySelector(".grid");
 
-        topics.forEach((topic) => {
+        Object.entries(llmConcepts).forEach(([topic, explanation]) => {
           const widget = document.createElement("div");
-          widget.className = "bg-white p-4 rounded shadow";
+          widget.className =
+            "bg-white dark:bg-gray-800 p-4 rounded shadow cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700";
           widget.innerHTML = `
-            <h3 class="font-semibold mb-2">${topic}</h3>
-            <p>Click to learn more about ${topic}</p>
-        `;
+                  <h3 class="font-semibold mb-2">${topic}</h3>
+                  <p class="text-sm">Click to learn more</p>
+              `;
           widgetsContainer.appendChild(widget);
 
-          // Add click event to show more details (to be implemented)
-          widget.addEventListener("click", () => showTopicDetails(topic));
+          widget.addEventListener("click", () =>
+            showTopicDetails(topic, explanation)
+          );
+        });
+      }
+
+      // Function to show topic details
+      function showTopicDetails(topic, explanation) {
+        const modal = document.createElement("div");
+        modal.className =
+          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4";
+        modal.innerHTML = `
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <h2 class="text-xl font-bold mb-4">${topic}</h2>
+                  <p class="text-gray-700 dark:text-gray-300">${explanation}</p>
+                  <button class="mt-4 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors">Close</button>
+              </div>
+          `;
+        document.body.appendChild(modal);
+
+        modal.querySelector("button").addEventListener("click", () => {
+          document.body.removeChild(modal);
         });
       }
 
@@ -143,39 +324,70 @@
       function createFlowDiagram() {
         const flowDiagram = document.getElementById("flow-diagram");
         flowDiagram.innerHTML = `
-        <svg width="800" height="400" id="flow-svg"></svg>
+              <svg width="100%" height="400" xmlns="http://www.w3.org/2000/svg" class="dark:text-white">
+                  <defs>
+                      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                          <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
+                      </marker>
+                  </defs>
+                  <rect x="10" y="10" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+                  <text x="85" y="40" text-anchor="middle" fill="currentColor">Data Collection</text>
+                  <line x1="160" y1="35" x2="220" y2="35" stroke="currentColor" marker-end="url(#arrowhead)"/>
+
+                  <rect x="220" y="10" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+                  <text x="295" y="40" text-anchor="middle" fill="currentColor">Preprocessing</text>
+                  <line x1="370" y1="35" x2="430" y2="35" stroke="currentColor" marker-end="url(#arrowhead)"/>
+
+                  <rect x="430" y="10" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+                  <text x="505" y="40" text-anchor="middle" fill="currentColor">Model Architecture</text>
+                  <line x1="505" y1="60" x2="505" y2="100" stroke="currentColor" marker-end="url(#arrowhead)"/>
+
+                  <rect x="430" y="100" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+                  <text x="505" y="130" text-anchor="middle" fill="currentColor">Training</text>
+               <line x1="505" y1="150" x2="505" y2="190" stroke="currentColor" marker-end="url(#arrowhead)"/>
+            
+            <rect x="430" y="190" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+            <text x="505" y="220" text-anchor="middle" fill="currentColor">Fine-tuning</text>
+            <line x1="505" y1="240" x2="505" y2="280" stroke="currentColor" marker-end="url(#arrowhead)"/>
+            
+            <rect x="430" y="280" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+            <text x="505" y="310" text-anchor="middle" fill="currentColor">Deployment</text>
+            <line x1="580" y1="305" x2="640" y2="305" stroke="currentColor" marker-end="url(#arrowhead)"/>
+            
+            <rect x="640" y="280" width="150" height="50" rx="5" fill="none" stroke="currentColor"/>
+            <text x="715" y="310" text-anchor="middle" fill="currentColor">User Interface</text>
+        </svg>
     `;
-
-        // Use anime.js to animate the flow diagram
-        anime({
-          targets: "#flow-svg",
-          translateY: [-50, 0],
-          opacity: [0, 1],
-          easing: "easeOutQuad",
-          duration: 1000,
-        });
-
-        // Add more detailed SVG content for the flow diagram...
       }
+
+      // Machine Learning fundamentals data
+      const mlFundamentals = {
+        "Supervised vs Unsupervised Learning": `Supervised learning involves training models on labeled data, while unsupervised learning discovers patterns in unlabeled data. LLMs primarily use supervised and self-supervised learning techniques.`,
+        "Gradient Descent": `An optimization algorithm used to minimize the loss function during model training. It iteratively adjusts the model's parameters to find the best fit for the data.`,
+        "Model Evaluation": `The process of assessing a model's performance using metrics like accuracy, precision, recall, and F1 score. For LLMs, perplexity and human evaluation are also common.`,
+        "Overfitting & Underfitting": `Overfitting occurs when a model learns the training data too well, including its noise, while underfitting happens when a model is too simple to capture the underlying patterns in the data.`,
+      };
 
       // Function to create the ML fundamentals widget
       function createMLFundamentalsWidget() {
         const fundamentalsWidget = document.getElementById(
           "fundamentals-widget"
         );
-        fundamentalsWidget.innerHTML = `
-        <div class="bg-white p-4 rounded shadow">
-            <h3 class="font-semibold mb-2">Machine Learning Basics</h3>
-            <ul class="list-disc pl-5">
-                <li>Supervised vs Unsupervised Learning</li>
-                <li>Gradient Descent</li>
-                <li>Model Evaluation</li>
-                <li>Overfitting & Underfitting</li>
-            </ul>
-        </div>
-    `;
 
-        // Add interactivity to show more details for each concept...
+        Object.entries(mlFundamentals).forEach(([concept, explanation]) => {
+          const widget = document.createElement("div");
+          widget.className =
+            "bg-white dark:bg-gray-800 p-4 rounded shadow cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700";
+          widget.innerHTML = `
+            <h3 class="font-semibold mb-2">${concept}</h3>
+            <p class="text-sm">Click to learn more</p>
+        `;
+          fundamentalsWidget.appendChild(widget);
+
+          widget.addEventListener("click", () =>
+            showTopicDetails(concept, explanation)
+          );
+        });
       }
 
       // Function to populate the glossary
@@ -186,12 +398,16 @@
           Transformer: "A type of neural network architecture",
           "Fine-tuning": "The process of adapting a pre-trained model",
           RLHF: "Reinforcement Learning from Human Feedback",
+          "Attention Mechanism":
+            "A technique that allows models to focus on different parts of the input",
+          Tokenization:
+            "The process of breaking text into smaller units (tokens) for processing",
         };
 
         Object.entries(terms).forEach(([term, definition]) => {
           const termElement = document.createElement("div");
           termElement.className = "mb-2";
-          termElement.innerHTML = `<strong>${term}:</strong> ${definition}`;
+          termElement.innerHTML = `<strong class="font-semibold">${term}:</strong> <span class="text-gray-700 dark:text-gray-300">${definition}</span>`;
           glossaryContent.appendChild(termElement);
         });
       }
@@ -207,15 +423,37 @@
             name: "Machine Learning Mastery",
             url: "https://machinelearningmastery.com",
           },
+          { name: "ArXiv", url: "https://arxiv.org" },
         ];
 
         references.forEach((ref) => {
           const refElement = document.createElement("a");
           refElement.href = ref.url;
           refElement.target = "_blank";
-          refElement.className = "block mb-2 text-blue-600 hover:underline";
+          refElement.className =
+            "block mb-2 text-primary-600 dark:text-primary-400 hover:underline";
           refElement.textContent = ref.name;
           referencesContent.appendChild(refElement);
+        });
+      }
+
+      // Function to toggle dark mode
+      function toggleDarkMode() {
+        document.documentElement.classList.toggle("dark");
+        updateChartColors();
+      }
+
+      // Function to update chart colors based on current theme
+      function updateChartColors() {
+        const textColor = getComputedStyle(
+          document.documentElement
+        ).getPropertyValue("--color-text-primary");
+        chartInstances.forEach((chart) => {
+          chart.options.plugins.legend.labels.color = textColor;
+          chart.options.plugins.title.color = textColor;
+          chart.options.scales.x.ticks.color = textColor;
+          chart.options.scales.y.ticks.color = textColor;
+          chart.update();
         });
       }
 
@@ -227,10 +465,37 @@
         createMLFundamentalsWidget();
         populateGlossary();
         addReferences();
+
+        // Set up dark mode toggle
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        darkModeToggle.addEventListener("click", toggleDarkMode);
+
+        // Set initial color scheme based on user preference
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+
+        // Update chart colors on initial load
+        updateChartColors();
       }
 
       // Run the initialization when the DOM is fully loaded
       document.addEventListener("DOMContentLoaded", init);
+
+      // Add event listener for color scheme changes
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (e.matches) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+          updateChartColors();
+        });
     </script>
   </body>
 </html>
