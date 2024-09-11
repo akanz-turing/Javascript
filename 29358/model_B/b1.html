@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GRE Quantitative Comparison</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      /* Additional custom styles if needed */
+      body {
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .dark-mode {
+        background-color: #1a202c;
+        color: #e2e8f0;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 dark-mode:dark:bg-gray-800 p-4">
+    <button id="darkModeToggle" class="mb-4 p-2 bg-blue-500 text-white rounded">
+      Toggle Dark Mode
+    </button>
+    <div id="quiz" class="container mx-auto">
+      <!-- Quiz content will be dynamically inserted here -->
+    </div>
+
+    <script>
+      const questions = [
+        {
+          q: "Moira's share when revenue is $15,700 vs $7,900",
+          a: "Column A is greater",
+          explanation: "Detailed explanation...",
+        },
+        // Add more questions here
+      ];
+
+      function startQuiz() {
+        let currentQuestion = 0,
+          score = 0,
+          timeLeft = 60;
+        const quizContainer = document.getElementById("quiz");
+
+        function showQuestion() {
+          if (currentQuestion >= questions.length) {
+            return showSummary();
+          }
+          // Display question, timer, options, etc.
+          // Handle answer submission
+        }
+
+        function timer() {
+          // Countdown logic
+        }
+
+        function showSummary() {
+          // Display score summary
+        }
+
+        showQuestion();
+      }
+
+      document
+        .getElementById("darkModeToggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("dark-mode");
+          localStorage.setItem(
+            "darkMode",
+            document.body.classList.contains("dark-mode")
+          );
+        });
+
+      // Initialize dark mode from localStorage
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      startQuiz();
+    </script>
+  </body>
+</html>
