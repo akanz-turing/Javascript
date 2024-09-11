@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocabulary Quiz</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .quiz-card {
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .option:hover {
+        background-color: #f8f9fa;
+        cursor: pointer;
+      }
+      .explanation {
+        display: none;
+      }
+      .selected {
+        background-color: #e9ecef;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="quiz-container" class="quiz-card card">
+        <!-- Quiz content will be dynamically inserted here -->
+      </div>
+      <div id="summary" class="quiz-card card" style="display: none">
+        <!-- Summary will be shown here -->
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      const questions = [
+        // Populate with your questions here
+        {
+          sentence:
+            "The travel writer’s ______________ towards others he met on his cross-country trip most likely endeared him only to those readers with a misanthropic bent.",
+          options: [
+            "diffidence",
+            "humility",
+            "cynicism",
+            "garrulity",
+            "obsequiousness",
+          ],
+          correct: 2,
+          explanation: "Explanation here...",
+        },
+        // More questions...
+      ];
+
+      let currentQuestion = 0;
+      let userAnswers = new Array(questions.length).fill(null);
+
+      function loadQuestion(index) {
+        const q = questions[index];
+        const optionsHTML = q.options
+          .map(
+            (option, i) =>
+              `<div class="option" data-index="${i}">${String.fromCharCode(
+                65 + i
+              )}) ${option}</div>`
+          )
+          .join("");
+        $("#quiz-container").html(`
+            <div class="card-body">
+                <h5 class="card-title">Question ${index + 1} of ${
+          questions.length
+        }</h5>
+                <p class="card-text">${q.sentence}</p>
+                <div id="options">${optionsHTML}</div>
+                <div id="explanation" class="explanation mt-3">
+                    <p><strong>Explanation:</strong></p>
+                    <p id="explanationText"></p>
+                </div>
+                <button id="submitBtn" class="btn btn-primary" style="display:none;">Submit</button>
+                <button id="nextBtn" class="btn btn-secondary" onclick="nextQuestion()" style="display:none;">Next</button>
+            </div>
+        `);
+
+        $(".option").click(function () {
+          $(".option").removeClass("selected");
+          $(this).addClass("selected");
+          $("#submitBtn").show();
+        });
+
+        $("#submitBtn").click(function () {
+          submitAnswer(index, $(".selected").data("index"));
+        });
+      }
+
+      function submitAnswer(questionIndex, answerIndex) {
+        userAnswers[questionIndex] = answerIndex;
+        const correctAnswer = questions[questionIndex].correct;
+        $("#explanationText").text(questions[questionIndex].explanation);
+        $("#explanation").show();
+        $("#submitBtn").hide();
+        if (questionIndex < questions.length - 1) {
+          $("#nextBtn").show();
+        } else {
+          showSummary();
+        }
+        if (answerIndex === correctAnswer) {
+          $(".option.selected").css("background-color", "#d4edda"); // Green for correct
+        } else {
+          $(".option.selected").css("background-color", "#f8d7da"); // Red for incorrect
+          $(`.option[data-index="${correctAnswer}"]`).css(
+            "background-color",
+            "#d4edda"
+          ); // Show correct answer
+        }
+      }
+
+      function nextQuestion() {
+        currentQuestion++;
+        loadQuestion(currentQuestion);
+      }
+
+      function showSummary() {
+        $("#quiz-container").hide();
+        $("#summary").show().html(`
+            <div class="card-body">
+                <h5 class="card-title">Quiz Summary</h5>
+                <p>You scored ${
+                  userAnswers.filter(
+                    (answer, i) => answer === questions[i].correct
+                  ).length
+                } out of ${questions.length}</p>
+                <ul id="results-list"></ul>
+                <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+            </div>
+        `);
+        questions.forEach((q, i) => {
+          const result = userAnswers[i] === q.correct ? "Correct" : "Incorrect";
+          $("#results-list").append(
+            `<li>${q.sentence.replace(
+              "______________",
+              `<b>${q.options[q.correct]}</b>`
+            )} - <span style="color: ${
+              result === "Correct" ? "green" : "red"
+            };">${result}</span></li>`
+          );
+        });
+      }
+
+      loadQuestion(currentQuestion);
+    </script>
+  </body>
+</html>

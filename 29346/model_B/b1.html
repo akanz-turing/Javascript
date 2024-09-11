@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocabulary Quiz</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .quiz-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .card {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .question {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .options button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: none;
+        background: #e9e9e9;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.3s;
+      }
+      .options button:hover {
+        background: #d4d4d4;
+      }
+      .explanation {
+        display: none;
+        margin-top: 10px;
+        background: #f9f9f9;
+        padding: 10px;
+        border-left: 4px solid #4caf50;
+      }
+      .nav-buttons {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .nav-buttons button {
+        margin: 0 5px;
+        padding: 10px 20px;
+      }
+      .correct {
+        background: #d4edda !important;
+      }
+      .wrong {
+        background: #f8d7da !important;
+      }
+      .summary {
+        text-align: center;
+      }
+      @media (max-width: 600px) {
+        .quiz-container {
+          margin: 10px;
+          padding: 10px;
+        }
+        .options button {
+          padding: 15px;
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <div id="quiz"></div>
+      <div class="nav-buttons">
+        <button id="prev">Previous</button>
+        <button id="next">Next</button>
+      </div>
+    </div>
+
+    <script>
+      const questions = [
+        {
+          question:
+            "The travel writer’s ______________ towards others he met on his cross-country trip most likely endeared him only to those readers with a misanthropic bent.",
+          answers: [
+            "diffidence",
+            "humility",
+            "cynicism",
+            "garrulity",
+            "obsequiousness",
+          ],
+          correctAnswer: 2,
+          explanation:
+            "The keywords are “endeared…misanthropic bent.” Misanthropic readers are those who have a general ill-will towards humanity. Therefore, the travel writer must be expressing some negative attitude. 'Cynicism' means interpreting others' behavior as solely motivated by self-interest, fitting this context.",
+        },
+        // Add more questions here...
+      ];
+
+      let currentQuestion = 0;
+      let userAnswers = [];
+
+      function showQuestion(n) {
+        const q = questions[n];
+        const quizHtml = `
+    <div class="card">
+      <div>Question ${n + 1} of ${questions.length}</div>
+      <p class="question">${q.question}</p>
+      <div class="options">
+        ${q.answers
+          .map(
+            (ans, idx) =>
+              `<button onclick="selectAnswer(${n}, ${idx})">${String.fromCharCode(
+                65 + idx
+              )}) ${ans}</button>`
+          )
+          .join("")}
+      </div>
+      <div class="explanation" id="exp${n}"></div>
+    </div>
+  `;
+        document.getElementById("quiz").innerHTML = quizHtml;
+      }
+
+      function selectAnswer(qIndex, aIndex) {
+        userAnswers[qIndex] = aIndex;
+        document
+          .querySelectorAll(".options button")
+          .forEach((btn) => (btn.disabled = true));
+      }
+
+      function revealExplanation() {
+        const q = questions[currentQuestion];
+        const expDiv = document.getElementById(`exp${currentQuestion}`);
+        expDiv.style.display = "block";
+        expDiv.innerHTML = `Answer: ${String.fromCharCode(
+          65 + q.correctAnswer
+        )}) ${q.answers[q.correctAnswer]}<br>Explanation: ${q.explanation}`;
+        if (userAnswers[currentQuestion] !== undefined) {
+          document
+            .querySelectorAll(".options button")
+            [userAnswers[currentQuestion]].classList.add(
+              userAnswers[currentQuestion] === q.correctAnswer
+                ? "correct"
+                : "wrong"
+            );
+        }
+      }
+
+      function showSummary() {
+        let correctCount = userAnswers.filter(
+          (ans, idx) => ans === questions[idx].correctAnswer
+        ).length;
+        let summaryHtml = `<h2>Summary</h2><p>You got ${correctCount} out of ${
+          questions.length
+        } correct.</p>
+    <div class="summary">
+      ${questions
+        .map(
+          (q, idx) =>
+            `<div style="background: ${
+              userAnswers[idx] === undefined
+                ? "inherit"
+                : userAnswers[idx] === q.correctAnswer
+                ? "#d4edda"
+                : "#f8d7da"
+            };">${idx + 1}. ${q.question}</div>`
+        )
+        .join("")}
+    </div>`;
+        document.getElementById("quiz").innerHTML = summaryHtml;
+        document.querySelector(".nav-buttons").style.display = "none";
+      }
+
+      document.getElementById("next").onclick = function () {
+        if (currentQuestion < questions.length - 1) {
+          currentQuestion++;
+          showQuestion(currentQuestion);
+        } else {
+          showSummary();
+        }
+        revealExplanation();
+      };
+
+      document.getElementById("prev").onclick = function () {
+        if (currentQuestion > 0) {
+          currentQuestion--;
+          showQuestion(currentQuestion);
+          revealExplanation();
+        }
+      };
+
+      showQuestion(currentQuestion);
+    </script>
+  </body>
+</html>

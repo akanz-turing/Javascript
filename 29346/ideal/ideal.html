@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocabulary Quiz</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      .quiz-container {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .question-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+      .option {
+        background-color: #e9e9e9;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .option:hover {
+        background-color: #d4d4d4;
+      }
+      .option.selected {
+        background-color: #007bff;
+        color: white;
+      }
+      .option.correct {
+        background-color: #28a745;
+        color: white;
+      }
+      .option.incorrect {
+        background-color: #dc3545;
+        color: white;
+      }
+      .explanation {
+        background-color: #e9ecef;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 15px;
+        display: none;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      .summary {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .summary-question {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+      }
+      .summary-question.correct {
+        background-color: #d4edda;
+      }
+      .summary-question.incorrect {
+        background-color: #f8d7da;
+      }
+      .summary-question.unanswered {
+        background-color: #e9ecef;
+      }
+      @media (max-width: 600px) {
+        .options {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <h1>Vocabulary Quiz</h1>
+      <div id="question-container" class="question-card">
+        <p id="question-number"></p>
+        <p id="question-text"></p>
+        <div id="options" class="options"></div>
+        <div id="explanation" class="explanation"></div>
+      </div>
+      <div class="controls">
+        <button id="prev-btn" disabled>Previous</button>
+        <button id="next-btn">Next</button>
+      </div>
+    </div>
+    <div id="summary" class="summary" style="display: none">
+      <h2>Quiz Summary</h2>
+      <p id="score"></p>
+      <div id="question-summary"></div>
+    </div>
+
+    <script>
+      const quizData = [
+        {
+          question:
+            "The travel writer's ______________ towards others he met on his cross-country trip most likely endeared him only to those readers with a misanthropic bent.",
+          options: [
+            "diffidence",
+            "humility",
+            "cynicism",
+            "garrulity",
+            "obsequiousness",
+          ],
+          correctAnswer: 2,
+          explanation:
+            "The correct answer is (C) cynicism. The keywords are 'endeared...misanthropic bent.' Misanthropic readers are those who have a general ill-will towards humanity. Therefore, the travel writer must be expressing some negative attitude. Cynicism means interpreting others' behavior as solely motivated by self-interest. A misanthropic person is prone to looking cynically upon the actions of others. (A) 'diffidence' does not fit the context. (B) 'humility' would not endear the writer to misanthropes. (D) 'garrulity' means talkativeness. (E) 'obsequiousness' means excessively fawning.",
+        },
+        {
+          question:
+            "The professor's ______________ lecture style often left students struggling to stay awake, despite the fascinating subject matter.",
+          options: ["animated", "concise", "soporific", "provocative", "lucid"],
+          correctAnswer: 2,
+          explanation:
+            "The correct answer is (C) soporific. The context suggests that students are struggling to stay awake, indicating that the lecture style is boring or sleep-inducing. 'Soporific' means tending to induce drowsiness or sleep. (A) 'animated' would keep students engaged. (B) 'concise' doesn't necessarily cause drowsiness. (D) 'provocative' would likely keep students alert. (E) 'lucid' means clear and easy to understand, which doesn't align with students struggling to stay awake.",
+        },
+        {
+          question:
+            "Despite his reputation for being ______________, the CEO surprised everyone with his willingness to listen to and implement new ideas from junior employees.",
+          options: [
+            "innovative",
+            "obstinate",
+            "capricious",
+            "magnanimous",
+            "pusillanimous",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "The correct answer is (B) obstinate. The sentence implies a contrast between the CEO's reputation and his actual behavior. 'Obstinate' means stubbornly refusing to change one's opinion or chosen course of action, which would contrast with his surprising willingness to listen to new ideas. (A) 'innovative' doesn't fit the context of surprise. (C) 'capricious' means unpredictable, which doesn't align with the specific contrast described. (D) 'magnanimous' means generous, which would align with his actions rather than contrast with them. (E) 'pusillanimous' means showing a lack of courage, which isn't relevant to the situation described.",
+        },
+        {
+          question:
+            "The artist's latest work, a seeming hodgepodge of discordant elements, was actually a carefully ______________ composition that revealed its true nature only upon close inspection.",
+          options: [
+            "haphazard",
+            "ostentatious",
+            "curated",
+            "belabored",
+            "ephemeral",
+          ],
+          correctAnswer: 2,
+          explanation:
+            "The correct answer is (C) curated. The sentence suggests that despite appearing chaotic ('hodgepodge of discordant elements'), the work was actually carefully put together, revealing its true nature upon closer look. 'Curated' means selected, organized, and presented using professional or expert knowledge, which fits this context perfectly. (A) 'haphazard' contradicts the idea of careful composition. (B) 'ostentatious' means showy, which doesn't relate to the careful arrangement described. (D) 'belabored' suggests excessive effort, which doesn't fit the context. (E) 'ephemeral' means short-lived, which isn't relevant to the composition's nature.",
+        },
+        {
+          question:
+            "The politician's ______________ statements often left listeners more confused about his actual position on key issues.",
+          options: [
+            "forthright",
+            "equivocal",
+            "candid",
+            "dogmatic",
+            "pellucid",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "The correct answer is (B) equivocal. The sentence indicates that listeners were often confused about the politician's actual position, suggesting that his statements were unclear or open to multiple interpretations. 'Equivocal' means ambiguous or open to more than one interpretation, which fits this context perfectly. (A) 'forthright' means direct and straightforward, which would not cause confusion. (C) 'candid' means honest and straightforward, similar to forthright. (D) 'dogmatic' means opinionated and authoritarian, which might be clear but not necessarily confusing. (E) 'pellucid' means transparently clear, which is the opposite of what the sentence describes.",
+        },
+        {
+          question:
+            "The restaurant critic's review was so ______________ that readers were left wondering whether she had actually enjoyed the meal or not.",
+          options: [
+            "effusive",
+            "scathing",
+            "ambivalent",
+            "laudatory",
+            "trenchant",
+          ],
+          correctAnswer: 2,
+          explanation:
+            "The correct answer is (C) ambivalent. The sentence suggests that readers were unsure whether the critic had enjoyed the meal or not, indicating a lack of clear opinion in the review. 'Ambivalent' means having mixed feelings or contradictory ideas about something, which perfectly fits this context. (A) 'effusive' means expressing feelings of gratitude, pleasure, or approval in an unrestrained or heartfelt manner, which would clearly indicate enjoyment. (B) 'scathing' means harshly critical, which would clearly indicate dislike. (D) 'laudatory' means expressing praise and commendation, which would clearly indicate approval. (E) 'trenchant' means vigorous or incisive in expression or style, which doesn't necessarily relate to the unclear nature of the review.",
+        },
+        {
+          question:
+            "Despite his ______________ demeanor in social situations, John was known to be a fierce and uncompromising negotiator in the boardroom.",
+          options: [
+            "gregarious",
+            "taciturn",
+            "ebullient",
+            "affable",
+            "truculent",
+          ],
+          correctAnswer: 3,
+          explanation:
+            "The correct answer is (D) affable. The sentence presents a contrast between John's behavior in social situations and in the boardroom. 'Affable' means friendly, good-natured, or easy to talk to, which would contrast with being a fierce and uncompromising negotiator. (A) 'gregarious' means fond of company, sociable, which doesn't provide enough contrast. (B) 'taciturn' means reserved or uncommunicative in speech, which doesn't fit with the idea of a contrasting social demeanor. (C) 'ebullient' means cheerful and full of energy, which doesn't provide the right contrast. (E) 'truculent' means eager or quick to argue or fight, which would align more with his boardroom behavior than his social demeanor.",
+        },
+        {
+          question:
+            "The author's prose was so ______________ that even well-educated readers found themselves consulting a dictionary every few pages.",
+          options: ["lucid", "florid", "terse", "colloquial", "abstruse"],
+          correctAnswer: 4,
+          explanation:
+            "The correct answer is (E) abstruse. The sentence indicates that even well-educated readers had difficulty understanding the author's writing, needing to consult a dictionary frequently. 'Abstruse' means difficult to understand, obscure, which fits this context perfectly. (A) 'lucid' means easily understood, clear, which is the opposite of what's described. (B) 'florid' means excessively ornate or flowery, which might be complex but doesn't necessarily require frequent dictionary use. (C) 'terse' means sparing in the use of words, which doesn't align with the difficulty described. (D) 'colloquial' means characteristic of informal spoken language, which would likely be easier, not harder, to understand.",
+        },
+        {
+          question:
+            "The diplomat's ______________ approach to negotiations helped ease tensions and paved the way for a peaceful resolution to the conflict.",
+          options: [
+            "bellicose",
+            "conciliatory",
+            "obdurate",
+            "perfunctory",
+            "duplicitous",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "The correct answer is (B) conciliatory. The sentence suggests that the diplomat's approach helped to reduce tensions and lead to a peaceful resolution. 'Conciliatory' means intended or likely to placate or pacify, which aligns perfectly with this outcome. (A) 'bellicose' means demonstrating aggression and willingness to fight, which would likely increase tensions. (C) 'obdurate' means stubbornly refusing to change one's opinion, which would not help ease tensions. (D) 'perfunctory' means carried out with a minimum of effort or reflection, which doesn't align with successfully resolving a conflict. (E) 'duplicitous' means deceitful, which might complicate negotiations rather than ease tensions.",
+        },
+        {
+          question:
+            "The critic praised the novel for its ______________ portrayal of small-town life, noting how it captured both the charm and the underlying tensions of close-knit communities.",
+          options: [
+            "superficial",
+            "nuanced",
+            "biased",
+            "hyperbolic",
+            "pedantic",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "The correct answer is (B) nuanced. The sentence indicates that the novel captured both positive ('charm') and negative ('underlying tensions') aspects of small-town life. 'Nuanced' means characterized by subtle shades of meaning or expression, which fits this balanced, detailed portrayal. (A) 'superficial' means lacking depth, which contradicts the detailed description given. (C) 'biased' suggests an unfair prejudice, which doesn't align with the balanced view described. (D) 'hyperbolic' means exaggerated, which doesn't match the realistic portrayal implied. (E) 'pedantic' means overly concerned with minute details or formalisms, which doesn't capture the essence of the description given.",
+        },
+      ];
+
+      let currentQuestion = 0;
+      let userAnswers = new Array(quizData.length).fill(null);
+
+      const questionContainer = document.getElementById("question-container");
+      const questionNumber = document.getElementById("question-number");
+      const questionText = document.getElementById("question-text");
+      const optionsContainer = document.getElementById("options");
+      const explanationContainer = document.getElementById("explanation");
+      const prevButton = document.getElementById("prev-btn");
+      const nextButton = document.getElementById("next-btn");
+      const summaryContainer = document.getElementById("summary");
+      const scoreElement = document.getElementById("score");
+      const questionSummary = document.getElementById("question-summary");
+
+      function loadQuestion() {
+        const question = quizData[currentQuestion];
+        questionNumber.textContent = `Question ${currentQuestion + 1} of ${
+          quizData.length
+        }`;
+        questionText.textContent = question.question;
+        optionsContainer.innerHTML = "";
+        question.options.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.classList.add("option");
+          button.textContent = `${String.fromCharCode(65 + index)}) ${option}`;
+          button.addEventListener("click", () => selectOption(index));
+          optionsContainer.appendChild(button);
+        });
+        updateOptionStyles();
+        explanationContainer.style.display = "none";
+        prevButton.disabled = currentQuestion === 0;
+        nextButton.textContent =
+          currentQuestion === quizData.length - 1 ? "Finish" : "Next";
+      }
+
+      function selectOption(index) {
+        userAnswers[currentQuestion] = index;
+        updateOptionStyles();
+        showExplanation();
+      }
+
+      function updateOptionStyles() {
+        const options = optionsContainer.children;
+        for (let i = 0; i < options.length; i++) {
+          options[i].classList.remove("selected", "correct", "incorrect");
+          if (userAnswers[currentQuestion] === i) {
+            options[i].classList.add("selected");
+            if (i === quizData[currentQuestion].correctAnswer) {
+              options[i].classList.add("correct");
+            } else {
+              options[i].classList.add("incorrect");
+            }
+          } else if (
+            i === quizData[currentQuestion].correctAnswer &&
+            userAnswers[currentQuestion] !== null
+          ) {
+            options[i].classList.add("correct");
+          }
+        }
+      }
+
+      function showExplanation() {
+        if (userAnswers[currentQuestion] !== null) {
+          explanationContainer.style.display = "block";
+          explanationContainer.innerHTML = `
+                    <strong>Explanation:</strong><br>
+                    ${quizData[currentQuestion].explanation}
+                `;
+        }
+      }
+
+      function nextQuestion() {
+        if (currentQuestion < quizData.length - 1) {
+          currentQuestion++;
+          loadQuestion();
+        } else {
+          showSummary();
+        }
+      }
+
+      function prevQuestion() {
+        if (currentQuestion > 0) {
+          currentQuestion--;
+          loadQuestion();
+        }
+      }
+
+      function showSummary() {
+        questionContainer.style.display = "none";
+        document.querySelector(".controls").style.display = "none";
+        summaryContainer.style.display = "block";
+
+        const correctAnswers = userAnswers.filter(
+          (answer, index) => answer === quizData[index].correctAnswer
+        ).length;
+        scoreElement.textContent = `You got ${correctAnswers} out of ${quizData.length} questions correct.`;
+
+        questionSummary.innerHTML = quizData
+          .map(
+            (question, index) => `
+                <div class="summary-question ${getSummaryQuestionClass(index)}">
+                    Question ${index + 1}: ${
+              userAnswers[index] === null
+                ? "Unanswered"
+                : userAnswers[index] === question.correctAnswer
+                ? "Correct"
+                : "Incorrect"
+            }
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function getSummaryQuestionClass(index) {
+        if (userAnswers[index] === null) return "unanswered";
+        return userAnswers[index] === quizData[index].correctAnswer
+          ? "correct"
+          : "incorrect";
+      }
+
+      nextButton.addEventListener("click", nextQuestion);
+      prevButton.addEventListener("click", prevQuestion);
+
+      // Initialize the quiz
+      loadQuestion();
+    </script>
+  </body>
+</html>
