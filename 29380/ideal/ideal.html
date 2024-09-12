@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Computer Architecture Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div id="app" class="container mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold mb-8 text-center">
+        Interactive Computer Architecture Explorer
+      </h1>
+
+      <nav id="main-nav" class="mb-8 bg-white rounded-lg shadow-md p-4">
+        <ul class="flex flex-wrap justify-center space-x-4">
+          <li>
+            <a href="#transistors" class="text-blue-600 hover:text-blue-800"
+              >Transistors</a
+            >
+          </li>
+          <li>
+            <a href="#cpu-memory" class="text-blue-600 hover:text-blue-800"
+              >CPU & Memory</a
+            >
+          </li>
+          <li>
+            <a href="#os-architecture" class="text-blue-600 hover:text-blue-800"
+              >OS Architecture</a
+            >
+          </li>
+          <li>
+            <a href="#software-apps" class="text-blue-600 hover:text-blue-800"
+              >Software Apps</a
+            >
+          </li>
+          <li>
+            <a href="#computer-types" class="text-blue-600 hover:text-blue-800"
+              >Computer Types</a
+            >
+          </li>
+          <li>
+            <a href="#evolution" class="text-blue-600 hover:text-blue-800"
+              >Evolution</a
+            >
+          </li>
+          <li>
+            <a href="#performance" class="text-blue-600 hover:text-blue-800"
+              >Performance</a
+            >
+          </li>
+        </ul>
+      </nav>
+
+      <div id="sections" class="space-y-12">
+        <section id="transistors" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            1. Transistor-Level Visualization
+          </h2>
+          <div
+            id="transistor-cards"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <!-- Transistor explanation cards will be dynamically added here -->
+          </div>
+        </section>
+
+        <section id="cpu-memory" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            2. CPU and Memory Architecture
+          </h2>
+          <div
+            id="cpu-memory-diagram"
+            class="w-full h-96 bg-gray-200 rounded-lg"
+          >
+            <!-- Enhanced SVG diagram for CPU and memory will be added here -->
+          </div>
+          <div id="cpu-memory-explanation" class="mt-4">
+            <!-- Detailed explanation will be added here -->
+          </div>
+        </section>
+
+        <section id="os-architecture" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            3. Operating System Architecture
+          </h2>
+          <div id="os-diagram" class="w-full h-96 bg-gray-200 rounded-lg">
+            <!-- Enhanced SVG diagram for OS architecture will be added here -->
+          </div>
+          <div id="os-explanation" class="mt-4">
+            <!-- Detailed explanation will be added here -->
+          </div>
+        </section>
+
+        <section id="software-apps" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            4. Software Applications on OS
+          </h2>
+          <div id="software-diagram" class="w-full h-96 bg-gray-200 rounded-lg">
+            <!-- Enhanced SVG diagram for software applications will be added here -->
+          </div>
+          <div id="software-explanation" class="mt-4">
+            <!-- Detailed explanation will be added here -->
+          </div>
+        </section>
+
+        <section id="computer-types" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            5. Comparing Major Computer Types
+          </h2>
+          <div id="computer-comparison-charts" class="space-y-4">
+            <canvas id="computer-type-chart"></canvas>
+          </div>
+          <div id="computer-types-explanation" class="mt-4">
+            <!-- Detailed explanation will be added here -->
+          </div>
+        </section>
+
+        <section id="evolution" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">
+            6. Evolution of Computer Architecture
+          </h2>
+          <div id="evolution-timeline" class="space-y-4">
+            <!-- Enhanced evolution timeline will be dynamically added here -->
+          </div>
+        </section>
+
+        <section id="performance" class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">7. Performance Comparison</h2>
+          <div id="performance-charts" class="space-y-4">
+            <canvas id="performance-chart"></canvas>
+          </div>
+          <div id="performance-explanation" class="mt-4">
+            <!-- Detailed explanation will be added here -->
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      // JavaScript code will be added here
+      // Transistor-Level Visualization
+      function createTransistorCards() {
+        const transistorCards = [
+          {
+            title: "Basic Transistor",
+            content:
+              "A transistor is a semiconductor device used to amplify or switch electronic signals. It has three layers of semiconductor material, each capable of carrying a current.",
+            image:
+              "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB4PSIxMCIgeT0iNDAiIHdpZHRoPSI4MCIgaGVpZ2h0PSIyMCIgZmlsbD0iI2NjYyIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjMwIiBmaWxsPSIjZjBmMGYwIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIvPjxsaW5lIHgxPSIyMCIgeTE9IjUwIiB4Mj0iODAiIHkyPSI1MCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNTAiIHkxPSIyMCIgeDI9IjUwIiB5Mj0iODAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+",
+          },
+          {
+            title: "Logic Gates",
+            content:
+              "Transistors are combined to create logic gates, which are the building blocks of digital circuits. Common gates include AND, OR, and NOT gates.",
+            image:
+              "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBkPSJNMTAsMjBMNTAsMjBRODAsMjAsODAsNTBRODAsODAsNTAsODBMMTAsODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iODUiIGN5PSI1MCIgcj0iNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNSIgeTE9IjMwIiB4Mj0iMjAiIHkyPSIzMCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iNSIgeTE9IjcwIiB4Mj0iMjAiIHkyPSI3MCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiLz48bGluZSB4MT0iOTAiIHkxPSI1MCIgeDI9Ijk1IiB5Mj0iNTAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iNDAiIHk9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFORDwvdGV4dD48L3N2Zz4=",
+          },
+          {
+            title: "Binary Operations",
+            content:
+              "Logic gates perform binary operations, forming the basis of all computer calculations. These operations work on bits (0s and 1s) to perform complex computations.",
+            image:
+              "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB4PSIxMCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiI+MDExMDwvdGV4dD48dGV4dCB4PSIxMCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiI+MTAxMDwvdGV4dD48bGluZSB4MT0iMTAiIHkxPSI2MCIgeDI9IjUwIiB5Mj0iNjAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iMTAiIHk9IjgwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiPjExMjA8L3RleHQ+PHRleHQgeD0iNjAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiPkFERDwvdGV4dD48L3N2Zz4=",
+          },
+        ];
+
+        const container = document.getElementById("transistor-cards");
+        transistorCards.forEach((card) => {
+          const cardElement = document.createElement("div");
+          cardElement.className =
+            "bg-blue-100 p-4 rounded-lg shadow transition-transform transform hover:scale-105";
+          cardElement.innerHTML = `
+            <img src="${card.image}" alt="${card.title}" class="w-full h-32 object-contain mb-2">
+            <h3 class="text-lg font-semibold mb-2">${card.title}</h3>
+            <p>${card.content}</p>
+        `;
+          container.appendChild(cardElement);
+        });
+      }
+
+      // CPU and Memory Architecture
+      function createCPUMemoryDiagram() {
+        const diagram = document.getElementById("cpu-memory-diagram");
+        diagram.innerHTML = `
+        <svg class="w-full h-full" viewBox="0 0 800 600">
+            <!-- CPU -->
+            <g id="cpu">
+                <rect x="100" y="100" width="300" height="300" fill="#4CAF50" />
+                <text x="250" y="140" text-anchor="middle" fill="white" font-size="24">CPU</text>
+                
+                <!-- ALU -->
+                <rect x="120" y="180" width="120" height="80" fill="#81C784" />
+                <text x="180" y="225" text-anchor="middle" fill="white" font-size="16">ALU</text>
+                
+                <!-- Control Unit -->
+                <rect x="260" y="180" width="120" height="80" fill="#81C784" />
+                <text x="320" y="225" text-anchor="middle" fill="white" font-size="16">Control Unit</text>
+                
+                <!-- Registers -->
+                <rect x="120" y="300" width="260" height="60" fill="#81C784" />
+                <text x="250" y="335" text-anchor="middle" fill="white" font-size="16">Registers</text>
+            </g>
+            
+            <!-- Memory -->
+            <g id="memory">
+                <rect x="500" y="100" width="200" height="300" fill="#2196F3" />
+                <text x="600" y="140" text-anchor="middle" fill="white" font-size="24">Memory</text>
+                
+              <!-- Cache -->
+                <rect x="520" y="180" width="160" height="60" fill="#64B5F6" />
+                <text x="600" y="215" text-anchor="middle" fill="white" font-size="16">Cache</text>
+                
+                <!-- RAM -->
+                <rect x="520" y="260" width="160" height="120" fill="#64B5F6" />
+                <text x="600" y="325" text-anchor="middle" fill="white" font-size="16">RAM</text>
+            </g>
+            
+            <!-- Bus -->
+            <line x1="400" y1="250" x2="500" y2="250" stroke="black" stroke-width="4" />
+            <text x="450" y="240" text-anchor="middle" font-size="16">Bus</text>
+            
+            <!-- Fetch-Execute Cycle -->
+            <path d="M250,50 Q400,0 550,50" fill="none" stroke="#FF5722" stroke-width="3" />
+            <text x="400" y="30" text-anchor="middle" fill="#FF5722" font-size="16">Fetch-Execute Cycle</text>
+        </svg>
+    `;
+
+        const explanation = document.getElementById("cpu-memory-explanation");
+        explanation.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">How CPU and Memory Interact</h3>
+        <p>The CPU (Central Processing Unit) is the brain of the computer, consisting of:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>ALU (Arithmetic Logic Unit):</strong> Performs mathematical and logical operations</li>
+            <li><strong>Control Unit:</strong> Manages and coordinates CPU operations</li>
+            <li><strong>Registers:</strong> Small, fast storage units within the CPU</li>
+        </ul>
+        <p>Memory stores data and instructions, with a hierarchy of:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>Cache:</strong> Fast, small memory close to the CPU</li>
+            <li><strong>RAM (Random Access Memory):</strong> Larger, slower memory for active data and programs</li>
+        </ul>
+        <p>The CPU and memory communicate via the system bus, following the fetch-execute cycle to process instructions.</p>
+    `;
+      }
+
+      // Operating System Architecture
+      function createOSDiagram() {
+        const diagram = document.getElementById("os-diagram");
+        diagram.innerHTML = `
+        <svg class="w-full h-full" viewBox="0 0 800 600">
+            <!-- Kernel -->
+            <rect x="200" y="100" width="400" height="100" fill="#FFC107" />
+            <text x="400" y="150" text-anchor="middle" font-size="24">Kernel</text>
+            
+            <!-- System Call Interface -->
+            <rect x="200" y="200" width="400" height="50" fill="#FFECB3" />
+            <text x="400" y="230" text-anchor="middle" font-size="16">System Call Interface</text>
+            
+            <!-- User Space -->
+            <rect x="200" y="250" width="400" height="150" fill="#9C27B0" />
+            <text x="400" y="300" text-anchor="middle" fill="white" font-size="24">User Space</text>
+            
+            <!-- Applications -->
+            <rect x="220" y="280" width="100" height="100" fill="#E1BEE7" />
+            <text x="270" y="335" text-anchor="middle" font-size="16">App 1</text>
+            <rect x="350" y="280" width="100" height="100" fill="#E1BEE7" />
+            <text x="400" y="335" text-anchor="middle" font-size="16">App 2</text>
+            <rect x="480" y="280" width="100" height="100" fill="#E1BEE7" />
+            <text x="530" y="335" text-anchor="middle" font-size="16">App 3</text>
+            
+            <!-- Hardware -->
+            <rect x="200" y="400" width="400" height="100" fill="#795548" />
+            <text x="400" y="450" text-anchor="middle" fill="white" font-size="24">Hardware</text>
+        </svg>
+    `;
+
+        const explanation = document.getElementById("os-explanation");
+        explanation.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">Operating System Architecture</h3>
+        <p>The operating system acts as an intermediary between applications and hardware, consisting of:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>Kernel:</strong> Core of the OS, managing resources and providing essential services</li>
+            <li><strong>System Call Interface:</strong> Allows applications to request services from the kernel</li>
+            <li><strong>User Space:</strong> Where applications run, isolated from the kernel for security and stability</li>
+        </ul>
+        <p>The OS manages hardware resources, provides a user interface, and ensures applications can run safely and efficiently.</p>
+    `;
+      }
+
+      // Software Applications on OS
+      function createSoftwareDiagram() {
+        const diagram = document.getElementById("software-diagram");
+        diagram.innerHTML = `
+        <svg class="w-full h-full" viewBox="0 0 800 600">
+            <!-- Application -->
+            <rect x="300" y="50" width="200" height="100" fill="#E91E63" />
+            <text x="400" y="100" text-anchor="middle" fill="white" font-size="24">Application</text>
+            
+            <!-- API -->
+            <rect x="300" y="200" width="200" height="50" fill="#00BCD4" />
+            <text x="400" y="230" text-anchor="middle" font-size="20">API</text>
+            
+            <!-- OS -->
+            <rect x="200" y="300" width="400" height="150" fill="#8BC34A" />
+            <text x="400" y="375" text-anchor="middle" font-size="24">Operating System</text>
+            
+            <!-- Hardware -->
+            <rect x="100" y="500" width="600" height="50" fill="#607D8B" />
+            <text x="400" y="530" text-anchor="middle" fill="white" font-size="24">Hardware</text>
+            
+            <!-- Arrows -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" />
+                </marker>
+            </defs>
+            <line x1="400" y1="150" x2="400" y2="200" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)" />
+            <line x1="400" y1="250" x2="400" y2="300" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)" />
+            <line x1="400" y1="450" x2="400" y2="500" stroke="#000" stroke-width="2" marker-end="url(#arrowhead)" />
+        </svg>
+    `;
+
+        const explanation = document.getElementById("software-explanation");
+        explanation.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">How Software Interacts with the OS</h3>
+        <p>Software applications interact with the operating system and hardware through several layers:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>Application:</strong> The software program that users interact with directly</li>
+            <li><strong>API (Application Programming Interface):</strong> A set of protocols and tools for building software applications</li>
+            <li><strong>Operating System:</strong> Manages hardware resources and provides services to applications</li>
+            <li><strong>Hardware:</strong> The physical components of the computer system</li>
+        </ul>
+        <p>Applications use APIs to communicate with the OS, which in turn manages hardware resources. This layered approach allows for abstraction and portability of software across different hardware configurations.</p>
+    `;
+      }
+
+      // Comparing Major Computer Types
+      function createComputerTypeComparison() {
+        const ctx = document
+          .getElementById("computer-type-chart")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "radar",
+          data: {
+            labels: [
+              "Performance",
+              "Power Consumption",
+              "Portability",
+              "Storage Capacity",
+              "Cost",
+            ],
+            datasets: [
+              {
+                label: "Desktop",
+                data: [80, 70, 20, 90, 60],
+                backgroundColor: "rgba(255, 99, 132, 0.2)",
+                borderColor: "rgb(255, 99, 132)",
+                pointBackgroundColor: "rgb(255, 99, 132)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgb(255, 99, 132)",
+              },
+              {
+                label: "Smartphone",
+                data: [50, 30, 100, 40, 70],
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgb(54, 162, 235)",
+                pointBackgroundColor: "rgb(54, 162, 235)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgb(54, 162, 235)",
+              },
+              {
+                label: "Server",
+                data: [100, 90, 10, 100, 40],
+                backgroundColor: "rgba(255, 206, 86, 0.2)",
+                borderColor: "rgb(255, 206, 86)",
+                pointBackgroundColor: "rgb(255, 206, 86)",
+                pointBorderColor: "#fff",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "rgb(255, 206, 86)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                angleLines: {
+                  display: false,
+                },
+                suggestedMin: 0,
+                suggestedMax: 100,
+              },
+            },
+          },
+        });
+
+        const explanation = document.getElementById(
+          "computer-types-explanation"
+        );
+        explanation.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">Comparing Major Computer Types</h3>
+        <p>Different types of computers are designed for specific use cases, balancing various factors:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>Desktop:</strong> High performance and storage, less portable, moderate cost</li>
+            <li><strong>Smartphone:</strong> Highly portable, energy-efficient, lower performance than desktops</li>
+            <li><strong>Server:</strong> Highest performance and storage, high power consumption, least portable</li>
+        </ul>
+        <p>The chart compares these computer types across key metrics, illustrating how each type excels in different areas.</p>
+    `;
+      }
+
+      // Evolution of Computer Architecture
+      function createEvolutionTimeline() {
+        const container = document.getElementById("evolution-timeline");
+        const events = [
+          {
+            year: 1947,
+            event: "Invention of the transistor",
+            description:
+              "William Shockley, John Bardeen, and Walter Brattain at Bell Labs invented the first transistor, revolutionizing electronics.",
+          },
+          {
+            year: 1958,
+            event: "First integrated circuit",
+            description:
+              "Jack Kilby at Texas Instruments demonstrated the first integrated circuit, paving the way for modern microprocessors.",
+          },
+          {
+            year: 1971,
+            event: "First microprocessor (Intel 4004)",
+            description:
+              "Intel released the 4004, the first commercially available microprocessor, containing 2,300 transistors.",
+          },
+          {
+            year: 1981,
+            event: "IBM PC introduced",
+            description:
+              "IBM launched its Personal Computer, setting the standard for the PC industry and popularizing home computing.",
+          },
+          {
+            year: 1985,
+            event: "RISC architecture",
+            description:
+              "The first commercial RISC (Reduced Instruction Set Computing) processors were introduced, optimizing CPU performance.",
+          },
+          {
+            year: 2001,
+            event: "Multi-core processors",
+            description:
+              "IBM released the POWER4, the first commercial multi-core processor, marking a shift towards parallel computing.",
+          },
+          {
+            year: 2007,
+            event: "First iPhone released",
+            description:
+              "Apple introduced the iPhone, revolutionizing mobile computing and shaping modern smartphone architecture.",
+          },
+          {
+            year: 2019,
+            event: "Quantum supremacy claimed",
+            description:
+              "Google claimed to have achieved quantum supremacy, demonstrating the potential of quantum computing.",
+          },
+        ];
+
+        events.forEach((event, index) => {
+          const card = document.createElement("div");
+          card.className = `bg-green-100 p-4 rounded-lg shadow transition-all duration-500 transform translate-y-${
+            index * 4
+          }`;
+          card.innerHTML = `
+            <h3 class="text-lg font-semibold">${event.year}: ${event.event}</h3>
+            <p class="mt-2">${event.description}</p>
+        `;
+          container.appendChild(card);
+
+          // Animate the card
+          setTimeout(() => {
+            card.classList.remove(`translate-y-${index * 4}`);
+          }, index * 200);
+        });
+      }
+
+      // Performance Comparison
+      function createPerformanceComparison() {
+        const ctx = document
+          .getElementById("performance-chart")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: [
+              "Clock Speed",
+              "Power Efficiency",
+              "Parallel Processing",
+              "Memory Bandwidth",
+            ],
+            datasets: [
+              {
+                label: "x86",
+                data: [85, 50, 75, 80],
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+                borderColor: "rgb(255, 99, 132)",
+                borderWidth: 1,
+              },
+              {
+                label: "ARM",
+                data: [60, 90, 70, 65],
+                backgroundColor: "rgba(54, 162, 235, 0.5)",
+                borderColor: "rgb(54, 162, 235)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+              },
+            },
+          },
+        });
+
+        const explanation = document.getElementById("performance-explanation");
+        explanation.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">x86 vs ARM Architecture Performance</h3>
+        <p>x86 and ARM are two major CPU architectures with different strengths:</p>
+        <ul class="list-disc list-inside mb-2">
+            <li><strong>x86:</strong> Developed by Intel, commonly used in desktops and servers. Excels in raw performance and compatibility with legacy software.</li>
+            <li><strong>ARM:</strong> Designed by ARM Holdings, dominant in mobile devices. Known for energy efficiency and scalability.</li>
+        </ul>
+        <p>The chart compares these architectures across key performance metrics, showing how each excels in different areas. x86 typically leads in clock speed and memory bandwidth, while ARM is superior in power efficiency.</p>
+    `;
+      }
+      // Smooth scrolling navigation
+      function initSmoothScrolling() {
+        document.querySelectorAll('nav a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        });
+      }
+
+      // Add hover effects to diagrams
+      function addDiagramInteractivity() {
+        const diagramIds = [
+          "cpu-memory-diagram",
+          "os-diagram",
+          "software-diagram",
+        ];
+
+        diagramIds.forEach((id) => {
+          const diagram = document.getElementById(id);
+          const svgElements = diagram.querySelectorAll(
+            "rect, circle, line, path"
+          );
+
+          svgElements.forEach((element) => {
+            element.addEventListener("mouseenter", () => {
+              element.style.opacity = "0.7";
+              element.style.transition = "opacity 0.3s";
+            });
+
+            element.addEventListener("mouseleave", () => {
+              element.style.opacity = "1";
+            });
+          });
+        });
+      }
+
+      // Animate sections on scroll
+      function animateSectionsOnScroll() {
+        const sections = document.querySelectorAll("section");
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("animate-fade-in");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        sections.forEach((section) => {
+          observer.observe(section);
+        });
+      }
+
+      // Initialize all sections
+      function initializeApp() {
+        createTransistorCards();
+        createCPUMemoryDiagram();
+        createOSDiagram();
+        createSoftwareDiagram();
+        createComputerTypeComparison();
+        createEvolutionTimeline();
+        createPerformanceComparison();
+        initSmoothScrolling();
+        addDiagramInteractivity();
+        animateSectionsOnScroll();
+
+        // Add some basic animations
+        anime({
+          targets: "#transistor-cards > div",
+          opacity: [0, 1],
+          translateY: [20, 0],
+          delay: anime.stagger(100),
+        });
+
+        anime({
+          targets: "#evolution-timeline > div",
+          opacity: [0, 1],
+          translateX: [-20, 0],
+          delay: anime.stagger(200),
+        });
+      }
+
+      // Run the initialization when the DOM is fully loaded
+      document.addEventListener("DOMContentLoaded", initializeApp);
+    </script>
+  </body>
+</html>
