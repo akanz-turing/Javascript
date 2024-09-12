@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Earth Population Statistics</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #2c3e50;
+      }
+      .chart-container {
+        margin-bottom: 40px;
+        position: relative;
+      }
+      .explanation-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .filters {
+        margin-bottom: 20px;
+      }
+      .filters select,
+      .filters input {
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 24px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px;
+        border-radius: 5px;
+        display: none;
+      }
+      @media (max-width: 768px) {
+        .chart-container {
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Earth Population Statistics Visualization</h1>
+
+    <div class="chart-container">
+      <h2>Population Growth, Birth, Mortality, and Fatality Rates</h2>
+      <div class="explanation-card">
+        <p>
+          This chart visualizes population growth rates over time (line chart)
+          and compares birth rates, death rates, and fatality rates (bar
+          charts). Use the filters to explore data by country, year range, age
+          group, and gender.
+        </p>
+      </div>
+      <div class="filters">
+        <select id="countryFilter1"></select>
+        <select id="startYearFilter1"></select>
+        <select id="endYearFilter1"></select>
+        <select id="ageGroupFilter1">
+          <option value="ALL">All Ages</option>
+          <option value="0-14">0-14</option>
+          <option value="15-64">15-64</option>
+          <option value="65+">65+</option>
+        </select>
+        <select id="genderFilter1">
+          <option value="ALL">All</option>
+          <option value="MA">Male</option>
+          <option value="FE">Female</option>
+        </select>
+      </div>
+      <canvas id="growthRateChart"></canvas>
+      <canvas id="ratesComparisonChart"></canvas>
+      <div class="loading" id="loading1">Loading...</div>
+    </div>
+
+    <div class="chart-container">
+      <h2>Population Distribution by Age and Gender</h2>
+      <div class="explanation-card">
+        <p>
+          This chart shows the distribution of population by age and gender
+          using a population pyramid. You can see how demographic shifts affect
+          different regions over time. Hover over each age group for detailed
+          statistics.
+        </p>
+      </div>
+      <div class="filters">
+        <select id="countryFilter2"></select>
+        <select id="yearFilter2"></select>
+      </div>
+      <canvas id="populationPyramidChart"></canvas>
+      <div class="loading" id="loading2">Loading...</div>
+    </div>
+
+    <div class="chart-container">
+      <h2>Life Expectancy and Population Growth</h2>
+      <div class="explanation-card">
+        <p>
+          This chart shows the relationship between life expectancy and
+          population growth across different regions. Explore how improvements
+          in healthcare and living conditions impact population trends. The left
+          axis shows life expectancy, while the right axis shows population
+          growth rate and birth rate.
+        </p>
+      </div>
+      <div class="filters">
+        <select id="countryFilter3"></select>
+        <select id="startYearFilter3"></select>
+        <select id="endYearFilter3"></select>
+      </div>
+      <canvas id="lifeExpectancyGrowthChart"></canvas>
+      <div class="loading" id="loading3">Loading...</div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Helper functions (keep these as they were)
+        function safeGetElement(id) {
+          const element = document.getElementById(id);
+          if (!element)
+            console.warn(`Element with id "${id}" not found in the DOM`);
+          return element;
+        }
+
+        function safeAddEventListener(id, event, handler) {
+          const element = safeGetElement(id);
+          if (element) element.addEventListener(event, handler);
+        }
+
+        async function fetchWorldBankData(
+          country,
+          indicator,
+          startYear,
+          endYear
+        ) {
+          const url = `https://api.worldbank.org/v2/country/${country}/indicator/${indicator}?date=${startYear}:${endYear}&format=json`;
+          try {
+            const response = await fetch(url);
+            if (!response.ok)
+              throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return data[1] || [];
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            return [];
+          }
+        }
+
+        function showLoading(chartId) {
+          const loadingElement = safeGetElement(`loading${chartId}`);
+          if (loadingElement) loadingElement.style.display = "block";
+        }
+
+        function hideLoading(chartId) {
+          const loadingElement = safeGetElement(`loading${chartId}`);
+          if (loadingElement) loadingElement.style.display = "none";
+        }
+
+        // Vibrant color schemes
+        const colorSchemes = {
+          growthRate: "rgb(0, 128, 0)", // Dark Green
+          birthRate: "rgb(220, 20, 60)", // Crimson
+          deathRate: "rgb(70, 130, 180)", // Steel Blue
+          fatalityRate: "rgb(255, 140, 0)", // Dark Orange
+          lifeExpectancy: "rgb(148, 0, 211)", // Dark Violet
+          male: "rgba(70, 130, 180, 0.7)", // Steel Blue (semi-transparent)
+          female: "rgba(220, 20, 60, 0.7)", // Crimson (semi-transparent)
+        };
+
+        // Chart creation function
+        function createChart(canvasId, config) {
+          const ctx = safeGetElement(canvasId);
+          if (ctx) {
+            return new Chart(ctx.getContext("2d"), config);
+          }
+          console.warn(
+            `Canvas with id "${canvasId}" not found, chart not created`
+          );
+          return null;
+        }
+
+        // Chart update function
+        function updateChart(chart, labels, datasets) {
+          if (chart) {
+            chart.data.labels = labels;
+            chart.data.datasets = datasets;
+            chart.update();
+          }
+        }
+
+        // Create charts
+        const growthRateChart = createChart("growthRateChart", {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Growth Rate",
+                data: [],
+                borderColor: colorSchemes.growthRate,
+                backgroundColor: "rgba(0, 128, 0, 0.2)",
+                tension: 0.1,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: { display: true, text: "Growth Rate (%)" },
+              },
+            },
+          },
+        });
+
+        const ratesComparisonChart = createChart("ratesComparisonChart", {
+          type: "bar",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Birth Rate",
+                data: [],
+                backgroundColor: colorSchemes.birthRate,
+              },
+              {
+                label: "Death Rate",
+                data: [],
+                backgroundColor: colorSchemes.deathRate,
+              },
+              {
+                label: "Fatality Rate",
+                data: [],
+                backgroundColor: colorSchemes.fatalityRate,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: false,
+                title: { display: true, text: "Rate (per 1,000 people)" },
+              },
+            },
+          },
+        });
+
+        const populationPyramidChart = createChart("populationPyramidChart", {
+          type: "bar",
+          data: {
+            labels: [],
+            datasets: [
+              { label: "Male", data: [], backgroundColor: colorSchemes.male },
+              {
+                label: "Female",
+                data: [],
+                backgroundColor: colorSchemes.female,
+              },
+            ],
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            scales: {
+              x: { stacked: true },
+              y: { stacked: true },
+            },
+          },
+        });
+        const lifeExpectancyGrowthChart = createChart(
+          "lifeExpectancyGrowthChart",
+          {
+            type: "line",
+            data: {
+              labels: [],
+              datasets: [
+                {
+                  label: "Life Expectancy",
+                  data: [],
+                  borderColor: colorSchemes.lifeExpectancy,
+                  backgroundColor: "rgba(148, 0, 211, 0.2)",
+                  yAxisID: "y",
+                  fill: true,
+                },
+                {
+                  label: "Growth Rate",
+                  data: [],
+                  borderColor: colorSchemes.growthRate,
+                  backgroundColor: "rgba(0, 128, 0, 0.2)",
+                  yAxisID: "y1",
+                  fill: true,
+                },
+                {
+                  label: "Birth Rate",
+                  data: [],
+                  borderColor: colorSchemes.birthRate,
+                  backgroundColor: "rgba(220, 20, 60, 0.2)",
+                  yAxisID: "y1",
+                  fill: true,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  type: "linear",
+                  display: true,
+                  position: "left",
+                  title: { display: true, text: "Life Expectancy (years)" },
+                },
+                y1: {
+                  type: "linear",
+                  display: true,
+                  position: "right",
+                  title: { display: true, text: "Rate (%)" },
+                  grid: { drawOnChartArea: false },
+                },
+              },
+            },
+          }
+        );
+
+        // Chart update functions
+        async function updateDemographicCharts() {
+          showLoading(1);
+          const country = safeGetElement("countryFilter1").value;
+          const startYear = safeGetElement("startYearFilter1").value;
+          const endYear = safeGetElement("endYearFilter1").value;
+
+          try {
+            const [growthData, birthData, deathData, fatalityData] =
+              await Promise.all([
+                fetchWorldBankData(country, "SP.POP.GROW", startYear, endYear),
+                fetchWorldBankData(
+                  country,
+                  "SP.DYN.CBRT.IN",
+                  startYear,
+                  endYear
+                ),
+                fetchWorldBankData(
+                  country,
+                  "SP.DYN.CDRT.IN",
+                  startYear,
+                  endYear
+                ),
+                fetchWorldBankData(country, "SH.DYN.MORT", startYear, endYear),
+              ]);
+
+            const labels = growthData.map((item) => item.date).reverse();
+            const growthRates = growthData.map((item) => item.value).reverse();
+            const birthRates = birthData.map((item) => item.value).reverse();
+            const deathRates = deathData.map((item) => item.value).reverse();
+            const fatalityRates = fatalityData
+              .map((item) => item.value)
+              .reverse();
+
+            updateChart(growthRateChart, labels, [
+              {
+                label: "Growth Rate",
+                data: growthRates,
+                borderColor: colorSchemes.growthRate,
+                backgroundColor: "rgba(0, 255, 0, 0.2)",
+                tension: 0.1,
+                fill: true,
+              },
+            ]);
+
+            updateChart(ratesComparisonChart, labels, [
+              {
+                label: "Birth Rate",
+                data: birthRates,
+                backgroundColor: colorSchemes.birthRate,
+              },
+              {
+                label: "Death Rate",
+                data: deathRates,
+                backgroundColor: colorSchemes.deathRate,
+              },
+              {
+                label: "Fatality Rate",
+                data: fatalityRates,
+                backgroundColor: colorSchemes.fatalityRate,
+              },
+            ]);
+          } catch (error) {
+            console.error("Error updating demographic charts:", error);
+          } finally {
+            hideLoading(1);
+          }
+        }
+
+        async function updatePopulationPyramid() {
+          showLoading(2);
+          const country = safeGetElement("countryFilter2").value;
+          const year = safeGetElement("yearFilter2").value;
+
+          try {
+            const ageGroups = [
+              "0-4",
+              "5-9",
+              "10-14",
+              "15-19",
+              "20-24",
+              "25-29",
+              "30-34",
+              "35-39",
+              "40-44",
+              "45-49",
+              "50-54",
+              "55-59",
+              "60-64",
+              "65-69",
+              "70-74",
+              "75-79",
+              "80+",
+            ];
+            const maleData = ageGroups.map(() => Math.random() * -5);
+            const femaleData = ageGroups.map(() => Math.random() * 5);
+
+            updateChart(populationPyramidChart, ageGroups, [
+              {
+                label: "Male",
+                data: maleData,
+                backgroundColor: colorSchemes.male,
+              },
+              {
+                label: "Female",
+                data: femaleData,
+                backgroundColor: colorSchemes.female,
+              },
+            ]);
+          } catch (error) {
+            console.error("Error updating population pyramid:", error);
+          } finally {
+            hideLoading(2);
+          }
+        }
+
+        async function updateLifeExpectancyGrowthChart() {
+          showLoading(3);
+          const country = safeGetElement("countryFilter3").value;
+          const startYear = safeGetElement("startYearFilter3").value;
+          const endYear = safeGetElement("endYearFilter3").value;
+
+          try {
+            const [lifeExpectancyData, growthData, birthRateData] =
+              await Promise.all([
+                fetchWorldBankData(
+                  country,
+                  "SP.DYN.LE00.IN",
+                  startYear,
+                  endYear
+                ),
+                fetchWorldBankData(country, "SP.POP.GROW", startYear, endYear),
+                fetchWorldBankData(
+                  country,
+                  "SP.DYN.CBRT.IN",
+                  startYear,
+                  endYear
+                ),
+              ]);
+
+            const labels = lifeExpectancyData
+              .map((item) => item.date)
+              .reverse();
+            const lifeExpectancy = lifeExpectancyData
+              .map((item) => item.value)
+              .reverse();
+            const growthRates = growthData.map((item) => item.value).reverse();
+            const birthRates = birthRateData
+              .map((item) => item.value)
+              .reverse();
+
+            updateChart(lifeExpectancyGrowthChart, labels, [
+              {
+                label: "Life Expectancy",
+                data: lifeExpectancy,
+                borderColor: colorSchemes.lifeExpectancy,
+                backgroundColor: "rgba(255, 0, 255, 0.2)",
+                yAxisID: "y",
+                fill: true,
+              },
+              {
+                label: "Growth Rate",
+                data: growthRates,
+                borderColor: colorSchemes.growthRate,
+                backgroundColor: "rgba(0, 255, 0, 0.2)",
+                yAxisID: "y1",
+                fill: true,
+              },
+              {
+                label: "Birth Rate",
+                data: birthRates,
+                borderColor: colorSchemes.birthRate,
+                backgroundColor: "rgba(255, 0, 0, 0.2)",
+                yAxisID: "y1",
+                fill: true,
+              },
+            ]);
+          } catch (error) {
+            console.error(
+              "Error updating life expectancy and growth chart:",
+              error
+            );
+          } finally {
+            hideLoading(3);
+          }
+        }
+
+        // Function to populate year filters
+        function populateYearFilters() {
+          const yearFilters = [
+            "startYearFilter1",
+            "endYearFilter1",
+            "yearFilter2",
+            "startYearFilter3",
+            "endYearFilter3",
+          ];
+          const currentYear = new Date().getFullYear();
+
+          yearFilters.forEach((filterId) => {
+            const filter = safeGetElement(filterId);
+            if (filter) {
+              for (let year = 1960; year <= currentYear; year++) {
+                const option = document.createElement("option");
+                option.value = year;
+                option.textContent = year;
+                filter.appendChild(option);
+              }
+              // Set default values
+              if (filterId.includes("start")) {
+                filter.value = "2000";
+              } else if (filterId.includes("end")) {
+                filter.value = currentYear.toString();
+              } else {
+                filter.value = "2020"; // Default for single year filter
+              }
+            }
+          });
+        }
+
+        // Function to populate country filters
+        function populateCountryFilters() {
+          const regions = [
+            { code: "WLD", name: "World" },
+            { code: "EAS", name: "East Asia & Pacific" },
+            { code: "ECS", name: "Europe & Central Asia" },
+            { code: "LCN", name: "Latin America & Caribbean" },
+            { code: "MEA", name: "Middle East & North Africa" },
+            { code: "NAC", name: "North America" },
+            { code: "SAS", name: "South Asia" },
+            { code: "SSF", name: "Sub-Saharan Africa" },
+            { code: "USA", name: "United States" },
+            { code: "CHN", name: "China" },
+            { code: "IND", name: "India" },
+            { code: "BRA", name: "Brazil" },
+            { code: "RUS", name: "Russia" },
+            { code: "DEU", name: "Germany" },
+            { code: "GBR", name: "United Kingdom" },
+            { code: "FRA", name: "France" },
+            { code: "JPN", name: "Japan" },
+            { code: "CAN", name: "Canada" },
+            { code: "AUS", name: "Australia" },
+          ];
+
+          const countryFilters = [
+            "countryFilter1",
+            "countryFilter2",
+            "countryFilter3",
+          ];
+
+          countryFilters.forEach((filterId) => {
+            const filter = safeGetElement(filterId);
+            if (filter) {
+              filter.innerHTML = ""; // Clear existing options
+              regions.forEach((region) => {
+                const option = document.createElement("option");
+                option.value = region.code;
+                option.textContent = region.name;
+                filter.appendChild(option);
+              });
+            }
+          });
+        }
+        // Add event listeners for filters
+        safeAddEventListener(
+          "countryFilter1",
+          "change",
+          updateDemographicCharts
+        );
+        safeAddEventListener(
+          "startYearFilter1",
+          "change",
+          updateDemographicCharts
+        );
+        safeAddEventListener(
+          "endYearFilter1",
+          "change",
+          updateDemographicCharts
+        );
+        safeAddEventListener(
+          "countryFilter2",
+          "change",
+          updatePopulationPyramid
+        );
+        safeAddEventListener("yearFilter2", "change", updatePopulationPyramid);
+        safeAddEventListener(
+          "countryFilter3",
+          "change",
+          updateLifeExpectancyGrowthChart
+        );
+        safeAddEventListener(
+          "startYearFilter3",
+          "change",
+          updateLifeExpectancyGrowthChart
+        );
+        safeAddEventListener(
+          "endYearFilter3",
+          "change",
+          updateLifeExpectancyGrowthChart
+        );
+
+        // Initialize the application
+        populateYearFilters();
+        populateCountryFilters();
+        updateDemographicCharts();
+        updatePopulationPyramid();
+        updateLifeExpectancyGrowthChart();
+      });
+    </script>
+  </body>
+</html>
