@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Earth Population Dynamics</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+      }
+      .chart-container {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+      .explanation-card {
+        background: white;
+        padding: 10px;
+        margin-top: 10px;
+        border-left: 4px solid #007bff;
+      }
+      canvas {
+        max-width: 100%;
+        height: auto !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mt-5">Global Population Dynamics</h1>
+
+      <!-- Population Growth and Mortality Rates -->
+      <div class="chart-container">
+        <h2>Population Growth & Mortality Rates</h2>
+        <select id="regionFilter" class="form-select mb-3">
+          <option value="world">World</option>
+          <!-- Other regions would be dynamically added -->
+        </select>
+        <canvas id="growthMortalityChart"></canvas>
+        <div class="explanation-card">
+          <p>
+            This chart shows population growth and mortality rates over time.
+            Use the filter to select different regions.
+          </p>
+        </div>
+      </div>
+
+      <!-- Population Distribution by Age and Gender -->
+      <div class="chart-container">
+        <h2>Population Distribution by Age and Gender</h2>
+        <input
+          type="number"
+          id="yearFilter"
+          class="form-control mb-3"
+          placeholder="Enter Year"
+          min="1950"
+          max="2100"
+        />
+        <canvas id="populationPyramid"></canvas>
+        <div class="explanation-card">
+          <p>
+            This population pyramid shows distribution by age and gender for the
+            selected year.
+          </p>
+        </div>
+      </div>
+
+      <!-- Life Expectancy vs Population Growth -->
+      <div class="chart-container">
+        <h2>Life Expectancy vs Population Growth</h2>
+        <canvas id="lifeExpectancyChart"></canvas>
+        <div class="explanation-card">
+          <p>
+            Explore how life expectancy correlates with population growth across
+            regions.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const ctxGrowth = document
+          .getElementById("growthMortalityChart")
+          .getContext("2d");
+        const ctxPyramid = document
+          .getElementById("populationPyramid")
+          .getContext("2d");
+        const ctxLife = document
+          .getElementById("lifeExpectancyChart")
+          .getContext("2d");
+
+        // Simulated data - replace with real data in production
+        const simulatedData = {
+          world: {
+            labels: ["2000", "2010", "2020", "2030"],
+            birthRate: [20, 19, 18, 17],
+            deathRate: [8, 8.5, 9, 9.5],
+            populationGrowth: [1.2, 1.1, 0.9, 0.8],
+          },
+        };
+
+        // Growth and Mortality Chart
+        new Chart(ctxGrowth, {
+          type: "line",
+          data: {
+            labels: simulatedData.world.labels,
+            datasets: [
+              {
+                label: "Birth Rate",
+                data: simulatedData.world.birthRate,
+                borderColor: "blue",
+                fill: false,
+              },
+              {
+                label: "Death Rate",
+                data: simulatedData.world.deathRate,
+                borderColor: "red",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+
+        // Population Pyramid
+        new Chart(ctxPyramid, {
+          type: "bar",
+          data: {
+            labels: ["0-4", "5-9", "10-14", /* ... */ "80+"],
+            datasets: [
+              {
+                label: "Male",
+                data: [5, 4.8, 4.6, /* ... */ 0.5],
+                backgroundColor: "rgba(54, 162, 235, 0.5)",
+              },
+              {
+                label: "Female",
+                data: [-5, -4.9, -4.7, /* ... */ -1.1],
+                backgroundColor: "rgba(255, 99, 132, 0.5)",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                stacked: true,
+              },
+              y: {
+                stacked: true,
+              },
+            },
+          },
+        });
+
+        // Life Expectancy Chart
+        new Chart(ctxLife, {
+          type: "line",
+          data: {
+            labels: simulatedData.world.labels,
+            datasets: [
+              {
+                label: "Life Expectancy",
+                data: [70, 72, 74, 76],
+                borderColor: "green",
+                yAxisID: "y1",
+              },
+              {
+                label: "Population Growth (%)",
+                data: simulatedData.world.populationGrowth,
+                borderColor: "purple",
+                yAxisID: "y2",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y1: {
+                type: "linear",
+                position: "left",
+              },
+              y2: {
+                type: "linear",
+                position: "right",
+              },
+            },
+          },
+        });
+
+        // Update charts based on filters (implement with real data interaction)
+        document
+          .getElementById("regionFilter")
+          .addEventListener("change", function () {
+            // Here you would fetch new data based on the selected region and update the charts
+          });
+
+        document
+          .getElementById("yearFilter")
+          .addEventListener("input", function () {
+            // Update pyramid data based on year, fetch new data if necessary
+          });
+      });
+    </script>
+  </body>
+</html>
