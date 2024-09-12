@@ -4,78 +4,229 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quantitative Comparison Test</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
     <style>
-      .dark {
-        background-color: #1a202c;
-        color: #e2e8f0;
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --background-color: #f0f4f8;
+        --text-color: #333333;
+        --card-background: #ffffff;
+        --border-color: #e0e0e0;
+      }
+
+      .dark-mode {
+        --primary-color: #3498db;
+        --secondary-color: #2ecc71;
+        --background-color: #1a202c;
+        --text-color: #e2e8f0;
+        --card-background: #2d3748;
+        --border-color: #4a5568;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        color: var(--primary-color);
+        margin-bottom: 30px;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: background-color 0.3s, transform 0.1s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+      }
+
+      #darkModeToggle {
+        background-color: var(--card-background);
+        color: var(--text-color);
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+      }
+
+      #startButton,
+      #nextButton,
+      #reviewButton {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+
+      .question-container {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .column-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+      }
+
+      .column {
+        flex-basis: 48%;
+        background-color: var(--background-color);
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+      }
+
+      .option-button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background-color: var(--card-background);
+        color: var(
+          --text-color
+        ); /* This ensures the text color changes with the theme */
+        border: 1px solid var(--border-color);
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s; /* Added color to the transition */
+      }
+
+      .option-button:hover {
+        background-color: var(--background-color);
+      }
+
+      /* Ensure text remains visible when correct/incorrect in dark mode */
+      .dark-mode .correct,
+      .dark-mode .incorrect {
+        color: var(--text-color);
+      }
+
+      #explanation {
+        background-color: var(--card-background);
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        border: 1px solid var(--border-color);
+      }
+
+      #progressBar {
+        width: 100%;
+        background-color: var(--border-color);
+        margin-bottom: 20px;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      #progressBarFill {
+        width: 0%;
+        height: 100%;
+        background-color: var(--primary-color);
+        transition: width 0.5s ease-in-out;
+      }
+
+      #timer,
+      #questionNumber {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .correct {
+        background-color: #d4edda !important;
+        color: #155724;
+      }
+
+      .incorrect {
+        background-color: #f8d7da !important;
+        color: #721c24;
+      }
+
+      .dark-mode .correct {
+        background-color: #1e4620 !important;
+        color: #d4edda;
+      }
+
+      .dark-mode .incorrect {
+        background-color: #5c1e24 !important;
+        color: #f8d7da;
+      }
+
+      #summary,
+      #reviewContainer {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .review-question {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
       }
     </style>
   </head>
-  <body class="font-sans transition-colors duration-300">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-4">Quantitative Comparison Test</h1>
-      <button
-        id="darkModeToggle"
-        class="mb-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded"
-      >
-        Toggle Dark Mode
-      </button>
+  <body>
+    <div class="container">
+      <h1>Quantitative Comparison Test</h1>
+      <button id="darkModeToggle">Toggle Dark Mode</button>
 
-      <div id="quizContainer" class="hidden">
-        <div
-          id="progressBar"
-          class="w-full bg-gray-200 rounded-full h-2.5 mb-4 dark:bg-gray-700"
-        >
-          <div
-            id="progressBarFill"
-            class="bg-blue-600 h-2.5 rounded-full"
-            style="width: 0%"
-          ></div>
+      <div id="quizContainer" style="display: none">
+        <div id="progressBar">
+          <div id="progressBarFill"></div>
         </div>
-        <p id="questionNumber" class="text-lg mb-2">Question 1 of 10</p>
-        <div id="timer" class="text-xl mb-4">Time left: 60s</div>
-        <div id="question" class="mb-4"></div>
-        <div id="options" class="space-y-2 mb-4"></div>
-        <div
-          id="explanation"
-          class="hidden mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded"
-        ></div>
-        <button
-          id="nextButton"
-          class="px-4 py-2 bg-blue-500 text-white rounded hidden"
-        >
-          Next Question
-        </button>
+        <p id="questionNumber">Question 1 of 10</p>
+        <div id="timer">Time left: 60s</div>
+        <div id="question" class="question-container"></div>
+        <div id="options"></div>
+        <div id="explanation" style="display: none"></div>
+        <button id="nextButton" style="display: none">Next Question</button>
       </div>
 
-      <div id="startQuiz" class="text-center">
-        <p class="mb-4">
+      <div id="startQuiz">
+        <p>
           Welcome to the Quantitative Comparison Test! You will have 60 seconds
           for each question. Good luck!
         </p>
-        <button
-          id="startButton"
-          class="px-4 py-2 bg-green-500 text-white rounded"
-        >
-          Start Quiz
-        </button>
+        <button id="startButton">Start Quiz</button>
       </div>
 
-      <div id="summary" class="hidden">
-        <h2 class="text-2xl font-bold mb-4">Quiz Summary</h2>
+      <div id="summary" style="display: none">
+        <h2>Quiz Summary</h2>
         <p id="totalQuestions"></p>
         <p id="correctAnswers"></p>
         <p id="incorrectAnswers"></p>
         <p id="score"></p>
         <p id="totalTime"></p>
-        <button
-          id="reviewButton"
-          class="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Review Incorrect Answers
-        </button>
+        <button id="reviewButton">Review Answers</button>
+      </div>
+
+      <div id="reviewContainer" style="display: none">
+        <h3>Review Answers</h3>
+        <div id="reviewQuestions"></div>
       </div>
     </div>
 
@@ -88,18 +239,81 @@
           columnB: "$7,900",
           correctAnswer: 1,
           explanation:
-            "Moira's share is calculated by dividing $15,700 in a 6:5 ratio. Moira's portion = (5/11) * $15,700 = $7,136.36, which is less than $7,900. Therefore, the quantity in Column B is greater.",
+            "Moira's share is calculated by dividing $15,700 in a 6:5 ratio. Moira's portion = (5/11) * $15,700 ≈ $7,136.36, which is less than $7,900. Therefore, the quantity in Column B is greater.",
         },
         {
           question: "Compare the quantities in Column A and Column B:",
           columnA:
             "Price of sneakers after a 20% increase followed by a 15% discount",
           columnB: "Original price of sneakers",
-          correctAnswer: 2,
+          correctAnswer: 0,
           explanation:
             "Let's assume the original price is x. After a 20% increase, the price becomes 1.2x. Then, after a 15% discount, it becomes 1.2x * 0.85 = 1.02x. This is 2% more than the original price, so Column A is greater.",
         },
-        // Add more questions here...
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "√50",
+          columnB: "7",
+          correctAnswer: 0,
+          explanation:
+            "√50 ≈ 7.07, which is greater than 7. Therefore, the quantity in Column A is greater.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "The area of a circle with radius 5",
+          columnB: "78.5",
+          correctAnswer: 0,
+          explanation:
+            "The area of a circle is πr². With r = 5, the area is π * 5² = 25π ≈ 78.54. This is slightly greater than 78.5, so the quantity in Column A is greater.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "15% of 80",
+          columnB: "80% of 15",
+          correctAnswer: 2,
+          explanation:
+            "15% of 80 = 0.15 * 80 = 12. 80% of 15 = 0.80 * 15 = 12. The two quantities are equal.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "The sum of the angles in a triangle",
+          columnB: "180°",
+          correctAnswer: 2,
+          explanation:
+            "The sum of the angles in any triangle is always 180°. Therefore, the two quantities are equal.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "2^8",
+          columnB: "4^4",
+          correctAnswer: 2,
+          explanation: "2^8 = 256. 4^4 = 256. The two quantities are equal.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA:
+            "The probability of rolling an even number on a fair six-sided die",
+          columnB: "0.5",
+          correctAnswer: 2,
+          explanation:
+            "There are 3 even numbers (2, 4, 6) out of 6 possible outcomes on a fair die. The probability is 3/6 = 0.5. Therefore, the two quantities are equal.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "The perimeter of a square with side length 4",
+          columnB: "The perimeter of a rectangle with length 5 and width 3",
+          correctAnswer: 2,
+          explanation:
+            "Perimeter of square = 4 * 4 = 16. Perimeter of rectangle = 2(5 + 3) = 16. The two quantities are equal.",
+        },
+        {
+          question: "Compare the quantities in Column A and Column B:",
+          columnA: "25% of 80",
+          columnB: "75% of 30",
+          correctAnswer: 1,
+          explanation:
+            "25% of 80 = 0.25 * 80 = 20. 75% of 30 = 0.75 * 30 = 22.5. The quantity in Column B is greater.",
+        },
       ];
 
       let currentQuestion = 0;
@@ -108,6 +322,7 @@
       let timeLeft = 60;
       let quizStartTime;
       let questionTimes = [];
+      let userAnswers = [];
 
       const quizContainer = document.getElementById("quizContainer");
       const startQuiz = document.getElementById("startQuiz");
@@ -119,19 +334,24 @@
       const timerElement = document.getElementById("timer");
       const progressBarFill = document.getElementById("progressBarFill");
       const questionNumberElement = document.getElementById("questionNumber");
+      const reviewContainer = document.getElementById("reviewContainer");
+      const reviewQuestionsElement = document.getElementById("reviewQuestions");
 
       document
         .getElementById("startButton")
-        .addEventListener("click", startQuiz);
+        .addEventListener("click", startQuizFunction);
       nextButton.addEventListener("click", nextQuestion);
       document
         .getElementById("darkModeToggle")
         .addEventListener("click", toggleDarkMode);
+      document
+        .getElementById("reviewButton")
+        .addEventListener("click", showReview);
 
-      function startQuiz() {
+      function startQuizFunction() {
         quizStartTime = new Date();
-        startQuiz.classList.add("hidden");
-        quizContainer.classList.remove("hidden");
+        startQuiz.style.display = "none";
+        quizContainer.style.display = "block";
         loadQuestion();
       }
 
@@ -143,14 +363,14 @@
 
         const question = questions[currentQuestion];
         questionElement.innerHTML = `
-                <p class="mb-2">${question.question}</p>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-                        <h3 class="font-bold">Column A</h3>
+                <p>${question.question}</p>
+                <div class="column-container">
+                    <div class="column">
+                        <h3>Column A</h3>
                         <p>${question.columnA}</p>
                     </div>
-                    <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded">
-                        <h3 class="font-bold">Column B</h3>
+                    <div class="column">
+                        <h3>Column B</h3>
                         <p>${question.columnB}</p>
                     </div>
                 </div>
@@ -166,11 +386,7 @@
         optionsElement.innerHTML = options
           .map(
             (option, index) => `
-                <button class="w-full text-left px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded option-button" data-index="${
-                  index + 1
-                }">
-                    ${option}
-                </button>
+                <button class="option-button" data-index="${index}">${option}</button>
             `
           )
           .join("");
@@ -179,8 +395,8 @@
           button.addEventListener("click", selectAnswer);
         });
 
-        explanationElement.classList.add("hidden");
-        nextButton.classList.add("hidden");
+        explanationElement.style.display = "none";
+        nextButton.style.display = "none";
         timeLeft = 60;
         updateTimer();
         timer = setInterval(updateTimer, 1000);
@@ -196,12 +412,19 @@
         const selectedAnswer = parseInt(e.target.dataset.index);
         const question = questions[currentQuestion];
 
+        userAnswers[currentQuestion] = selectedAnswer;
+
         document.querySelectorAll(".option-button").forEach((button) => {
           button.disabled = true;
-          if (parseInt(button.dataset.index) === question.correctAnswer) {
-            button.classList.add("bg-green-200", "dark:bg-green-800");
-          } else if (parseInt(button.dataset.index) === selectedAnswer) {
-            button.classList.add("bg-red-200", "dark:bg-red-800");
+          const buttonIndex = parseInt(button.dataset.index);
+          if (buttonIndex === question.correctAnswer) {
+            button.classList.add("correct");
+          }
+          if (
+            buttonIndex === selectedAnswer &&
+            selectedAnswer !== question.correctAnswer
+          ) {
+            button.classList.add("incorrect");
           }
         });
 
@@ -209,19 +432,18 @@
           score++;
         }
 
-        explanationElement.innerHTML = question.explanation;
-        explanationElement.classList.remove("hidden");
-        nextButton.classList.remove("hidden");
+        explanationElement.innerHTML = `
+                <p><strong>${
+                  selectedAnswer === question.correctAnswer
+                    ? "Correct!"
+                    : "Incorrect."
+                }</strong></p>
+                <p>${question.explanation}</p>
+            `;
+        explanationElement.style.display = "block";
+        nextButton.style.display = "block";
 
         questionTimes.push(60 - timeLeft);
-
-        anime({
-          targets: explanationElement,
-          opacity: [0, 1],
-          translateY: [20, 0],
-          duration: 500,
-          easing: "easeOutQuad",
-        });
       }
 
       function nextQuestion() {
@@ -234,6 +456,7 @@
         timerElement.textContent = `Time left: ${timeLeft}s`;
         if (timeLeft <= 0) {
           clearInterval(timer);
+          userAnswers[currentQuestion] = -1; // -1 indicates unanswered
           nextQuestion();
         }
       }
@@ -244,8 +467,8 @@
       }
 
       function showSummary() {
-        quizContainer.classList.add("hidden");
-        summary.classList.remove("hidden");
+        quizContainer.style.display = "none";
+        summary.style.display = "block";
 
         const totalTime = Math.round((new Date() - quizStartTime) / 1000);
         const averageTime = Math.round(
@@ -267,20 +490,66 @@
         document.getElementById(
           "totalTime"
         ).textContent = `Total time: ${totalTime}s (Average: ${averageTime}s per question)`;
-
-        document
-          .getElementById("reviewButton")
-          .addEventListener("click", reviewIncorrectAnswers);
       }
 
-      function reviewIncorrectAnswers() {
-        // Implement the review functionality here
-        console.log("Review functionality to be implemented");
+      function showReview() {
+        summary.style.display = "none";
+        reviewContainer.style.display = "block";
+
+        reviewQuestionsElement.innerHTML = questions
+          .map(
+            (question, index) => `
+                <div class="review-question ${getReviewClass(index)}">
+                    <h4>Question ${index + 1}</h4>
+                    <p>${question.question}</p>
+                    <p>Column A: ${question.columnA}</p>
+                    <p>Column B: ${question.columnB}</p>
+                    <p>Your answer: ${getAnswerText(userAnswers[index])}</p>
+                    <p>Correct answer: ${getAnswerText(
+                      question.correctAnswer
+                    )}</p>
+                    <p>Explanation: ${question.explanation}</p>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function getReviewClass(index) {
+        if (userAnswers[index] === -1) return "unanswered";
+        return userAnswers[index] === questions[index].correctAnswer
+          ? "correct"
+          : "incorrect";
+      }
+
+      function getAnswerText(answerIndex) {
+        const options = [
+          "The quantity in Column A is greater.",
+          "The quantity in Column B is greater.",
+          "The two quantities are equal.",
+          "The relationship cannot be determined from the information given.",
+        ];
+        return answerIndex === -1 ? "Unanswered" : options[answerIndex];
       }
 
       function toggleDarkMode() {
-        document.body.classList.toggle("dark");
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem(
+          "darkMode",
+          document.body.classList.contains("dark-mode")
+        );
       }
+
+      // Initialize dark mode based on user's previous preference
+      function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem("darkMode") === "true";
+        if (isDarkMode) {
+          document.body.classList.add("dark-mode");
+        }
+      }
+
+      // Call this function when the page loads
+      initializeDarkMode();
     </script>
   </body>
 </html>

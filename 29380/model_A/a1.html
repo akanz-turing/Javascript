@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Computer Architecture Explorer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Additional custom styles */
+      .card {
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .diagram {
+        max-width: 100%;
+        height: auto;
+      }
+      .chart-container {
+        width: 100%;
+        height: 300px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <header class="bg-blue-600 text-white p-4">
+      <h1 class="text-2xl">Interactive Computer Architecture Explorer</h1>
+    </header>
+
+    <main class="container mx-auto p-4">
+      <!-- Transistor Level Visualization -->
+      <section id="transistor" class="mb-8">
+        <h2 class="text-xl mb-4">Transistor-Level Visualization</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="card bg-white p-4 rounded shadow">
+            <h3>Transistor Basics</h3>
+            <p>Explanation of how transistors work...</p>
+          </div>
+          <!-- More cards for logic gates, etc. -->
+        </div>
+      </section>
+
+      <!-- CPU and Memory Architecture -->
+      <section id="cpu-memory" class="mb-8">
+        <h2 class="text-xl mb-4">CPU and Memory Architecture</h2>
+        <img
+          src="path/to/cpu-memory-uml.png"
+          alt="CPU Memory UML"
+          class="diagram"
+        />
+      </section>
+
+      <!-- Operating System Architecture -->
+      <section id="os-architecture" class="mb-8">
+        <h2 class="text-xl mb-4">Operating System Architecture</h2>
+        <img src="path/to/os-uml.png" alt="OS UML" class="diagram" />
+      </section>
+
+      <!-- Software Applications on OS -->
+      <section id="software-os" class="mb-8">
+        <h2 class="text-xl mb-4">Software Applications on OS</h2>
+        <img
+          src="path/to/software-os-uml.png"
+          alt="Software OS UML"
+          class="diagram"
+        />
+      </section>
+
+      <!-- Comparing Major Computer Types -->
+      <section id="computer-types" class="mb-8">
+        <h2 class="text-xl mb-4">Comparing Major Computer Types</h2>
+        <div id="comparisonChart" class="chart-container"></div>
+      </section>
+
+      <!-- Evolution of Computer Architecture -->
+      <section id="evolution" class="mb-8">
+        <h2 class="text-xl mb-4">Evolution of Computer Architecture</h2>
+        <div class="timeline">
+          <!-- Timeline elements would be added here dynamically -->
+        </div>
+      </section>
+
+      <!-- Performance Comparison -->
+      <section id="performance" class="mb-8">
+        <h2 class="text-xl mb-4">Performance Comparison</h2>
+        <div id="performanceChart" class="chart-container"></div>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        // Placeholder for dynamic content loading or animations
+        // Initialize charts
+        const ctxComparison = document
+          .getElementById("comparisonChart")
+          .getContext("2d");
+        const ctxPerformance = document
+          .getElementById("performanceChart")
+          .getContext("2d");
+
+        new Chart(ctxComparison, {
+          type: "bar",
+          data: {
+            labels: ["Desktop", "Smartphone", "Server", "Supercomputer"],
+            datasets: [
+              {
+                label: "CPU Performance",
+                data: [100, 70, 150, 300], // Example data
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+
+        // Similar setup for performanceChart would go here
+      });
+    </script>
+  </body>
+</html>

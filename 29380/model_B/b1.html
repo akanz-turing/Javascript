@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Architecture Explorer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Additional custom styles if needed */
+    </style>
+  </head>
+  <body class="bg-gray-100 p-4">
+    <div class="container mx-auto">
+      <!-- Navigation or header if required -->
+
+      <!-- Transistor Level Visualization -->
+      <section id="transistors" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">Transistor-Level Visualization</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded shadow">
+            Transistor Explanation Card
+          </div>
+          <!-- Add more cards or interactive elements here -->
+        </div>
+      </section>
+
+      <!-- CPU and Memory Architecture -->
+      <section id="cpu-memory" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">CPU and Memory Architecture</h2>
+        <div id="uml-diagram-cpu" class="bg-white p-4 rounded shadow">
+          UML Diagram Here
+        </div>
+      </section>
+
+      <!-- OS Architecture -->
+      <section id="os" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">Operating System Architecture</h2>
+        <div id="uml-diagram-os" class="bg-white p-4 rounded shadow">
+          OS UML Diagram
+        </div>
+      </section>
+
+      <!-- Software Applications on OS -->
+      <section id="software-os" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">Software Applications on OS</h2>
+        <div class="bg-white p-4 rounded shadow">Interactive Explanation</div>
+      </section>
+
+      <!-- Comparing Major Computer Types -->
+      <section id="comparison" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">Comparing Major Computer Types</h2>
+        <canvas id="comparisonChart" width="400" height="200"></canvas>
+      </section>
+
+      <!-- Evolution of Computer Architecture -->
+      <section id="evolution" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">
+          Evolution of Computer Architecture
+        </h2>
+        <div class="timeline flex flex-col space-y-4">
+          <div class="timeline-item">Timeline Card 1</div>
+          <!-- More timeline items -->
+        </div>
+      </section>
+
+      <!-- Performance Comparison -->
+      <section id="performance" class="my-8">
+        <h2 class="text-2xl font-bold mb-4">Performance Comparison</h2>
+        <canvas id="performanceChart" width="400" height="200"></canvas>
+      </section>
+    </div>
+
+    <script>
+      // JavaScript for interactivity, chart rendering, etc.
+      document.addEventListener("DOMContentLoaded", (event) => {
+        // Example: Chart initialization
+        const ctx = document.getElementById("comparisonChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            // Chart data here
+          },
+          options: {
+            responsive: true,
+            // Other options
+          },
+        });
+
+        // Add interactivity like showing more info on card hover or click
+      });
+    </script>
+  </body>
+</html>
