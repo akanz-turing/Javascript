@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blockchain Visualizer</title>
+    <!-- Tailwind CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- D3.js for more complex visualizations if needed -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Mermaid for UML diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white p-4">
+      <h1 class="text-2xl">Blockchain Concepts Visualized</h1>
+    </header>
+
+    <main class="p-4">
+      <!-- Block Structure Visualizer -->
+      <section id="block-structure" class="mb-8">
+        <h2 class="text-xl mb-4">Block Structure</h2>
+        <div class="mermaid">
+          graph TD; A[Block Header] --> B{Hash} A --> C{Nonce} A -->
+          D{Timestamp} A --> E{Merkle Root} F[Transactions] --> E
+        </div>
+        <!-- Explanation cards will be dynamically inserted here with JS -->
+      </section>
+
+      <!-- Mining Process -->
+      <section id="mining-process" class="mb-8">
+        <h2 class="text-xl mb-4">Mining a Block</h2>
+        <div class="mermaid">
+          flowchart LR A[Start] --> B[Create New Block] B --> C[Calculate Hash]
+          C --> D{Is Hash Valid?} D -->|No| B D -->|Yes| E[Add Block to Chain] E
+          --> F[Broadcast Block]
+        </div>
+      </section>
+
+      <!-- Continue with other sections similarly -->
+    </main>
+
+    <footer class="bg-gray-800 text-white p-4 text-center">
+      <p>© 2023 Blockchain Education. All rights reserved.</p>
+    </footer>
+
+    <script>
+      mermaid.initialize({ startOnLoad: true });
+
+      // Example of adding interactive explanations
+      document.querySelectorAll(".mermaid g.node").forEach((node) => {
+        node.onclick = function () {
+          alert("Detailed explanation for " + node.textContent);
+        };
+      });
+    </script>
+  </body>
+</html>
