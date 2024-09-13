@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waves Explorer</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+      }
+      .interactive-section {
+        margin: 20px 0;
+      }
+      svg,
+      canvas {
+        border: 1px solid #ccc;
+      }
+      .explanation-card {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-top: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center">Exploring Waves</h1>
+
+      <!-- Wave Form Section -->
+      <div class="interactive-section">
+        <h2>Wave Form</h2>
+        <div id="waveForm"></div>
+        <label for="amplitude">Amplitude</label>
+        <input type="range" id="amplitude" min="10" max="100" value="50" />
+        <label for="frequency">Frequency</label>
+        <input type="range" id="frequency" min="1" max="10" value="5" />
+        <select id="waveType">
+          <option value="sine">Sine</option>
+          <option value="square">Square</option>
+          <option value="sawtooth">Sawtooth</option>
+        </select>
+      </div>
+
+      <!-- Electromagnetic Spectrum -->
+      <div class="interactive-section">
+        <h2>Electromagnetic Spectrum</h2>
+        <input type="range" id="spectrum" min="0" max="100" value="50" />
+        <div id="spectrumInfo"></div>
+      </div>
+
+      <!-- Wave Properties Chart -->
+      <div class="interactive-section">
+        <h2>Wave Properties Comparison</h2>
+        <canvas id="wavePropertiesChart"></canvas>
+      </div>
+
+      <!-- Wave Interference -->
+      <div class="interactive-section">
+        <h2>Wave Interference</h2>
+        <div id="interferencePattern"></div>
+      </div>
+
+      <!-- Explanation Cards -->
+      <div class="explanation-section">
+        <h2>Key Concepts</h2>
+        <div class="row">
+          <div class="col-md-4 explanation-card">Types of Waves</div>
+          <div class="col-md-4 explanation-card">Wave Properties</div>
+          <div class="col-md-4 explanation-card">
+            Applications in Technology
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      // Wave form generation
+      const svg = d3
+        .select("#waveForm")
+        .append("svg")
+        .attr("width", 600)
+        .attr("height", 200);
+
+      function updateWave() {
+        const amplitude = document.getElementById("amplitude").value;
+        const frequency = document.getElementById("frequency").value;
+        const waveType = document.getElementById("waveType").value;
+        const data = d3.range(0, 600, 1).map((x) => {
+          let y;
+          switch (waveType) {
+            case "sine":
+              y = Math.sin(x * frequency * 0.01) * amplitude;
+              break;
+            case "square":
+              y = Math.sign(Math.sin(x * frequency * 0.01)) * amplitude;
+              break;
+            case "sawtooth":
+              y =
+                ((x % (100 / frequency)) / (100 / frequency)) * amplitude -
+                amplitude;
+              break;
+          }
+          return { x, y: y + 100 };
+        });
+
+        svg.selectAll("*").remove();
+        const line = d3
+          .line()
+          .x((d) => d.x)
+          .y((d) => d.y);
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 2)
+          .attr("d", line);
+      }
+
+      document
+        .querySelectorAll("#amplitude, #frequency, #waveType")
+        .forEach((item) => {
+          item.addEventListener("input", updateWave);
+        });
+
+      // Electromagnetic Spectrum
+      const spectrumInfo = document.getElementById("spectrumInfo");
+      const spectrum = document.getElementById("spectrum");
+      const spectrumTypes = [
+        "Radio",
+        "Microwave",
+        "Infrared",
+        "Visible",
+        "Ultraviolet",
+        "X-rays",
+        "Gamma Rays",
+      ];
+
+      spectrum.oninput = function () {
+        const index = Math.floor(this.value / (100 / spectrumTypes.length));
+        spectrumInfo.innerHTML = `You are exploring: ${spectrumTypes[index]} waves`;
+      };
+
+      // Wave Properties Chart
+      const ctx = document
+        .getElementById("wavePropertiesChart")
+        .getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Sound", "Light", "Radio"],
+          datasets: [
+            {
+              label: "Wavelength (m)",
+              data: [1, 0.0000005, 100],
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                },
+              },
+            ],
+          },
+        },
+      });
+
+      // Placeholder for interference pattern, implement with D3.js similar to wave form
+
+      updateWave();
+    </script>
+  </body>
+</html>

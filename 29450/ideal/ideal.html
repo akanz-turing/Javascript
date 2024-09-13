@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Music Theory Explorer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f0f0;
+      }
+      .section {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 40px;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 30px;
+      }
+      h2 {
+        font-size: 1.8em;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .interactive-staff,
+      .interactive-piano,
+      .instrument-ranges,
+      .harmonics-diagram {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+      .explanation-card {
+        background-color: #e8f4f8;
+        border: 1px solid #b8dcec;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .explanation-card h3 {
+        color: #2980b9;
+        margin-top: 0;
+      }
+      .piano-key {
+        cursor: pointer;
+        transition: fill 0.3s ease;
+      }
+      .piano-key:hover {
+        opacity: 0.8;
+      }
+      .scale-button {
+        margin: 5px;
+        padding: 8px 15px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .scale-button:hover {
+        background-color: #2980b9;
+      }
+      .play-button {
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      .play-button:hover {
+        background-color: #27ae60;
+      }
+      .staff-controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .staff-button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      .staff-button:hover {
+        background-color: #2980b9;
+      }
+
+      .staff-button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+      .note-symbol {
+        font-family: "Bravura", serif;
+        font-size: 24px;
+        dominant-baseline: middle;
+        text-anchor: middle;
+        user-select: none;
+      }
+      .staff-line {
+        stroke: black;
+        stroke-width: 1;
+      }
+
+      .note-head {
+        fill: black;
+        stroke: none;
+      }
+
+      .note-head.whole,
+      .note-head.half {
+        fill: none;
+        stroke: black;
+        stroke-width: 2;
+      }
+
+      .note-stem {
+        stroke: black;
+        stroke-width: 1.5;
+      }
+
+      .note-flag {
+        fill: none;
+        stroke: black;
+        stroke-width: 1.5;
+      }
+
+      .ledger-line {
+        stroke: black;
+        stroke-width: 1;
+      }
+      #pause-button {
+        background-color: #e74c3c;
+      }
+
+      #pause-button:hover {
+        background-color: #c0392b;
+      }
+
+      #reset-button {
+        background-color: #f39c12;
+      }
+
+      #reset-button:hover {
+        background-color: #d35400;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .section {
+          padding: 15px;
+        }
+        .interactive-staff,
+        .interactive-piano,
+        .instrument-ranges,
+        .harmonics-diagram {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Interactive Music Theory Explorer</h1>
+
+    <div class="section">
+      <h2>Musical Staff</h2>
+      <div class="interactive-staff" id="staff-container"></div>
+      <div class="staff-controls">
+        <button
+          id="play-button"
+          class="staff-button"
+          onclick="playStaffNotes()"
+        >
+          Play
+        </button>
+        <button
+          id="pause-button"
+          class="staff-button"
+          onclick="pauseStaffNotes()"
+          disabled
+        >
+          Pause
+        </button>
+        <button id="reset-button" class="staff-button" onclick="resetStaff()">
+          Reset
+        </button>
+      </div>
+      <div class="explanation-card">
+        <h3>Notes and Time Signatures</h3>
+        <p>
+          Musical notes are represented on a staff, which consists of five
+          horizontal lines. The position of a note on the staff indicates its
+          pitch. Time signatures tell you how many beats are in each measure and
+          what note value constitutes one beat.
+        </p>
+        <p>
+          Click on the staff to add or remove notes. Use the play button to hear
+          the notes you've placed. You can pause the playback and reset the
+          staff to start over.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Piano Keyboard and Scales</h2>
+      <div class="interactive-piano" id="piano-container"></div>
+      <div>
+        <button class="scale-button" onclick="highlightScale('C', 'major')">
+          C Major
+        </button>
+        <button class="scale-button" onclick="highlightScale('A', 'minor')">
+          A Minor
+        </button>
+        <button class="scale-button" onclick="highlightScale('G', 'major')">
+          G Major
+        </button>
+        <button class="scale-button" onclick="highlightScale('E', 'minor')">
+          E Minor
+        </button>
+      </div>
+      <div class="explanation-card">
+        <h3>Scales</h3>
+        <p>
+          Scales are sequences of notes that form the basis of melodies and
+          harmonies. Different types of scales include major, minor, pentatonic,
+          and chromatic scales. Each has a unique pattern of whole steps and
+          half steps.
+        </p>
+        <p>
+          Click on the piano keys to hear individual notes, or use the buttons
+          above to highlight and play different scales.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Instrument Ranges</h2>
+      <div class="instrument-ranges" id="range-chart"></div>
+      <div class="explanation-card">
+        <h3>Instrument Ranges</h3>
+        <p>
+          Different instruments have different ranges of pitches they can
+          produce. This chart shows the frequency ranges of various instruments
+          on a logarithmic scale.
+        </p>
+        <p>
+          Hover over the bars to see the exact frequency range for each
+          instrument. The human hearing range is typically between 20 Hz and
+          20,000 Hz.
+        </p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Harmonics and Overtones</h2>
+      <div class="harmonics-diagram" id="harmonics-container"></div>
+      <div class="explanation-card">
+        <h3>Harmonics</h3>
+        <p>
+          Harmonics are the additional frequencies produced when an instrument
+          plays a note. These overtones contribute to the unique timbre of each
+          instrument.
+        </p>
+        <p>
+          Click on the different harmonic waves to hear how they sound
+          individually and how they combine to create complex tones. The
+          fundamental frequency (1f) is the base note, while higher harmonics
+          (2f, 3f, etc.) create the rich sound we associate with different
+          instruments.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Initialize Tone.js
+      const synth = new Tone.Synth().toDestination();
+      let audioContextStarted = false;
+
+      function startAudioContext() {
+        if (!audioContextStarted) {
+          Tone.start();
+          audioContextStarted = true;
+        }
+      }
+      let staffSequence = null;
+      let currentNoteValue = "quarter"; // Default note value
+
+      function updateButtonStates() {
+        const noteCount = d3
+          .select("#staff-container")
+          .selectAll(".note-group")
+          .size();
+        const playButton = document.getElementById("play-button");
+        const pauseButton = document.getElementById("pause-button");
+        const resetButton = document.getElementById("reset-button");
+
+        if (noteCount === 0) {
+          playButton.disabled = true;
+          pauseButton.disabled = true;
+          resetButton.disabled = true;
+        } else {
+          playButton.disabled = false;
+          resetButton.disabled = false;
+          // Pause button state depends on whether the sequence is currently playing
+          pauseButton.disabled =
+            !staffSequence || !Tone.Transport.state === "started";
+        }
+      }
+
+      function createStaff() {
+        const svg = d3
+          .select("#staff-container")
+          .append("svg")
+          .attr("width", "100%")
+          .attr("height", 200);
+
+        // Draw staff lines
+        for (let i = 0; i < 5; i++) {
+          svg
+            .append("line")
+            .attr("class", "staff-line")
+            .attr("x1", 0)
+            .attr("y1", 50 + i * 10)
+            .attr("x2", "100%")
+            .attr("y2", 50 + i * 10);
+        }
+
+        // Add interactivity to place notes
+        svg.on("click", function (event) {
+          startAudioContext();
+          const [x, y] = d3.pointer(event);
+          const notePosition = Math.round((y - 50) / 5) * 5 + 50;
+          const existingNote = svg.selectAll(".note-group").filter(function () {
+            return (
+              d3.select(this).attr("transform") ===
+              `translate(${x}, ${notePosition})`
+            );
+          });
+
+          if (existingNote.empty()) {
+            addNoteToStaff(svg, x, notePosition, currentNoteValue);
+          } else {
+            existingNote.remove();
+          }
+          updateButtonStates();
+        });
+
+        // Add note value selector
+        const noteValues = ["whole", "half", "quarter", "eighth", "sixteenth"];
+        const noteSelector = d3
+          .select("#staff-container")
+          .append("select")
+          .on("change", function () {
+            currentNoteValue = this.value;
+          });
+
+        noteSelector
+          .selectAll("option")
+          .data(noteValues)
+          .enter()
+          .append("option")
+          .attr("value", (d) => d)
+          .text((d) => d + " note");
+      }
+
+      function addNoteToStaff(svg, x, y, noteValue) {
+        const noteGroup = svg
+          .append("g")
+          .attr("class", "note-group")
+          .attr("transform", `translate(${x}, ${y})`);
+
+        // Add ledger lines if necessary
+        if (y < 50 || y > 90) {
+          const ledgerLineY =
+            y < 50
+              ? Math.floor((50 - y) / 10) * 10 + y
+              : Math.ceil((y - 90) / 10) * 10 + 90;
+          noteGroup
+            .append("line")
+            .attr("class", "ledger-line")
+            .attr("x1", -5)
+            .attr("y1", ledgerLineY - y)
+            .attr("x2", 5)
+            .attr("y2", ledgerLineY - y);
+        }
+
+        // Note head
+        noteGroup
+          .append("ellipse")
+          .attr("class", `note-head ${noteValue}`)
+          .attr("rx", 5)
+          .attr("ry", 4);
+
+        // Stem (for notes other than whole notes)
+        if (noteValue !== "whole") {
+          const stemDirection = y > 70 ? -1 : 1;
+          noteGroup
+            .append("line")
+            .attr("class", "note-stem")
+            .attr("x1", stemDirection > 0 ? 4 : -4)
+            .attr("y1", 0)
+            .attr("x2", stemDirection > 0 ? 4 : -4)
+            .attr("y2", stemDirection * -30);
+
+          // Flags for eighth and sixteenth notes
+          if (noteValue === "eighth" || noteValue === "sixteenth") {
+            const flagPath =
+              noteValue === "eighth"
+                ? "M0,0 Q10,-10 0,-20"
+                : "M0,0 Q10,-10 0,-20 M0,-10 Q10,-20 0,-30";
+            noteGroup
+              .append("path")
+              .attr("class", "note-flag")
+              .attr("d", flagPath)
+              .attr(
+                "transform",
+                `translate(${stemDirection > 0 ? 4 : -4},${
+                  stemDirection * -30
+                }) scale(${stemDirection},1)`
+              );
+          }
+        }
+      }
+
+      function playStaffNotes() {
+        startAudioContext();
+        const notes = d3.select("#staff-container").selectAll(".note-group");
+        const noteSequence = [];
+        notes.each(function () {
+          const transform = d3.select(this).attr("transform");
+          const y = parseFloat(transform.split(",")[1].slice(0, -1));
+          const pitch = [
+            "C5",
+            "B4",
+            "A4",
+            "G4",
+            "F4",
+            "E4",
+            "D4",
+            "C4",
+            "B3",
+            "A3",
+          ][(y - 30) / 5];
+          const noteValue = d3
+            .select(this)
+            .select(".note-head")
+            .attr("class")
+            .split(" ")[1];
+          let duration;
+          switch (noteValue) {
+            case "whole":
+              duration = "1n";
+              break;
+            case "half":
+              duration = "2n";
+              break;
+            case "quarter":
+              duration = "4n";
+              break;
+            case "eighth":
+              duration = "8n";
+              break;
+            case "sixteenth":
+              duration = "16n";
+              break;
+            default:
+              duration = "4n";
+          }
+          noteSequence.push({ note: pitch, duration: duration });
+        });
+
+        if (staffSequence) {
+          staffSequence.dispose();
+        }
+
+        staffSequence = new Tone.Sequence((time, event) => {
+          synth.triggerAttackRelease(event.note, event.duration, time);
+        }, noteSequence).start(0);
+
+        Tone.Transport.start();
+
+        document.getElementById("play-button").disabled = true;
+        document.getElementById("pause-button").disabled = false;
+        updateButtonStates();
+      }
+
+      function pauseStaffNotes() {
+        Tone.Transport.pause();
+        document.getElementById("play-button").disabled = false;
+        document.getElementById("pause-button").disabled = true;
+        document.getElementById("play-button").textContent = "Resume";
+        updateButtonStates();
+      }
+
+      function resetStaff() {
+        if (staffSequence) {
+          staffSequence.stop();
+          staffSequence.dispose();
+          staffSequence = null;
+        }
+        Tone.Transport.stop();
+        Tone.Transport.cancel();
+
+        d3.select("#staff-container").selectAll(".note-group").remove();
+
+        document.getElementById("play-button").disabled = true;
+        document.getElementById("pause-button").disabled = true;
+        document.getElementById("play-button").textContent = "Play";
+        updateButtonStates();
+      }
+
+      // Piano Keyboard
+      function createPiano() {
+        const svg = d3
+          .select("#piano-container")
+          .append("svg")
+          .attr("width", "100%")
+          .attr("height", 200);
+
+        const octaves = 2;
+        const whiteKeyWidth = 40;
+        const blackKeyWidth = 24;
+        const whiteKeyHeight = 150;
+        const blackKeyHeight = 100;
+
+        for (let octave = 0; octave < octaves; octave++) {
+          const whiteKeys = [0, 2, 4, 5, 7, 9, 11];
+          const blackKeys = [1, 3, 6, 8, 10];
+          const noteNames = [
+            "C",
+            "C#",
+            "D",
+            "D#",
+            "E",
+            "F",
+            "F#",
+            "G",
+            "G#",
+            "A",
+            "A#",
+            "B",
+          ];
+
+          // Draw white keys
+          whiteKeys.forEach((note, i) => {
+            svg
+              .append("rect")
+              .attr("x", (octave * 7 + i) * whiteKeyWidth)
+              .attr("y", 0)
+              .attr("width", whiteKeyWidth)
+              .attr("height", whiteKeyHeight)
+              .attr("fill", "white")
+              .attr("stroke", "black")
+              .attr("class", "piano-key")
+              .attr("data-note", noteNames[note])
+              .on("mousedown", () => playNote(noteNames[note] + (octave + 4)));
+          });
+
+          // Draw black keys
+          blackKeys.forEach((note, i) => {
+            if (i > 1) i++;
+            svg
+              .append("rect")
+              .attr(
+                "x",
+                (octave * 7 + i) * whiteKeyWidth +
+                  whiteKeyWidth -
+                  blackKeyWidth / 2
+              )
+              .attr("y", 0)
+              .attr("width", blackKeyWidth)
+              .attr("height", blackKeyHeight)
+              .attr("fill", "black")
+              .attr("class", "piano-key")
+              .attr("data-note", noteNames[note])
+              .on("mousedown", () => playNote(noteNames[note] + (octave + 4)));
+          });
+        }
+      }
+
+      function playNote(note) {
+        startAudioContext();
+        synth.triggerAttackRelease(note, "8n");
+      }
+
+      function highlightScale(root, type) {
+        startAudioContext();
+        const scales = {
+          major: [0, 2, 4, 5, 7, 9, 11],
+          minor: [0, 2, 3, 5, 7, 8, 10],
+        };
+        const noteNames = [
+          "C",
+          "C#",
+          "D",
+          "D#",
+          "E",
+          "F",
+          "F#",
+          "G",
+          "G#",
+          "A",
+          "A#",
+          "B",
+        ];
+        const rootIndex = noteNames.indexOf(root);
+        const scaleNotes = scales[type].map(
+          (interval) => noteNames[(rootIndex + interval) % 12]
+        );
+
+        d3.selectAll(".piano-key").attr("fill", function () {
+          return scaleNotes.includes(d3.select(this).attr("data-note"))
+            ? "yellow"
+            : this.getAttribute("fill") === "black"
+            ? "black"
+            : "white";
+        });
+
+        // Play scale
+        const now = Tone.now();
+        scaleNotes.forEach((note, index) => {
+          synth.triggerAttackRelease(note + "4", "8n", now + index * 0.5);
+        });
+      }
+
+      // Instrument Ranges
+      // Instrument Ranges (continued)
+      function createRangeChart() {
+        const svg = d3
+          .select("#range-chart")
+          .append("svg")
+          .attr("width", "100%")
+          .attr("height", 400);
+
+        const instruments = [
+          { name: "Piano", low: 27.5, high: 4186.01 },
+          { name: "Violin", low: 196, high: 3136 },
+          { name: "Cello", low: 65.41, high: 988 },
+          { name: "Flute", low: 261.63, high: 2093 },
+          { name: "Bass Guitar", low: 41.2, high: 392 },
+          { name: "Human Voice", low: 80, high: 1080 },
+        ];
+
+        const margin = { top: 20, right: 20, bottom: 30, left: 100 };
+        const width =
+          svg.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        const xScale = d3.scaleLog().domain([20, 5000]).range([0, width]);
+
+        const yScale = d3
+          .scaleBand()
+          .domain(instruments.map((d) => d.name))
+          .range([0, height])
+          .padding(0.1);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Add x-axis
+        g.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(xScale).tickFormat(d3.format("d")))
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 25)
+          .attr("fill", "black")
+          .text("Frequency (Hz)");
+
+        // Add y-axis
+        g.append("g").call(d3.axisLeft(yScale));
+
+        // Add range bars
+        g.selectAll(".range-bar")
+          .data(instruments)
+          .enter()
+          .append("rect")
+          .attr("class", "range-bar")
+          .attr("y", (d) => yScale(d.name))
+          .attr("x", (d) => xScale(d.low))
+          .attr("width", (d) => xScale(d.high) - xScale(d.low))
+          .attr("height", yScale.bandwidth())
+          .attr("fill", "steelblue")
+          .on("mouseover", function (event, d) {
+            d3.select(this).attr("fill", "orange");
+            g.append("text")
+              .attr("class", "tooltip")
+              .attr("x", xScale(d.high) + 5)
+              .attr("y", yScale(d.name) + yScale.bandwidth() / 2)
+              .attr("dy", ".35em")
+              .text(`${d.low.toFixed(2)} Hz - ${d.high.toFixed(2)} Hz`);
+          })
+          .on("mouseout", function () {
+            d3.select(this).attr("fill", "steelblue");
+            g.selectAll(".tooltip").remove();
+          });
+      }
+
+      // Harmonics Diagram
+      function createHarmonicsDiagram() {
+        const svg = d3
+          .select("#harmonics-container")
+          .append("svg")
+          .attr("width", "100%")
+          .attr("height", 300);
+
+        const width = svg.node().getBoundingClientRect().width;
+        const height = 300;
+        const margin = { top: 20, right: 20, bottom: 20, left: 40 };
+
+        const fundamental = 100;
+        const harmonics = [1, 2, 3, 4, 5];
+
+        const xScale = d3
+          .scaleLinear()
+          .domain([0, 2 * Math.PI])
+          .range([margin.left, width - margin.right]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([-1, 1])
+          .range([height - margin.bottom, margin.top]);
+
+        // Create wave paths
+        harmonics.forEach((h, i) => {
+          const line = d3
+            .line()
+            .x((d) => xScale(d))
+            .y((d) => yScale(Math.sin(h * d) / h));
+
+          svg
+            .append("path")
+            .datum(d3.range(0, 2 * Math.PI, 0.01))
+            .attr("d", line)
+            .attr("fill", "none")
+            .attr("stroke", d3.schemeCategory10[i])
+            .attr("stroke-width", 2)
+            .on("click", () => playHarmonic(fundamental * h));
+
+          svg
+            .append("text")
+            .attr("x", width - margin.right + 10)
+            .attr("y", yScale(0) + i * 20 - 40)
+            .text(`${h}f: ${fundamental * h} Hz`)
+            .attr("fill", d3.schemeCategory10[i])
+            .attr("alignment-baseline", "middle")
+            .on("click", () => playHarmonic(fundamental * h));
+        });
+
+        // Add axes
+        const xAxis = d3.axisBottom(xScale).ticks(8);
+        const yAxis = d3.axisLeft(yScale);
+
+        svg
+          .append("g")
+          .attr("transform", `translate(0,${height - margin.bottom})`)
+          .call(xAxis);
+
+        svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},0)`)
+          .call(yAxis);
+      }
+
+      function playHarmonic(frequency) {
+        startAudioContext();
+        const osc = new Tone.Oscillator(frequency, "sine").toDestination();
+        osc.start().stop("+0.5");
+      }
+
+      // Initialize all components
+      createStaff();
+      createPiano();
+      createRangeChart();
+      createHarmonicsDiagram();
+
+      // Ensure audio context starts on first user interaction
+      document.body.addEventListener("click", startAudioContext, {
+        once: true,
+      });
+
+      // Initial button state update
+      updateButtonStates();
+    </script>
+  </body>
+</html>
