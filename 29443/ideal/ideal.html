@@ -1,1 +1,489 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wave Physics Interactive</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f4f8;
+      }
+      h1,
+      h2 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      .interactive-section {
+        margin-bottom: 40px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      #waveForm,
+      #emSpectrum,
+      #waveComparison,
+      #interferencePattern {
+        width: 100%;
+        height: 300px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+      }
+      .controls {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .control-group {
+        flex: 1;
+        min-width: 200px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="range"] {
+        width: 100%;
+      }
+      select {
+        width: 100%;
+        padding: 5px;
+      }
+      #conceptCards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .concept-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .concept-card h3 {
+        margin-top: 0;
+        color: #3498db;
+      }
+      .wave-labels {
+        font-size: 12px;
+        fill: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Wave Physics Interactive</h1>
+
+    <div class="interactive-section">
+      <h2>Interactive Wave Form</h2>
+      <div id="waveForm"></div>
+      <div class="controls">
+        <div class="control-group">
+          <label for="amplitude">Amplitude:</label>
+          <input type="range" id="amplitude" min="0" max="100" value="50" />
+        </div>
+        <div class="control-group">
+          <label for="frequency">Frequency:</label>
+          <input type="range" id="frequency" min="1" max="10" value="1" />
+        </div>
+        <div class="control-group">
+          <label for="waveType">Wave Type:</label>
+          <select id="waveType">
+            <option value="sine">Sine Wave</option>
+            <option value="square">Square Wave</option>
+            <option value="sawtooth">Sawtooth Wave</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="interactive-section">
+      <h2>Electromagnetic Spectrum</h2>
+      <div id="emSpectrum"></div>
+      <input type="range" id="emSlider" min="0" max="100" value="50" />
+      <div id="emInfo"></div>
+    </div>
+
+    <div class="interactive-section">
+      <h2>Wave Properties Comparison</h2>
+      <canvas id="waveComparison"></canvas>
+    </div>
+
+    <div class="interactive-section">
+      <h2>Wave Interference Patterns</h2>
+      <div id="interferencePattern"></div>
+      <div class="controls">
+        <label for="wave1Amplitude">Wave 1 Amplitude:</label>
+        <input type="range" id="wave1Amplitude" min="0" max="100" value="50" />
+        <label for="wave2Amplitude">Wave 2 Amplitude:</label>
+        <input type="range" id="wave2Amplitude" min="0" max="100" value="50" />
+        <label for="phaseShift">Phase Shift:</label>
+        <input type="range" id="phaseShift" min="0" max="360" value="0" />
+      </div>
+    </div>
+
+    <div class="interactive-section">
+      <h2>Key Wave Physics Concepts</h2>
+      <div id="conceptCards"></div>
+    </div>
+
+    <script>
+      // Interactive Wave Form
+      const waveForm = d3.select("#waveForm");
+      const width = waveForm.node().getBoundingClientRect().width;
+      const height = 300;
+      const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+      const svg = waveForm
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const g = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, 2 * Math.PI])
+        .range([0, width - margin.left - margin.right]);
+
+      const yScale = d3
+        .scaleLinear()
+        .domain([-1, 1])
+        .range([height - margin.top - margin.bottom, 0]);
+
+      const xAxis = d3
+        .axisBottom(xScale)
+        .ticks(5)
+        .tickFormat((d) => `${d.toFixed(1)}π`);
+
+      const yAxis = d3.axisLeft(yScale);
+
+      g.append("g")
+        .attr("class", "x-axis")
+        .attr(
+          "transform",
+          `translate(0,${height - margin.top - margin.bottom})`
+        )
+        .call(xAxis);
+
+      g.append("g").attr("class", "y-axis").call(yAxis);
+
+      const path = g.append("path").attr("fill", "none").attr("stroke", "blue");
+
+      const amplitudeLabel = svg
+        .append("text")
+        .attr("class", "wave-labels")
+        .attr("x", 10)
+        .attr("y", 20);
+
+      const wavelengthLabel = svg
+        .append("text")
+        .attr("class", "wave-labels")
+        .attr("x", width - 100)
+        .attr("y", height - 10);
+
+      function updateWave() {
+        const amplitude = +d3.select("#amplitude").property("value") / 100;
+        const frequency = +d3.select("#frequency").property("value");
+        const waveType = d3.select("#waveType").property("value");
+
+        const data = d3.range(0, 2 * Math.PI, 0.01).map((x) => {
+          let y;
+          switch (waveType) {
+            case "sine":
+              y = Math.sin(x * frequency) * amplitude;
+              break;
+            case "square":
+              y = Math.sign(Math.sin(x * frequency)) * amplitude;
+              break;
+            case "sawtooth":
+              y =
+                ((((x * frequency) % (2 * Math.PI)) - Math.PI) / Math.PI) *
+                amplitude;
+              break;
+          }
+          return [xScale(x), yScale(y)];
+        });
+
+        const line = d3.line();
+        path.attr("d", line(data));
+
+        amplitudeLabel.text(`Amplitude: ${(amplitude * 100).toFixed(0)}%`);
+        wavelengthLabel.text(
+          `Wavelength: ${((2 * Math.PI) / frequency).toFixed(2)}π`
+        );
+      }
+
+      d3.select("#amplitude").on("input", updateWave);
+      d3.select("#frequency").on("input", updateWave);
+      d3.select("#waveType").on("change", updateWave);
+
+      updateWave();
+
+      // Electromagnetic Spectrum
+      const emSpectrum = d3.select("#emSpectrum");
+      const emSvg = emSpectrum
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const gradient = emSvg
+        .append("defs")
+        .append("linearGradient")
+        .attr("id", "emGradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%");
+
+      gradient
+        .selectAll("stop")
+        .data([
+          { offset: "0%", color: "red" },
+          { offset: "16%", color: "orange" },
+          { offset: "32%", color: "yellow" },
+          { offset: "48%", color: "green" },
+          { offset: "64%", color: "blue" },
+          { offset: "80%", color: "indigo" },
+          { offset: "100%", color: "violet" },
+        ])
+        .enter()
+        .append("stop")
+        .attr("offset", (d) => d.offset)
+        .attr("stop-color", (d) => d.color);
+
+      emSvg
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "url(#emGradient)");
+
+      const emTypes = [
+        {
+          name: "Radio Waves",
+          freq: "3 Hz - 300 GHz",
+          app: "Communication, navigation",
+        },
+        {
+          name: "Microwaves",
+          freq: "300 MHz - 300 GHz",
+          app: "Cooking, radar",
+        },
+        {
+          name: "Infrared",
+          freq: "300 GHz - 430 THz",
+          app: "Thermal imaging, remote controls",
+        },
+        {
+          name: "Visible Light",
+          freq: "430 THz - 750 THz",
+          app: "Vision, photography",
+        },
+        {
+          name: "Ultraviolet",
+          freq: "750 THz - 30 PHz",
+          app: "Sterilization, detecting forged banknotes",
+        },
+        {
+          name: "X-rays",
+          freq: "30 PHz - 30 EHz",
+          app: "Medical imaging, airport security",
+        },
+        {
+          name: "Gamma Rays",
+          freq: ">30 EHz",
+          app: "Cancer treatment, astrophysics",
+        },
+      ];
+
+      d3.select("#emSlider").on("input", function () {
+        const value = +this.value;
+        const index = Math.floor(value / (100 / emTypes.length));
+        d3.select("#emInfo").html(`
+            <h3>${emTypes[index].name}</h3>
+            <p>Frequency range: ${emTypes[index].freq}</p>
+            <p>Applications: ${emTypes[index].app}</p>
+        `);
+      });
+
+      // Wave Properties Comparison
+      const ctx = document.getElementById("waveComparison").getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [
+            "Sound Waves",
+            "Light Waves",
+            "Radio Waves",
+            "X-rays",
+            "Gamma Rays",
+          ],
+          datasets: [
+            {
+              label: "Wavelength (m)",
+              data: [340e-3, 5e-7, 1, 1e-10, 1e-12],
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1,
+            },
+            {
+              label: "Frequency (Hz)",
+              data: [1e3, 6e14, 3e8, 3e18, 3e20],
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            },
+            {
+              label: "Speed (m/s)",
+              data: [340, 3e8, 3e8, 3e8, 3e8],
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              type: "logarithmic",
+              beginAtZero: true,
+            },
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || "";
+                  if (label) {
+                    label += ": ";
+                  }
+                  if (context.parsed.y !== null) {
+                    label += context.parsed.y.toExponential(2);
+                  }
+                  return label;
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Wave Interference Patterns
+      const interferencePattern = d3.select("#interferencePattern");
+      const intSvg = interferencePattern
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+      const wave1Path = intSvg
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", "blue")
+        .attr("opacity", 0.5);
+      const wave2Path = intSvg
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("opacity", 0.5);
+      const interferencePath = intSvg
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", "purple");
+
+      function updateInterference() {
+        const amplitude1 = +d3.select("#wave1Amplitude").property("value");
+        const amplitude2 = +d3.select("#wave2Amplitude").property("value");
+        const phaseShift =
+          (+d3.select("#phaseShift").property("value") * Math.PI) / 180;
+
+        const wave1Data = d3.range(0, width, 1).map((x) => {
+          const y = Math.sin(x * 0.05) * amplitude1;
+          return [x, y + height / 2];
+        });
+
+        const wave2Data = d3.range(0, width, 1).map((x) => {
+          const y = Math.sin(x * 0.05 + phaseShift) * amplitude2;
+          return [x, y + height / 2];
+        });
+
+        const interferenceData = d3.range(0, width, 1).map((x) => {
+          const y1 = Math.sin(x * 0.05) * amplitude1;
+          const y2 = Math.sin(x * 0.05 + phaseShift) * amplitude2;
+          return [x, y1 + y2 + height / 2];
+        });
+
+        const line = d3.line();
+        wave1Path.attr("d", line(wave1Data));
+        wave2Path.attr("d", line(wave2Data));
+        interferencePath.attr("d", line(interferenceData));
+      }
+
+      d3.select("#wave1Amplitude").on("input", updateInterference);
+      d3.select("#wave2Amplitude").on("input", updateInterference);
+      d3.select("#phaseShift").on("input", updateInterference);
+
+      updateInterference();
+
+      // Key Wave Physics Concepts
+      const concepts = [
+        {
+          title: "Types of Waves",
+          content:
+            "Waves are broadly categorized into two main types:<br><br>" +
+            "1. Mechanical Waves: These require a medium to propagate. Examples include sound waves, water waves, and seismic waves. They transfer energy through the vibration of particles in the medium.<br><br>" +
+            "2. Electromagnetic Waves: These can travel through a vacuum and don't require a medium. Examples include light, radio waves, X-rays, and gamma rays. They are created by oscillating electric and magnetic fields.",
+        },
+        {
+          title: "Wave Properties",
+          content:
+            "Key properties of waves include:<br><br>" +
+            "1. Amplitude: The maximum displacement from the equilibrium position. It determines the wave's energy and intensity.<br><br>" +
+            "2. Frequency: The number of wave cycles passing a fixed point per second, measured in Hertz (Hz).<br><br>" +
+            "3. Wavelength: The distance between two consecutive crests or troughs in a wave.<br><br>" +
+            "4. Speed: The rate at which the wave propagates through the medium. For electromagnetic waves in a vacuum, this is always the speed of light (c ≈ 3 × 10^8 m/s).",
+        },
+        {
+          title: "Wave Behavior",
+          content:
+            "Waves exhibit several important behaviors:<br><br>" +
+            "1. Reflection: When a wave bounces off a surface, changing direction.<br><br>" +
+            "2. Refraction: The bending of waves as they pass from one medium to another with different propagation speeds.<br><br>" +
+            "3. Diffraction: The bending of waves around obstacles or through openings.<br><br>" +
+            "4. Interference: When two or more waves overlap, they can reinforce (constructive interference) or cancel each other out (destructive interference).<br><br>" +
+            "5. Dispersion: The separation of waves of different frequencies, often seen in prisms separating white light into a rainbow.",
+        },
+        {
+          title: "Applications",
+          content:
+            "Waves have numerous practical applications across various fields:<br><br>" +
+            "1. Communications: Radio waves for broadcasting and telecommunications.<br><br>" +
+            "2. Medical Imaging: Ultrasound for diagnostics, X-rays for radiography.<br><br>" +
+            "3. Energy Production: Solar panels utilizing electromagnetic waves from the sun.<br><br>" +
+            "4. Geophysics: Seismic waves for studying Earth's interior and locating resources.<br><br>" +
+            "5. Music: Sound waves in musical instruments and audio technology.<br><br>" +
+            "6. Optics: Light waves in fiber optics, lasers, and optical instruments.",
+        },
+      ];
+
+      const conceptCards = d3
+        .select("#conceptCards")
+        .selectAll(".concept-card")
+        .data(concepts)
+        .enter()
+        .append("div")
+        .attr("class", "concept-card")
+        .html((d) => `<h3>${d.title}</h3><p>${d.content}</p>`);
+    </script>
+  </body>
+</html>
