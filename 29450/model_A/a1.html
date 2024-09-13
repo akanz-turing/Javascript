@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Music Theory Explorer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+      }
+      .section {
+        padding: 1rem;
+      }
+      .interactive-area {
+        border: 1px solid #ccc;
+        margin: 10px 0;
+        padding: 10px;
+      }
+      #staff,
+      #piano {
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+      }
+      #instrumentRanges,
+      #harmonics {
+        width: 100%;
+        height: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <section class="section">
+        <h1 class="title">Interactive Music Theory Explorer</h1>
+        <!-- Musical Staff -->
+        <div class="interactive-area" id="staffArea">
+          <svg id="staff" viewBox="0 0 600 150"></svg>
+        </div>
+
+        <!-- Piano Keyboard -->
+        <div class="interactive-area">
+          <div id="piano"></div>
+        </div>
+
+        <!-- Instrument Ranges -->
+        <div class="interactive-area">
+          <canvas id="instrumentRanges"></canvas>
+        </div>
+
+        <!-- Harmonics and Overtones -->
+        <div class="interactive-area">
+          <svg id="harmonics" viewBox="0 0 600 300"></svg>
+        </div>
+
+        <!-- Explanation Cards -->
+        <div class="columns is-multiline">
+          <div class="column is-one-third">
+            <div class="card">
+              <div class="card-content">
+                <p class="title">Major Scale</p>
+                <p>A sequence of notes following the pattern W-W-H-W-W-W-H.</p>
+              </div>
+            </div>
+          </div>
+          <!-- More cards for other concepts -->
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg.js@2.7.1/dist/svg.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Staff and note placement logic here
+        const staff = SVG("staff").size("100%", 150);
+
+        // Piano keyboard creation
+        const piano = new Tone.Sampler({
+          urls: {
+            C4: "C4.mp3",
+            // Add more notes here
+          },
+          baseUrl: "path/to/audio/files/",
+        }).toDestination();
+
+        // Instrument Ranges Chart
+        const ctx = document
+          .getElementById("instrumentRanges")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            // Data for different instruments
+          },
+          options: {
+            // Options for responsiveness, scales, etc.
+          },
+        });
+
+        // Harmonics SVG and audio
+        const harmonics = SVG("harmonics");
+        // Draw harmonics and setup audio playback
+
+        // Interaction and audio playback logic would go here
+      });
+    </script>
+  </body>
+</html>

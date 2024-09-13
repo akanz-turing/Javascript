@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="music-staff">
+      <!-- SVG elements for staff and notes -->
+    </div>
+    <div id="piano-keyboard">
+      <!-- Piano keys here -->
+    </div>
+    <div id="instrument-ranges"></div>
+    <div class="card">
+      <h5 class="card-title">Major Scale</h5>
+      <p class="card-text">Description...</p>
+    </div>
+    <script>
+      document
+        .getElementById("music-staff")
+        .addEventListener("click", function (e) {
+          // Logic to place note on staff
+          let note = createNote(e.clientX, e.clientY);
+          this.appendChild(note);
+          playNote(note); // Using Tone.js to play the note
+        });
+
+      const pianoKeys = document.querySelectorAll("#piano-keyboard .key");
+      pianoKeys.forEach((key) =>
+        key.addEventListener("click", () => {
+          highlightScale(key.dataset.note);
+          playScale(key.dataset.note); // Play scale with Tone.js
+        })
+      );
+      // Pseudo-code for D3.js
+      d3.select("#instrument-ranges")
+        .selectAll("div")
+        .data(instrumentData)
+        .enter()
+        .append("div")
+        .style("width", (d) => scale(d.range) + "px")
+        .text((d) => d.name);
+      function showHarmonics(instrument) {
+        // Update SVG to show harmonic series
+        // Play audio sample
+      }
+    </script>
+  </body>
+</html>
