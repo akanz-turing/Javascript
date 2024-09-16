@@ -1,1 +1,763 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Market Observer</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f0f2f5;
+      }
+      .container {
+        max-width: 1200px;
+      }
+      .card {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+      .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+      .btn {
+        transition: all 0.3s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      #errorMessage {
+        background-color: #fff5f5;
+        border-color: #fc8181;
+      }
+      #newsFeed a {
+        color: #4299e1;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+      #newsFeed a:hover {
+        color: #2b6cb0;
+        text-decoration: underline;
+      }
+      .news-item {
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+      }
+      .news-item:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">
+        Financial Market Observer
+      </h1>
+
+      <div
+        id="errorMessage"
+        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+        style="display: none"
+        role="alert"
+      ></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Stock Search and Chart -->
+        <div class="card p-6">
+          <h2 class="card-title text-2xl mb-4">Stock Prices</h2>
+          <input
+            type="text"
+            id="stockSearch"
+            placeholder="Search stocks..."
+            class="w-full p-2 mb-4 border rounded"
+          />
+          <div class="flex space-x-4 mb-4">
+            <input
+              type="date"
+              id="stockStartDate"
+              class="flex-1 p-2 border rounded"
+            />
+            <input
+              type="date"
+              id="stockEndDate"
+              class="flex-1 p-2 border rounded"
+            />
+            <button
+              id="stockDateFilter"
+              class="btn bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Filter
+            </button>
+          </div>
+          <canvas id="stockChart"></canvas>
+        </div>
+
+        <!-- Sector Performance Chart -->
+        <div class="card p-6">
+          <h2 class="card-title text-2xl mb-4">Sector Performance</h2>
+          <canvas id="sectorChart"></canvas>
+        </div>
+
+        <!-- Stock Comparison -->
+        <div class="card p-6">
+          <h2 class="card-title text-2xl mb-4">Stock Comparison</h2>
+          <div class="flex space-x-4 mb-4">
+            <select id="stock1" class="flex-1 p-2 border rounded">
+              <option value="">Select Stock 1</option>
+            </select>
+            <select id="stock2" class="flex-1 p-2 border rounded">
+              <option value="">Select Stock 2</option>
+            </select>
+          </div>
+          <div class="flex space-x-4 mb-4">
+            <input
+              type="date"
+              id="comparisonStartDate"
+              class="flex-1 p-2 border rounded"
+            />
+            <input
+              type="date"
+              id="comparisonEndDate"
+              class="flex-1 p-2 border rounded"
+            />
+            <button
+              id="comparisonDateFilter"
+              class="btn bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Filter
+            </button>
+          </div>
+          <canvas id="comparisonChart"></canvas>
+        </div>
+
+        <!-- News Feed -->
+        <div class="card p-6">
+          <h2 class="card-title text-2xl mb-4">Financial News</h2>
+          <div id="newsFeed" class="space-y-4 overflow-y-auto max-h-96"></div>
+        </div>
+      </div>
+
+      <!-- Financial Terms Glossary -->
+      <div class="card mt-8 p-6">
+        <h2 class="card-title text-2xl mb-4">Financial Glossary</h2>
+        <div id="glossary" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+      </div>
+    </div>
+
+    <script>
+      // API configuration
+      const MARKETSTACK_API_KEY = "af43bad7c43fdb5bacef761fab421c83";
+      const FMP_API_KEY = "DUCb2KPXxI8aeadWQMxeVHgcKOz1Dj9r";
+      const FINNHUB_API_KEY = "crkalr1r01qq23fhcr6gcrkalr1r01qq23fhcr70";
+      const MARKETSTACK_BASE_URL = "https://api.marketstack.com/v1";
+      const FMP_BASE_URL = "https://financialmodelingprep.com/api/v3";
+      const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
+
+      // Top 20 stocks (you may want to fetch this dynamically or update periodically)
+      const TOP_STOCKS = [
+        "AAPL",
+        "MSFT",
+        "AMZN",
+        "GOOGL",
+        "FB",
+        "TSLA",
+        "BRK.A",
+        "NVDA",
+        "JPM",
+        "JNJ",
+        "V",
+        "UNH",
+        "HD",
+        "PG",
+        "MA",
+        "DIS",
+        "PYPL",
+        "BAC",
+        "ADBE",
+        "CMCSA",
+      ];
+
+      // Fetch stock data from Marketstack API
+      async function fetchStockData(symbol, startDate, endDate) {
+        try {
+          let url = `${MARKETSTACK_BASE_URL}/eod?access_key=${MARKETSTACK_API_KEY}&symbols=${symbol}`;
+          if (startDate && endDate) {
+            url += `&date_from=${startDate}&date_to=${endDate}`;
+          }
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("API request failed");
+          }
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            return data.data.reverse(); // Reverse to get chronological order
+          } else {
+            throw new Error("No data found for this stock");
+          }
+        } catch (error) {
+          displayErrorMessage(
+            `Error fetching data for ${symbol}: ${error.message}`
+          );
+          return null;
+        }
+      }
+
+      // Fetch sector performance data from FMP API
+      async function fetchSectorPerformance() {
+        try {
+          const url = `${FMP_BASE_URL}/sector-performance?apikey=${FMP_API_KEY}`;
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("API request failed");
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          displayErrorMessage(
+            `Error fetching sector performance: ${error.message}`
+          );
+          return null;
+        }
+      }
+
+      // Fetch news data from Finnhub API
+      async function fetchNews() {
+        try {
+          const currentDate = new Date();
+          const pastDate = new Date(
+            currentDate.getTime() - 7 * 24 * 60 * 60 * 1000
+          ); // 7 days ago
+          const from = pastDate.toISOString().split("T")[0];
+          const to = currentDate.toISOString().split("T")[0];
+
+          const url = `${FINNHUB_BASE_URL}/news?category=general&from=${from}&to=${to}&token=${FINNHUB_API_KEY}`;
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("API request failed");
+          }
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          displayErrorMessage(`Error fetching news: ${error.message}`);
+          return null;
+        }
+      }
+
+      // Display error message on the screen
+      function displayErrorMessage(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        if (errorDiv) {
+          errorDiv.textContent = message;
+          errorDiv.style.display = "block";
+          setTimeout(() => {
+            errorDiv.style.display = "none";
+          }, 5000); // Hide the message after 5 seconds
+        }
+      }
+      // Fetch commodity data from Alpha Vantage API
+      async function fetchCommodityData() {
+        const commodities = [
+          { symbol: "BRENT", name: "Crude Oil Brent" },
+          { symbol: "NATURAL_GAS", name: "Natural Gas" },
+          { symbol: "COPPER", name: "Copper" },
+        ];
+
+        const commodityData = [];
+
+        for (const commodity of commodities) {
+          try {
+            const url = `https://www.alphavantage.co/query?function=${commodity.symbol}&interval=monthly&apikey=${ALPHA_VANTAGE_API_KEY}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error("API request failed");
+            }
+            const data = await response.json();
+            if (data["data"]) {
+              const latestData = data["data"][0];
+              commodityData.push({
+                name: commodity.name,
+                value: parseFloat(latestData.value),
+                unit: latestData.unit,
+                date: latestData.date,
+              });
+            }
+          } catch (error) {
+            displayErrorMessage(
+              `Error fetching data for ${commodity.name}: ${error.message}`
+            );
+          }
+        }
+
+        return commodityData;
+      }
+
+      // Fetch digital currency data from Alpha Vantage API
+      async function fetchDigitalCurrencyData() {
+        const currencies = ["BTC", "ETH"];
+        const digitalCurrencyData = [];
+
+        for (const currency of currencies) {
+          try {
+            const url = `${ALPHA_VANTAGE_BASE_URL}?function=DIGITAL_CURRENCY_DAILY&symbol=${currency}&market=USD&apikey=${ALPHA_VANTAGE_API_KEY}`;
+            const response = await fetch(url);
+            if (!response.ok) {
+              throw new Error("API request failed");
+            }
+            const data = await response.json();
+            if (data["Time Series (Digital Currency Daily)"]) {
+              const latestDate = Object.keys(
+                data["Time Series (Digital Currency Daily)"]
+              )[0];
+              const latestData =
+                data["Time Series (Digital Currency Daily)"][latestDate];
+              digitalCurrencyData.push({
+                name: currency,
+                value: parseFloat(latestData["4a. close (USD)"]),
+                date: latestDate,
+              });
+            }
+          } catch (error) {
+            displayErrorMessage(
+              `Error fetching data for ${currency}: ${error.message}`
+            );
+          }
+        }
+
+        return digitalCurrencyData;
+      }
+
+      // Update commodity and digital currency chart
+      async function updateCommodityChart() {
+        const commodityData = await fetchCommodityData();
+        const digitalCurrencyData = await fetchDigitalCurrencyData();
+
+        if (
+          commodityData.length > 0 &&
+          digitalCurrencyData.length > 0 &&
+          commodityChart
+        ) {
+          const labels = [
+            ...commodityData.map((item) => item.name),
+            ...digitalCurrencyData.map((item) => item.name),
+          ];
+          const data = [
+            ...commodityData.map((item) => item.value),
+            ...digitalCurrencyData.map((item) => item.value),
+          ];
+
+          commodityChart.data.labels = labels;
+          commodityChart.data.datasets[0].data = data;
+          commodityChart.update();
+        }
+      }
+
+      // Initialize charts
+      let stockChart, comparisonChart, commodityChart;
+
+      function initializeCharts() {
+        const stockChartCtx = document.getElementById("stockChart");
+        const comparisonChartCtx = document.getElementById("comparisonChart");
+        const sectorChartCtx = document.getElementById("sectorChart");
+
+        if (stockChartCtx) {
+          stockChart = new Chart(stockChartCtx.getContext("2d"), {
+            type: "line",
+            data: {
+              labels: [],
+              datasets: [],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                tooltip: {
+                  mode: "index",
+                  intersect: false,
+                },
+              },
+            },
+          });
+        }
+
+        if (comparisonChartCtx) {
+          comparisonChart = new Chart(comparisonChartCtx.getContext("2d"), {
+            type: "line",
+            data: {
+              labels: [],
+              datasets: [],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                tooltip: {
+                  mode: "index",
+                  intersect: false,
+                },
+              },
+            },
+          });
+        }
+
+        if (sectorChartCtx) {
+          sectorChart = new Chart(sectorChartCtx.getContext("2d"), {
+            type: "bar",
+            data: {
+              labels: [],
+              datasets: [
+                {
+                  label: "Sector Performance (%)",
+                  data: [],
+                  backgroundColor: "rgba(75, 192, 192, 0.6)",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      let label = context.dataset.label || "";
+                      if (label) {
+                        label += ": ";
+                      }
+                      if (context.parsed.y !== null) {
+                        label += context.parsed.y.toFixed(2) + "%";
+                      }
+                      return label;
+                    },
+                  },
+                },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function (value) {
+                      return value.toFixed(2) + "%";
+                    },
+                  },
+                },
+              },
+            },
+          });
+        }
+      }
+
+      // Update stock chart
+      function updateStockChart(symbol, data) {
+        if (stockChart) {
+          stockChart.data.labels = data.map((item) => item.date.split("T")[0]);
+          stockChart.data.datasets = [
+            {
+              label: symbol,
+              data: data.map((item) => item.close),
+              borderColor: "rgb(75, 192, 192)",
+              tension: 0.1,
+            },
+          ];
+          stockChart.update();
+        }
+      }
+
+      // Populate stock dropdowns
+      function populateStockDropdowns() {
+        const dropdowns = [
+          document.getElementById("stock1"),
+          document.getElementById("stock2"),
+        ];
+        dropdowns.forEach((dropdown) => {
+          if (dropdown) {
+            TOP_STOCKS.forEach((stock) => {
+              const option = document.createElement("option");
+              option.value = stock;
+              option.textContent = stock;
+              dropdown.appendChild(option);
+            });
+          }
+        });
+      }
+
+      // Stock comparison functionality
+      async function updateComparisonChart() {
+        const stock1 = document.getElementById("stock1")?.value;
+        const stock2 = document.getElementById("stock2")?.value;
+        const startDate = document.getElementById("comparisonStartDate")?.value;
+        const endDate = document.getElementById("comparisonEndDate")?.value;
+
+        if (stock1 && stock2 && comparisonChart) {
+          const stock1Data = await fetchStockData(stock1, startDate, endDate);
+          const stock2Data = await fetchStockData(stock2, startDate, endDate);
+
+          if (stock1Data && stock2Data) {
+            const labels = stock1Data.map((item) => item.date.split("T")[0]);
+            comparisonChart.data.labels = labels;
+            comparisonChart.data.datasets = [
+              {
+                label: stock1,
+                data: stock1Data.map((item) => item.close),
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+              {
+                label: stock2,
+                data: stock2Data.map((item) => item.close),
+                borderColor: "rgb(255, 99, 132)",
+                tension: 0.1,
+              },
+            ];
+            comparisonChart.update();
+          }
+        } else {
+          displayErrorMessage("Please select two stocks for comparison");
+        }
+      }
+
+      // Update sector chart
+      async function updateSectorChart() {
+        const sectorData = await fetchSectorPerformance();
+        if (sectorData && sectorChart) {
+          sectorChart.data.labels = sectorData.map((item) => item.sector);
+          sectorChart.data.datasets[0].data = sectorData.map((item) =>
+            parseFloat(item.changesPercentage)
+          );
+          sectorChart.update();
+        }
+      }
+
+      // Populate news feed
+      async function populateNewsFeed() {
+        const newsData = await fetchNews();
+        const newsFeed = document.getElementById("newsFeed");
+        if (newsFeed && newsData) {
+          newsFeed.innerHTML = ""; // Clear existing news
+          newsData.slice(0, 10).forEach((item) => {
+            // Display top 10 news items
+            const newsItem = document.createElement("div");
+            const date = new Date(item.datetime * 1000).toLocaleDateString();
+            newsItem.innerHTML = `
+                <h3 class="font-semibold">${item.headline}</h3>
+                <p class="text-sm text-gray-600">${date} - ${item.source}</p>
+                <p>${item.summary}</p>
+                <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline">Read more</a>
+            `;
+            newsFeed.appendChild(newsItem);
+          });
+        }
+      }
+
+      // Financial terms glossary
+      const financialTerms = {
+        "P/E Ratio":
+          "Price-to-Earnings Ratio: A valuation ratio of a company's current share price compared to its per-share earnings.",
+        "Market Cap":
+          "Market Capitalization: The total value of a company's outstanding shares of stock.",
+        Dividend:
+          "A distribution of a portion of a company's earnings to a class of its shareholders.",
+        "Bull Market":
+          "A financial market of a group of securities in which prices are rising or are expected to rise.",
+        "Bear Market":
+          "A market condition in which the prices of securities are falling, and widespread pessimism causes the negative sentiment to be self-sustaining.",
+        Volatility:
+          "A statistical measure of the dispersion of returns for a given security or market index.",
+      };
+
+      // Populate financial glossary
+      function populateGlossary() {
+        const glossary = document.getElementById("glossary");
+        if (glossary) {
+          glossary.innerHTML = ""; // Clear existing terms
+          for (const [term, definition] of Object.entries(financialTerms)) {
+            const termElement = document.createElement("div");
+            termElement.innerHTML = `<h3 class="font-semibold">${term}</h3><p>${definition}</p>`;
+            glossary.appendChild(termElement);
+          }
+        }
+      }
+
+      // Validate date range
+      function validateDateRange(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+
+        if (start > end) {
+          displayErrorMessage("Start date must be before or equal to end date");
+          return false;
+        }
+
+        if (end > today) {
+          displayErrorMessage("End date cannot be in the future");
+          return false;
+        }
+
+        // Optional: Limit the date range to a specific period (e.g., 1 year)
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        if (start < oneYearAgo) {
+          displayErrorMessage("Date range cannot exceed 1 year");
+          return false;
+        }
+
+        return true;
+      }
+
+      // Set min and max for date inputs
+      function setDateInputLimits() {
+        const today = new Date().toISOString().split("T")[0];
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        const oneYearAgoString = oneYearAgo.toISOString().split("T")[0];
+
+        const dateInputs = [
+          document.getElementById("stockStartDate"),
+          document.getElementById("stockEndDate"),
+          document.getElementById("comparisonStartDate"),
+          document.getElementById("comparisonEndDate"),
+        ];
+
+        dateInputs.forEach((input) => {
+          if (input) {
+            input.max = today;
+            input.min = oneYearAgoString;
+          }
+        });
+      }
+
+      // Initialize the app
+      async function initApp() {
+        initializeCharts();
+        populateStockDropdowns();
+        await updateSectorChart();
+        await populateNewsFeed();
+        populateGlossary();
+        setDateInputLimits();
+
+        // Set default date range (e.g., last month)
+        const today = new Date();
+        const lastMonth = new Date(
+          today.getFullYear(),
+          today.getMonth() - 1,
+          today.getDate()
+        );
+
+        const stockStartDate = document.getElementById("stockStartDate");
+        const stockEndDate = document.getElementById("stockEndDate");
+        const comparisonStartDate = document.getElementById(
+          "comparisonStartDate"
+        );
+        const comparisonEndDate = document.getElementById("comparisonEndDate");
+
+        if (stockStartDate) stockStartDate.valueAsDate = lastMonth;
+        if (stockEndDate) stockEndDate.valueAsDate = today;
+        if (comparisonStartDate) comparisonStartDate.valueAsDate = lastMonth;
+        if (comparisonEndDate) comparisonEndDate.valueAsDate = today;
+
+        // Add event listeners
+        const stockSearch = document.getElementById("stockSearch");
+        const stockDateFilter = document.getElementById("stockDateFilter");
+        const stock1 = document.getElementById("stock1");
+        const stock2 = document.getElementById("stock2");
+        const comparisonDateFilter = document.getElementById(
+          "comparisonDateFilter"
+        );
+
+        if (stockSearch) {
+          stockSearch.addEventListener("input", async function (e) {
+            const searchTerm = e.target.value.toUpperCase();
+            if (searchTerm.length > 0) {
+              const startDate = stockStartDate?.value;
+              const endDate = stockEndDate?.value;
+              if (validateDateRange(startDate, endDate)) {
+                const stockData = await fetchStockData(
+                  searchTerm,
+                  startDate,
+                  endDate
+                );
+                if (stockData) {
+                  updateStockChart(searchTerm, stockData);
+                }
+              }
+            }
+          });
+        }
+
+        if (stockDateFilter) {
+          stockDateFilter.addEventListener("click", async function () {
+            const symbol = stockSearch?.value.toUpperCase();
+            const startDate = stockStartDate?.value;
+            const endDate = stockEndDate?.value;
+            if (symbol && startDate && endDate) {
+              if (validateDateRange(startDate, endDate)) {
+                const stockData = await fetchStockData(
+                  symbol,
+                  startDate,
+                  endDate
+                );
+                if (stockData) {
+                  updateStockChart(symbol, stockData);
+                }
+              }
+            } else {
+              displayErrorMessage(
+                "Please enter a stock symbol and select date range"
+              );
+            }
+          });
+        }
+
+        if (stock1) stock1.addEventListener("change", updateComparisonChart);
+        if (stock2) stock2.addEventListener("change", updateComparisonChart);
+        if (comparisonDateFilter) {
+          comparisonDateFilter.addEventListener("click", function () {
+            const startDate = comparisonStartDate?.value;
+            const endDate = comparisonEndDate?.value;
+            if (validateDateRange(startDate, endDate)) {
+              updateComparisonChart();
+            }
+          });
+        }
+
+        // Periodically update sector performance and news
+        setInterval(async () => {
+          await updateSectorChart();
+          await populateNewsFeed();
+        }, 300000); // Update every 5 minutes
+      }
+
+      // Call initApp when the DOM is fully loaded
+      document.addEventListener("DOMContentLoaded", initApp);
+
+      // Global error handler
+      window.addEventListener("error", function (event) {
+        displayErrorMessage(
+          "An unexpected error occurred. Please try again later."
+        );
+        // Prevent the error from being logged to the console
+        event.preventDefault();
+      });
+
+      // Unhandled promise rejection handler
+      window.addEventListener("unhandledrejection", function (event) {
+        displayErrorMessage(
+          "An unexpected error occurred. Please try again later."
+        );
+        // Prevent the error from being logged to the console
+        event.preventDefault();
+      });
+    </script>
+  </body>
+</html>
