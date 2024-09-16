@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Market Observer</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+      }
+      .chart-container {
+        width: 100%;
+        height: 300px;
+        margin: 10px 0;
+      }
+      .news-item {
+        margin-bottom: 15px;
+      }
+      .tooltip-inner {
+        max-width: 350px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1>Financial Market Overview</h1>
+      <!-- Search Bar -->
+      <input
+        type="text"
+        id="stockSearch"
+        class="form-control mb-3"
+        placeholder="Search stocks or sectors..."
+      />
+
+      <!-- Stock Price Chart -->
+      <div class="chart-container">
+        <canvas id="stockPriceChart"></canvas>
+      </div>
+
+      <!-- Sector Performance Bar Chart -->
+      <div class="chart-container">
+        <canvas id="sectorPerformanceChart"></canvas>
+      </div>
+
+      <!-- Stock Comparison Section -->
+      <div id="stockComparison"></div>
+
+      <!-- News Feed -->
+      <div id="newsFeed" class="row"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Placeholder for API keys
+        const API_KEY_STOCK = "YOUR_STOCK_API_KEY";
+        const API_KEY_NEWS = "YOUR_NEWS_API_KEY";
+
+        // Function to fetch and display stock data
+        function fetchStockData(symbol) {
+          // Fetch data from API
+          // Update charts with new data
+        }
+
+        // Function to fetch sector performance
+        function fetchSectorPerformance() {
+          // Similar to fetchStockData but for sectors
+        }
+
+        // Function to display news
+        function displayNews(news) {
+          $("#newsFeed").html(
+            news
+              .map(
+                (article) => `
+                <div class="col-md-6 news-item">
+                    <h5>${article.title}</h5>
+                    <p>${article.description}</p>
+                    <a href="${article.url}" target="_blank">Read more</a>
+                </div>
+            `
+              )
+              .join("")
+          );
+        }
+
+        // Chart initialization
+        let stockPriceChart = new Chart($("#stockPriceChart"), {
+          /* Chart config */
+        });
+        let sectorChart = new Chart($("#sectorPerformanceChart"), {
+          /* Chart config */
+        });
+
+        // Educational tooltips
+        $('[data-toggle="tooltip"]').tooltip({
+          html: true,
+          placement: "auto",
+        });
+
+        // Event listeners for search, comparison, etc.
+        $("#stockSearch").on("keyup", function () {
+          fetchStockData(this.value);
+        });
+
+        // Initial data load
+        fetchSectorPerformance();
+        // News fetch would be here with setInterval for updates
+      });
+    </script>
+  </body>
+</html>
