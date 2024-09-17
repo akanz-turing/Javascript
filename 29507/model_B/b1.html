@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Explorer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #1a202c;
+        color: #e2e8f0;
+      }
+      .dark-mode {
+        background-color: #1a202c;
+        color: #e2e8f0;
+      }
+      .light-mode {
+        background-color: #ffffff;
+        color: #1a202c;
+      }
+    </style>
+  </head>
+  <body class="dark-mode">
+    <div class="container mx-auto p-4">
+      <!-- Search and Filters -->
+      <div class="mb-4">
+        <input
+          type="text"
+          id="search"
+          placeholder="Search jobs..."
+          class="w-full p-2 rounded bg-gray-700 text-white"
+        />
+        <div class="flex flex-wrap mt-2">
+          <select id="category" class="m-1 p-2 bg-gray-700 text-white rounded">
+            <option value="">All Categories</option>
+            <!-- Options will be dynamically added -->
+          </select>
+          <select id="location" class="m-1 p-2 bg-gray-700 text-white rounded">
+            <option value="">All Locations</option>
+            <!-- Options will be dynamically added -->
+          </select>
+          <!-- Add more filters like degree, experience -->
+        </div>
+      </div>
+
+      <!-- Job Listings -->
+      <div
+        id="jobListings"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      ></div>
+
+      <!-- Job Comparison Section -->
+      <div id="comparisonSection" class="hidden mt-4">
+        <h2 class="text-xl mb-2">Compare Jobs</h2>
+        <div id="comparisonChart" class="bg-gray-800 p-4 rounded"></div>
+      </div>
+
+      <!-- Charts -->
+      <div id="categoryChart" class="mt-8 bg-gray-800 p-4 rounded"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+      // JavaScript will go here to handle all dynamic content, API calls, and interactivity
+      document.addEventListener("DOMContentLoaded", async () => {
+        let jobs = await fetchJobs(); // Assuming fetchJobs fetches or simulates fetching job data
+
+        const populateSelect = (id, items) => {
+          const select = document.getElementById(id);
+          items.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item.value;
+            option.textContent = item.name;
+            select.appendChild(option);
+          });
+        };
+
+        // Populate categories and locations
+        populateSelect(
+          "category",
+          [...new Set(jobs.map((job) => job.category))].map((cat) => ({
+            value: cat,
+            name: cat,
+          }))
+        );
+        populateSelect(
+          "location",
+          [...new Set(jobs.map((job) => job.location))].map((loc) => ({
+            value: loc,
+            name: loc,
+          }))
+        );
+
+        const displayJobs = (jobList = jobs) => {
+          const listings = document.getElementById("jobListings");
+          listings.innerHTML = "";
+          jobList.forEach((job) => {
+            const jobCard = `
+                    <div class="job-card bg-gray-700 p-4 rounded-lg shadow-lg">
+                        <h3 class="text-lg font-bold">${job.title}</h3>
+                        <p>Location: ${job.location}</p>
+                        <p>Salary: ${job.salaryRange}</p>
+                        <button onclick="showJobDetail(${JSON.stringify(
+                          job
+                        ).replace(/"/g, "&quot;")})">Details</button>
+                    </div>`;
+            listings.innerHTML += jobCard;
+          });
+        };
+
+        displayJobs();
+
+        // Search functionality
+        document.getElementById("search").addEventListener("input", (e) => {
+          const searchTerm = e.target.value.toLowerCase();
+          const filteredJobs = jobs.filter(
+            (job) =>
+              job.title.toLowerCase().includes(searchTerm) ||
+              job.description.toLowerCase().includes(searchTerm)
+          );
+          displayJobs(filteredJobs);
+        });
+
+        // Filter functionality would be implemented here
+        // Chart creation for categories would also be here using Chart.js
+      });
+
+      function showJobDetail(job) {
+        // Implement modal or separate page for job details
+        console.log("Show details for:", job);
+      }
+    </script>
+  </body>
+</html>
