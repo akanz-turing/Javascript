@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 Statistics Visualizer</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .navbar {
+        background-color: #ff1801;
+      }
+      .navbar-brand,
+      .nav-link {
+        color: white !important;
+      }
+      .chart-container {
+        width: 100%;
+        height: 400px;
+      }
+      .filter-container {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <a class="navbar-brand" href="#">F1 Stats</a>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="filter-container">
+            <h5>Filters</h5>
+            <select id="driverSelect" multiple class="form-control"></select>
+            <button id="compareBtn" class="btn btn-primary mt-2">
+              Compare Drivers
+            </button>
+          </div>
+        </div>
+        <div class="col-md-9">
+          <div class="chart-container" id="performanceChart"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+    <script>
+      const apiUrl = "http://ergast.com/api/f1/";
+
+      // Populate driver selection
+      async function fetchDrivers() {
+        const response = await fetch(apiUrl + "drivers.json?limit=1000");
+        const data = await response.json();
+        const driverSelect = document.getElementById("driverSelect");
+        data.MRData.DriverTable.Drivers.forEach((driver) => {
+          let opt = document.createElement("option");
+          opt.value = driver.driverId;
+          opt.textContent = `${driver.givenName} ${driver.familyName}`;
+          driverSelect.appendChild(opt);
+        });
+      }
+
+      // Function to fetch and display data
+      async function displayDriverStats(driverIds) {
+        // Here you would fetch data for selected drivers and plot using Chart.js or D3.js
+        // For brevity, this example won't include actual data fetching and plotting
+        const ctx = document
+          .getElementById("performanceChart")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            // Dummy data
+            labels: ["2010", "2011", "2012"],
+            datasets: [
+              {
+                label: "Wins",
+                data: [5, 6, 7],
+                borderColor: "red",
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              yAxes: [{ ticks: { beginAtZero: true } }],
+            },
+          },
+        });
+      }
+
+      document
+        .getElementById("compareBtn")
+        .addEventListener("click", function () {
+          const selectedOptions = Array.from(
+            document.getElementById("driverSelect").selectedOptions
+          ).map((option) => option.value);
+          displayDriverStats(selectedOptions);
+        });
+
+      fetchDrivers();
+    </script>
+  </body>
+</html>
