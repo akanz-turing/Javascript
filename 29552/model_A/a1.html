@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>People Information App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #14171a;
+        --card-bg: #f5f8fa;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      body.dark-mode {
+        --bg-color: #15202b;
+        --text-color: #ffffff;
+        --card-bg: #192734;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+
+      .user-card {
+        background: var(--card-bg);
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      #themeToggle,
+      #requestInfo {
+        margin: 10px 0;
+        cursor: pointer;
+      }
+
+      #dbInfo {
+        margin-top: 20px;
+        background: var(--card-bg);
+        padding: 15px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button id="themeToggle">Toggle Dark Mode</button>
+      <div id="requestInfo">
+        Requests left: <span id="requestsLeft">10</span>
+      </div>
+      <div id="userProfiles"></div>
+      <div id="dbInfo">
+        <h3>Understanding Database Schemas</h3>
+        <p>Here's how we might structure this data in a database:</p>
+        <img
+          src="er_diagram_example.png"
+          alt="ER Diagram"
+          style="max-width: 100%"
+        />
+        <p>
+          An Entity-Relationship (ER) diagram would show how each user's data
+          relates. For example, each 'User' might have attributes like ID, Name,
+          Email, etc., and could be linked to other entities like 'Address' or
+          'Job'.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const userProfiles = document.getElementById("userProfiles");
+      const requestsLeft = document.getElementById("requestsLeft");
+      const themeToggle = document.getElementById("themeToggle");
+      let remainingRequests = localStorage.getItem("remainingRequests") || 10;
+      const API_URL = "https://randomuser.me/api/?results=1";
+
+      function fetchUser() {
+        if (remainingRequests > 0) {
+          fetch(API_URL)
+            .then((response) => response.json())
+            .then((data) => {
+              displayUser(data.results[0]);
+              updateRequests(-1);
+            });
+        } else {
+          alert("Daily request limit reached.");
+        }
+      }
+
+      function displayUser(user) {
+        const userDiv = document.createElement("div");
+        userDiv.className = "user-card";
+        userDiv.innerHTML = `
+            <h3>${user.name.first} ${user.name.last}</h3>
+            <p>Email: ${user.email}</p>
+            <p>Location: ${user.location.city}, ${user.location.country}</p>
+        `;
+        userProfiles.appendChild(userDiv);
+        // Auto-fetch on page load
+        if (remainingRequests > 0) fetchUser();
+      }
+
+      function updateRequests(change) {
+        remainingRequests += change;
+        requestsLeft.textContent = remainingRequests;
+        localStorage.setItem("remainingRequests", remainingRequests);
+      }
+
+      themeToggle.addEventListener("click", function () {
+        document.body.classList.toggle("dark-mode");
+      });
+
+      // Initial check for dark mode preference from previous sessions
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        const isDarkMode = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", isDarkMode);
+      });
+    </script>
+  </body>
+</html>
