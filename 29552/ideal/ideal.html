@@ -1,1 +1,450 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Data Visualization and Database Education</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #1da1f2;
+        --background-color: #ffffff;
+        --text-color: #14171a;
+        --card-background: #f5f8fa;
+        --table-border: #ddd;
+        --code-background: #f4f4f4;
+        --code-border: #ddd;
+        --code-color: #666;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--primary-color);
+      }
+
+      .card {
+        background-color: var(--card-background);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: background-color 0.3s;
+      }
+
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #0c85d0;
+      }
+
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+      #userTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        transition: all 0.3s;
+      }
+
+      #userTable th,
+      #userTable td {
+        border: 1px solid var(--table-border);
+        padding: 12px;
+        text-align: left;
+      }
+
+      #userTable th {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      #userTable tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      #remainingRequests {
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      #darkModeToggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+      }
+
+      .dark-mode {
+        --background-color: #15202b;
+        --text-color: #ffffff;
+        --card-background: #192734;
+        --table-border: #38444d;
+        --code-background: #1e2d3d;
+        --code-border: #38444d;
+        --code-color: #e1e8ed;
+      }
+
+      .schema-diagram {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .entity {
+        background-color: var(--card-background);
+        border: 2px solid var(--primary-color);
+        border-radius: 10px;
+        padding: 10px;
+        width: 200px;
+        margin-bottom: 20px;
+        transition: background-color 0.3s;
+      }
+
+      .entity-title {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .entity-field {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+
+      .entity-field i {
+        margin-right: 5px;
+        color: var(--primary-color);
+      }
+
+      .relationship-line {
+        position: relative;
+        height: 2px;
+        background-color: var(--primary-color);
+        width: 100px;
+        margin: 20px 0;
+      }
+
+      .relationship-line::before,
+      .relationship-line::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        top: -4px;
+      }
+
+      .relationship-line::before {
+        left: -5px;
+      }
+
+      .relationship-line::after {
+        right: -5px;
+      }
+
+      pre {
+        background-color: var(--code-background);
+        border: 1px solid var(--code-border);
+        border-left: 3px solid var(--primary-color);
+        color: var(--code-color);
+        page-break-inside: avoid;
+        font-family: monospace;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 1.6em;
+        max-width: 100%;
+        overflow: auto;
+        padding: 1em 1.5em;
+        display: block;
+        word-wrap: break-word;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 10px;
+        }
+
+        #userTable th,
+        #userTable td {
+          padding: 8px;
+        }
+
+        .schema-diagram {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .entity {
+          margin-bottom: 20px;
+        }
+
+        .relationship-line {
+          transform: rotate(90deg);
+          margin: 20px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>User Data Visualization and Database Education</h1>
+      <button id="fetchData">Fetch User Data</button>
+      <button id="darkModeToggle">Toggle Dark Mode</button>
+      <p>Remaining requests today: <span id="remainingRequests">10</span></p>
+
+      <div id="userDataContainer"></div>
+
+      <div class="card">
+        <h2>Database Fundamentals and Use Cases</h2>
+        <p>
+          Databases are structured collections of data that allow for efficient
+          storage, retrieval, and management of information. They are crucial in
+          modern applications for several reasons:
+        </p>
+        <ul>
+          <li>
+            <strong>Data Organization:</strong> Databases provide a structured
+            way to organize large amounts of data, making it easier to manage
+            and understand.
+          </li>
+          <li>
+            <strong>Data Integrity:</strong> They enforce rules and constraints
+            to ensure data consistency and accuracy.
+          </li>
+          <li>
+            <strong>Efficient Retrieval:</strong> Databases allow for quick and
+            efficient data retrieval, even with large datasets.
+          </li>
+          <li>
+            <strong>Concurrent Access:</strong> Multiple users can access and
+            modify data simultaneously without conflicts.
+          </li>
+          <li>
+            <strong>Scalability:</strong> Databases can handle growing amounts
+            of data and users efficiently.
+          </li>
+        </ul>
+
+        <h3>Common Use Cases:</h3>
+        <ul>
+          <li>Customer Relationship Management (CRM) systems</li>
+          <li>E-commerce platforms</li>
+          <li>Content Management Systems (CMS)</li>
+          <li>Financial systems and banking applications</li>
+          <li>Healthcare information systems</li>
+          <li>Social media platforms</li>
+          <li>Inventory management systems</li>
+        </ul>
+
+        <h3>Database Schema</h3>
+        <p>
+          A database schema is the structure that defines how data is organized
+          within a database. Here's a simple Entity-Relationship (E-R) diagram
+          representing our user data schema:
+        </p>
+        <div class="schema-diagram">
+          <div class="entity">
+            <div class="entity-title">USER</div>
+            <div class="entity-field"><i class="fas fa-key"></i> id</div>
+            <div class="entity-field"><i class="fas fa-user"></i> name</div>
+            <div class="entity-field">
+              <i class="fas fa-envelope"></i> email
+            </div>
+            <div class="entity-field">
+              <i class="fas fa-birthday-cake"></i> birthdate
+            </div>
+            <div class="entity-field">
+              <i class="fas fa-venus-mars"></i> gender
+            </div>
+          </div>
+          <div class="relationship-line"></div>
+          <div class="entity">
+            <div class="entity-title">ADDRESS</div>
+            <div class="entity-field"><i class="fas fa-key"></i> id</div>
+            <div class="entity-field"><i class="fas fa-user"></i> user_id</div>
+            <div class="entity-field">
+              <i class="fas fa-map-marker-alt"></i> street
+            </div>
+            <div class="entity-field"><i class="fas fa-city"></i> city</div>
+            <div class="entity-field"><i class="fas fa-map"></i> state</div>
+            <div class="entity-field"><i class="fas fa-globe"></i> country</div>
+          </div>
+        </div>
+        <p>
+          This schema allows us to efficiently store and retrieve user
+          information. The USER entity contains basic personal information,
+          while the ADDRESS entity stores location details. The one-to-one
+          relationship between USER and ADDRESS allows us to keep the data
+          organized and easily queryable.
+        </p>
+
+        <h3>Querying Databases</h3>
+        <p>
+          Databases are typically queried using Structured Query Language (SQL)
+          for relational databases or specific query languages for NoSQL
+          databases. Here are some example SQL queries for our user database:
+        </p>
+        <pre>
+-- Retrieve all users
+SELECT * FROM USER;
+
+-- Get users with their addresses
+SELECT U.name, U.email, A.street, A.city, A.country
+FROM USER U
+JOIN ADDRESS A ON U.id = A.user_id;
+
+-- Find users born after a certain date
+SELECT name, birthdate
+FROM USER
+WHERE birthdate > '1990-01-01';
+
+-- Count users by gender
+SELECT gender, COUNT(*) as count
+FROM USER
+GROUP BY gender;
+
+-- Update a user's email
+UPDATE USER
+SET email = 'newemail@example.com'
+WHERE id = 123;
+
+-- Delete a user and their address
+DELETE FROM ADDRESS WHERE user_id = 123;
+DELETE FROM USER WHERE id = 123;
+            </pre
+        >
+        <p>
+          These queries demonstrate basic operations like selecting data,
+          joining tables, filtering results, aggregating data, and modifying
+          records. In real-world applications, queries can be much more complex,
+          involving multiple tables, subqueries, and advanced SQL features.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const fetchDataBtn = document.getElementById("fetchData");
+      const userDataContainer = document.getElementById("userDataContainer");
+      const remainingRequestsSpan =
+        document.getElementById("remainingRequests");
+      const darkModeToggle = document.getElementById("darkModeToggle");
+
+      let remainingRequests = 10;
+
+      function updateRemainingRequests() {
+        remainingRequestsSpan.textContent = remainingRequests;
+        fetchDataBtn.disabled = remainingRequests === 0;
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      async function fetchUsers() {
+        if (remainingRequests > 0) {
+          try {
+            const response = await fetch(
+              "https://randomuser.me/api/?results=5"
+            );
+            const data = await response.json();
+            const users = data.results;
+
+            let userHtml = `
+                        <div class="card">
+                            <h2>User Data</h2>
+                            <table id="userTable">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Date of Birth</th>
+                                    <th>Gender</th>
+                                    <th>Location</th>
+                                </tr>
+                    `;
+
+            users.forEach((user) => {
+              userHtml += `
+                            <tr>
+                                <td>${user.name.first} ${user.name.last}</td>
+                                <td>${user.email}</td>
+                                <td>${formatDate(user.dob.date)}</td>
+                                <td>${user.gender}</td>
+                                <td>${user.location.street.number} ${
+                user.location.street.name
+              }, ${user.location.city}, ${user.location.state}, ${
+                user.location.country
+              }</td>
+                            </tr>
+                        `;
+            });
+
+            userHtml += `
+                            </table>
+                        </div>
+                    `;
+
+            userDataContainer.innerHTML = userHtml;
+            remainingRequests--;
+            updateRemainingRequests();
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            userDataContainer.innerHTML =
+              "<p>Error fetching user data. Please try again.</p>";
+          }
+        }
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+      }
+
+      fetchDataBtn.addEventListener("click", fetchUsers);
+      darkModeToggle.addEventListener("click", toggleDarkMode);
+
+      // Initialize remaining requests
+      updateRemainingRequests();
+    </script>
+  </body>
+</html>
