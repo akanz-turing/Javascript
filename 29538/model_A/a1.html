@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Football Stats Visualizer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+    />
+    <style>
+      body {
+        background: #f4f4f4;
+      }
+      .navbar {
+        background-color: #232f3e;
+      }
+      .navbar-item,
+      .navbar-link {
+        color: #ffffff;
+      }
+      .hero {
+        background: url("path_to_football_background.jpg") no-repeat center
+          center;
+        background-size: cover;
+      }
+      .card {
+        margin: 10px;
+      }
+      .is-football-green {
+        background-color: #367c2b;
+        color: white;
+      }
+      .prediction-win {
+        color: #4caf50;
+      }
+      .prediction-draw {
+        color: #ffc107;
+      }
+      .prediction-loss {
+        color: #f44336;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="#">⚽ Football Stats</a>
+      </div>
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item">Home</a>
+          <a class="navbar-item">League Table</a>
+          <a class="navbar-item">Fixtures</a>
+          <a class="navbar-item">Teams</a>
+        </div>
+      </div>
+    </nav>
+
+    <section class="section">
+      <div class="container" id="appContent">
+        <!-- Content will be loaded here dynamically -->
+      </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Placeholder for API key - in production, use environment variables or secure methods
+      const API_KEY = "147fdec0d6b875541243232dca60291e";
+      const BASE_URL = "https://api.football-data.org/v2/";
+
+      function fetchData(endpoint) {
+        return fetch(BASE_URL + endpoint, {
+          headers: {
+            "X-Auth-Token": API_KEY,
+          },
+        }).then((response) => response.json());
+      }
+
+      function renderLeagueTable(data) {
+        // Code to render league table
+        let tableHTML = `<table class="table is-striped is-fullwidth">
+                <thead><tr><th>Position</th><th>Team</th><th>Points</th><th>GD</th></tr></thead><tbody>`;
+        data.standings[0].table.forEach((team) => {
+          tableHTML += `<tr><td>${team.position}</td><td>${team.team.name}</td><td>${team.points}</td><td>${team.goalDifference}</td></tr>`;
+        });
+        tableHTML += `</tbody></table>`;
+        document.getElementById("appContent").innerHTML = tableHTML;
+      }
+
+      // Initial data fetch and render
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchData("competitions/PL/standings").then(renderLeagueTable);
+      });
+
+      // Additional functions for other views like fixtures, predictions, and team performance would follow here
+    </script>
+  </body>
+</html>

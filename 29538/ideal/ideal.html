@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Football Stats Explorer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+      .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #4a5568 #cbd5e0;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #cbd5e0;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #4a5568;
+        border-radius: 20px;
+        border: 3px solid #cbd5e0;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <header class="bg-green-600 text-white p-4 shadow-md">
+      <div class="container mx-auto">
+        <h1 class="text-3xl font-bold">Football Stats Explorer</h1>
+      </div>
+    </header>
+
+    <nav class="bg-green-500 p-4 shadow-md mb-6">
+      <div class="container mx-auto">
+        <ul class="flex flex-wrap justify-center space-x-4">
+          <li>
+            <a
+              href="#league-table"
+              class="text-white hover:text-gray-200 font-semibold"
+              >League Table</a
+            >
+          </li>
+          <li>
+            <a
+              href="#fixtures"
+              class="text-white hover:text-gray-200 font-semibold"
+              >Fixtures</a
+            >
+          </li>
+          <li>
+            <a
+              href="#results"
+              class="text-white hover:text-gray-200 font-semibold"
+              >Results</a
+            >
+          </li>
+          <li>
+            <a
+              href="#predictions"
+              class="text-white hover:text-gray-200 font-semibold"
+              >Predictions</a
+            >
+          </li>
+          <li>
+            <a
+              href="#team-performance"
+              class="text-white hover:text-gray-200 font-semibold"
+              >Team Performance</a
+            >
+          </li>
+          <li>
+            <a
+              href="#round-fixtures"
+              class="text-white hover:text-gray-200 font-semibold"
+              >Round Fixtures</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="container mx-auto px-4">
+      <div
+        class="mb-8 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4"
+      >
+        <select
+          id="league-select"
+          class="p-2 border rounded shadow-sm flex-grow md:flex-grow-0"
+        >
+          <option value="">Select a league</option>
+        </select>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search..."
+          class="p-2 border rounded shadow-sm flex-grow"
+        />
+        <select
+          id="filter-select"
+          class="p-2 border rounded shadow-sm flex-grow md:flex-grow-0"
+        >
+          <option value="all">All</option>
+          <option value="fixtures">Fixtures</option>
+          <option value="results">Results</option>
+          <option value="predictions">Predictions</option>
+        </select>
+      </div>
+
+      <section id="league-table" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">League Table</h2>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-green-500 text-white">
+                  <th class="p-3 text-left">Position</th>
+                  <th class="p-3 text-left">Team</th>
+                  <th class="p-3 text-center">Played</th>
+                  <th class="p-3 text-center">Won</th>
+                  <th class="p-3 text-center">Drawn</th>
+                  <th class="p-3 text-center">Lost</th>
+                  <th class="p-3 text-center">GF</th>
+                  <th class="p-3 text-center">GA</th>
+                  <th class="p-3 text-center">GD</th>
+                  <th class="p-3 text-center">Points</th>
+                </tr>
+              </thead>
+              <tbody id="league-table-body">
+                <!-- Table rows will be populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="fixtures" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Fixtures</h2>
+        <div
+          id="fixtures-list"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Fixtures will be populated dynamically -->
+        </div>
+      </section>
+
+      <section id="results" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Results</h2>
+        <div
+          id="results-list"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Results will be populated dynamically -->
+        </div>
+      </section>
+
+      <section id="predictions" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Predictions</h2>
+        <div
+          id="predictions-list"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Predictions will be populated dynamically -->
+        </div>
+      </section>
+
+      <section id="team-performance" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Team Performance</h2>
+        <select
+          id="team-select"
+          class="mb-4 p-2 border rounded shadow-sm w-full md:w-auto"
+        >
+          <!-- Team options will be populated dynamically -->
+        </select>
+        <div id="team-stats" class="bg-white rounded-lg shadow-md p-6">
+          <!-- Team stats will be populated dynamically -->
+        </div>
+      </section>
+
+      <section id="round-fixtures" class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Round Fixtures</h2>
+        <select
+          id="round-select"
+          class="mb-4 p-2 border rounded shadow-sm w-full md:w-auto"
+        >
+          <!-- Round options will be populated dynamically -->
+        </select>
+        <div
+          id="round-fixtures"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Round fixtures will be populated dynamically -->
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-green-600 text-white p-4 mt-12">
+      <div class="container mx-auto text-center">
+        <p>&copy; 2024 Football Stats Explorer</p>
+      </div>
+    </footer>
+
+    <script>
+      // API configuration
+      const API_KEY = "147fdec0d6b875541243232dca60291e";
+      const API_BASE_URL = "https://v3.football.api-sports.io";
+      const SEASON = 2022;
+      const DEFAULT_LEAGUE_ID = 39; // English Premier League
+
+      // Top European leagues and competitions IDs
+      const TOP_LEAGUES = [
+        { id: 2, name: "UEFA Champions League" },
+        { id: 3, name: "UEFA Europa League" },
+        { id: 39, name: "English Premier League" },
+        { id: 140, name: "La Liga" },
+        { id: 135, name: "Serie A" },
+        { id: 78, name: "Bundesliga" },
+        { id: 61, name: "Ligue 1" },
+        { id: 88, name: "Eredivisie" },
+        { id: 94, name: "Primeira Liga" },
+        { id: 179, name: "Super Lig" },
+        { id: 144, name: "Belgian Pro League" },
+        { id: 203, name: "Russian Premier League" },
+      ];
+
+      // Global variables
+      let currentLeague = null;
+      let fixturesData = null;
+      let resultsData = null;
+      let teamsData = null;
+      let predictionsData = null;
+      let roundsData = null;
+
+      // Error handling function
+      function handleError(error, elementId) {
+        console.error(error);
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.innerHTML = `<p class="text-red-500">An error occurred. Please try again later.</p>`;
+        }
+      }
+
+      // Loading indicator function
+      function showLoading(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.innerHTML = '<div class="loader"></div>';
+        }
+      }
+
+      // Update league select
+      function updateLeagueSelect() {
+        const leagueSelect = document.getElementById("league-select");
+        if (!leagueSelect) return;
+
+        leagueSelect.innerHTML = '<option value="">Select a league</option>';
+
+        TOP_LEAGUES.forEach((league) => {
+          const option = document.createElement("option");
+          option.value = league.id;
+          option.textContent = league.name;
+          if (league.id === DEFAULT_LEAGUE_ID) {
+            option.selected = true;
+          }
+          leagueSelect.appendChild(option);
+        });
+
+        leagueSelect.addEventListener("change", handleLeagueChange);
+      }
+
+      // Handle league change
+      async function handleLeagueChange() {
+        const leagueSelect = document.getElementById("league-select");
+        if (!leagueSelect) return;
+
+        const leagueId = leagueSelect.value;
+        if (!leagueId) return;
+
+        currentLeague = TOP_LEAGUES.find((league) => league.id == leagueId);
+
+        showLoading("league-table-body");
+        showLoading("fixtures-list");
+        showLoading("results-list");
+        showLoading("predictions-list");
+        showLoading("round-select");
+
+        try {
+          await Promise.all([
+            fetchStandings(leagueId),
+            fetchFixtures(leagueId),
+            fetchResults(leagueId),
+            fetchTeams(leagueId),
+            fetchPredictions(leagueId),
+            fetchRounds(leagueId),
+          ]);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+
+      // Fetch standings
+      async function fetchStandings(leagueId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/standings?league=${leagueId}&season=${SEASON}`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          if (data.results > 0 && data.response[0].league.standings) {
+            updateStandings(data.response[0].league.standings[0]);
+          } else {
+            document.getElementById("league-table-body").innerHTML =
+              '<tr><td colspan="10" class="text-center">No standings available for this league.</td></tr>';
+          }
+        } catch (error) {
+          handleError(error, "league-table-body");
+        }
+      }
+
+      // Update standings
+      function updateStandings(standings) {
+        const tableBody = document.getElementById("league-table-body");
+        if (!tableBody) return;
+
+        tableBody.innerHTML = "";
+
+        standings.forEach((team) => {
+          const row = document.createElement("tr");
+          row.className = "hover:bg-gray-100 transition-colors duration-200";
+          row.innerHTML = `
+                  <td class="p-2 border-b">${team.rank}</td>
+                  <td class="p-2 border-b flex items-center">
+                      <img src="${team.team.logo}" alt="${team.team.name}" class="w-6 h-6 mr-2">
+                      ${team.team.name}
+                  </td>
+                  <td class="p-2 border-b">${team.all.played}</td>
+                  <td class="p-2 border-b">${team.all.win}</td>
+                  <td class="p-2 border-b">${team.all.draw}</td>
+                  <td class="p-2 border-b">${team.all.lose}</td>
+                  <td class="p-2 border-b">${team.all.goals.for}</td>
+                  <td class="p-2 border-b">${team.all.goals.against}</td>
+                  <td class="p-2 border-b">${team.goalsDiff}</td>
+                  <td class="p-2 border-b font-bold">${team.points}</td>
+              `;
+          tableBody.appendChild(row);
+        });
+      }
+
+      // Fetch fixtures
+      async function fetchFixtures(leagueId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/fixtures?league=${leagueId}&season=${SEASON}&next=10`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          fixturesData = data.response;
+          updateFixturesList();
+        } catch (error) {
+          handleError(error, "fixtures-list");
+        }
+      }
+
+      // Update fixtures list
+      function updateFixturesList() {
+        const fixturesList = document.getElementById("fixtures-list");
+        if (!fixturesList) return;
+
+        fixturesList.innerHTML = "";
+
+        if (fixturesData.length === 0) {
+          fixturesList.innerHTML =
+            '<p class="text-center text-gray-500">No upcoming fixtures available.</p>';
+          return;
+        }
+
+        fixturesData.forEach((fixture) => {
+          const date = new Date(fixture.fixture.date);
+          const fixtureEl = document.createElement("div");
+          fixtureEl.className = "card";
+          fixtureEl.innerHTML = `
+                  <div class="font-bold text-lg mb-2">${date.toLocaleDateString()} ${date.toLocaleTimeString(
+            [],
+            { hour: "2-digit", minute: "2-digit" }
+          )}</div>
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center">
+                          <img src="${fixture.teams.home.logo}" alt="${
+            fixture.teams.home.name
+          }" class="w-8 h-8 mr-2">
+                          <span>${fixture.teams.home.name}</span>
+                      </div>
+                      <span class="text-xl font-bold">vs</span>
+                      <div class="flex items-center">
+                          <span>${fixture.teams.away.name}</span>
+                          <img src="${fixture.teams.away.logo}" alt="${
+            fixture.teams.away.name
+          }" class="w-8 h-8 ml-2">
+                      </div>
+                  </div>
+                  <div class="text-sm text-gray-500 mt-2">${
+                    fixture.fixture.venue.name
+                  }, ${fixture.fixture.venue.city}</div>
+              `;
+          fixturesList.appendChild(fixtureEl);
+        });
+      }
+
+      // Fetch results
+      async function fetchResults(leagueId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/fixtures?league=${leagueId}&season=${SEASON}&last=10`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          resultsData = data.response;
+          updateResultsList();
+        } catch (error) {
+          handleError(error, "results-list");
+        }
+      }
+
+      // Update results list
+      function updateResultsList() {
+        const resultsList = document.getElementById("results-list");
+        if (!resultsList) return;
+
+        resultsList.innerHTML = "";
+
+        if (resultsData.length === 0) {
+          resultsList.innerHTML =
+            '<p class="text-center text-gray-500">No recent results available.</p>';
+          return;
+        }
+
+        resultsData.forEach((result) => {
+          const resultEl = document.createElement("div");
+          resultEl.className = "card";
+          resultEl.innerHTML = `
+                  <div class="font-bold text-lg mb-2">${new Date(
+                    result.fixture.date
+                  ).toLocaleDateString()}</div>
+                  <div class="flex justify-between items-center">
+                      <div class="flex items-center">
+                          <img src="${result.teams.home.logo}" alt="${
+            result.teams.home.name
+          }" class="w-8 h-8 mr-2">
+                          <span>${result.teams.home.name}</span>
+                      </div>
+                      <span class="text-xl font-bold">${result.goals.home} - ${
+            result.goals.away
+          }</span>
+                      <div class="flex items-center">
+                          <span>${result.teams.away.name}</span>
+                          <img src="${result.teams.away.logo}" alt="${
+            result.teams.away.name
+          }" class="w-8 h-8 ml-2">
+                      </div>
+                  </div>
+              `;
+          resultsList.appendChild(resultEl);
+        });
+      }
+
+      // Fetch teams
+      async function fetchTeams(leagueId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/teams?league=${leagueId}&season=${SEASON}`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          teamsData = data.response;
+          updateTeamSelect();
+        } catch (error) {
+          handleError(error, "team-select");
+        }
+      }
+
+      // Update team select
+      function updateTeamSelect() {
+        const teamSelect = document.getElementById("team-select");
+        if (!teamSelect) return;
+
+        teamSelect.innerHTML = '<option value="">Select a team</option>';
+
+        teamsData.forEach((team) => {
+          const option = document.createElement("option");
+          option.value = team.team.id;
+          option.textContent = team.team.name;
+          teamSelect.appendChild(option);
+        });
+
+        teamSelect.addEventListener("change", updateTeamPerformance);
+      }
+
+      // Update team performance
+      async function updateTeamPerformance() {
+        const teamSelect = document.getElementById("team-select");
+        if (!teamSelect) return;
+
+        const teamId = teamSelect.value;
+        if (!teamId) return;
+
+        showLoading("team-stats");
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/teams/statistics?league=${currentLeague.id}&season=${SEASON}&team=${teamId}`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          updateTeamStats(data.response);
+        } catch (error) {
+          handleError(error, "team-stats");
+        }
+      }
+
+      // Update team statistics
+      function updateTeamStats(stats) {
+        const statsContainer = document.getElementById("team-stats");
+        if (!statsContainer) return;
+
+        statsContainer.innerHTML = `
+              <h3 class="text-xl font-bold mb-4">${stats.team.name} Statistics</h3>
+              <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-white p-4 rounded shadow">
+                      <h4 class="font-bold mb-2">Matches</h4>
+                      <p>Played: ${stats.fixtures.played.total}</p>
+                      <p>Wins: ${stats.fixtures.wins.total}</p>
+                      <p>Draws: ${stats.fixtures.draws.total}</p>
+                      <p>Losses: ${stats.fixtures.loses.total}</p>
+                  </div>
+                  <div class="bg-white p-4 rounded shadow">
+                      <h4 class="font-bold mb-2">Goals</h4>
+                      <p>Scored: ${stats.goals.for.total.total}</p>
+                      <p>Conceded: ${stats.goals.against.total.total}</p>
+                      <p>Clean sheets: ${stats.clean_sheet.total}</p>
+                      <p>Failed to score: ${stats.failed_to_score.total}</p>
+                  </div>
+              </div>
+          `;
+      }
+
+      // Fetch predictions
+      async function fetchPredictions(leagueId) {
+        try {
+          const [fixturesResponse, resultsResponse] = await Promise.all([
+            fetch(
+              `${API_BASE_URL}/fixtures?league=${leagueId}&season=${SEASON}&next=10`,
+              {
+                headers: { "x-apisports-key": API_KEY },
+              }
+            ),
+            fetch(
+              `${API_BASE_URL}/fixtures?league=${leagueId}&season=${SEASON}&last=50`,
+              {
+                headers: { "x-apisports-key": API_KEY },
+              }
+            ),
+          ]);
+
+          const fixturesData = await fixturesResponse.json();
+          const resultsData = await resultsResponse.json();
+
+          predictionsData = simulatePredictions(
+            fixturesData.response,
+            resultsData.response
+          );
+          updatePredictionsList();
+        } catch (error) {
+          handleError(error, "predictions-list");
+        }
+      }
+
+      // Simulate predictions based on past results
+      function simulatePredictions(fixtures, results) {
+        return fixtures.map((fixture) => {
+          const homeTeam = fixture.teams.home;
+          const awayTeam = fixture.teams.away;
+
+          const homeResults = results.filter(
+            (r) =>
+              r.teams.home.id === homeTeam.id || r.teams.away.id === homeTeam.id
+          );
+          const awayResults = results.filter(
+            (r) =>
+              r.teams.home.id === awayTeam.id || r.teams.away.id === awayTeam.id
+          );
+
+          const homeForm = calculateForm(homeResults, homeTeam.id);
+          const awayForm = calculateForm(awayResults, awayTeam.id);
+
+          const homeProbability = (homeForm + 0.1) / 2; // Add home advantage
+          const awayProbability = awayForm / 2;
+          const drawProbability = 1 - homeProbability - awayProbability;
+
+          return {
+            fixture: fixture.fixture,
+            teams: fixture.teams,
+            predictions: {
+              winner: {
+                name:
+                  homeProbability > awayProbability
+                    ? homeTeam.name
+                    : awayTeam.name,
+              },
+              percent: {
+                home: Math.round(homeProbability * 100),
+                draw: Math.round(drawProbability * 100),
+                away: Math.round(awayProbability * 100),
+              },
+            },
+          };
+        });
+      }
+
+      function calculateForm(teamResults, teamId) {
+        const recentResults = teamResults.slice(0, 5); // Consider last 5 matches
+        let points = 0;
+        recentResults.forEach((result) => {
+          if (result.teams.home.id === teamId) {
+            points +=
+              result.goals.home > result.goals.away
+                ? 3
+                : result.goals.home === result.goals.away
+                ? 1
+                : 0;
+          } else {
+            points +=
+              result.goals.away > result.goals.home
+                ? 3
+                : result.goals.away === result.goals.home
+                ? 1
+                : 0;
+          }
+        });
+        return points / (recentResults.length * 3); // Normalize to 0-1 range
+      }
+
+      // Update predictions list
+      function updatePredictionsList() {
+        const predictionsList = document.getElementById("predictions-list");
+        if (!predictionsList) return;
+
+        predictionsList.innerHTML = "";
+
+        if (predictionsData.length === 0) {
+          predictionsList.innerHTML =
+            '<p class="text-center text-gray-500">No predictions available.</p>';
+          return;
+        }
+
+        predictionsData.forEach((prediction) => {
+          const predictionEl = document.createElement("div");
+          predictionEl.className = "card";
+          predictionEl.innerHTML = `
+            <div class="font-bold text-lg mb-2">${new Date(
+              prediction.fixture.date
+            ).toLocaleDateString()}</div>
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center">
+                    <img src="${prediction.teams.home.logo}" alt="${
+            prediction.teams.home.name
+          }" class="w-8 h-8 mr-2">
+                    <span>${prediction.teams.home.name}</span>
+                </div>
+                <span class="text-xl font-bold">vs</span>
+                <div class="flex items-center">
+                    <span>${prediction.teams.away.name}</span>
+                    <img src="${prediction.teams.away.logo}" alt="${
+            prediction.teams.away.name
+          }" class="w-8 h-8 ml-2">
+                </div>
+            </div>
+            <div class="mt-2">
+                <div class="font-bold">Prediction: ${
+                  prediction.predictions.winner.name
+                } win</div>
+                <div class="flex justify-between mt-2">
+                    <span>Home: ${prediction.predictions.percent.home}%</span>
+                    <span>Draw: ${prediction.predictions.percent.draw}%</span>
+                    <span>Away: ${prediction.predictions.percent.away}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${
+                      prediction.predictions.percent.home
+                    }%"></div>
+                </div>
+            </div>
+        `;
+          predictionsList.appendChild(predictionEl);
+        });
+      }
+
+      // Fetch rounds
+      async function fetchRounds(leagueId) {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/fixtures/rounds?league=${leagueId}&season=${SEASON}`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          roundsData = data.response;
+          updateRoundSelect();
+        } catch (error) {
+          handleError(error, "round-select");
+        }
+      }
+
+      // Update round select
+      function updateRoundSelect() {
+        const roundSelect = document.getElementById("round-select");
+        if (!roundSelect) return;
+
+        roundSelect.innerHTML = '<option value="">Select a round</option>';
+
+        roundsData.forEach((round) => {
+          const option = document.createElement("option");
+          option.value = round;
+          option.textContent = round;
+          roundSelect.appendChild(option);
+        });
+
+        roundSelect.addEventListener("change", fetchRoundFixtures);
+      }
+
+      // Fetch round fixtures
+      async function fetchRoundFixtures() {
+        const roundSelect = document.getElementById("round-select");
+        if (!roundSelect) return;
+
+        const round = roundSelect.value;
+        if (!round) return;
+
+        showLoading("round-fixtures");
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/fixtures?league=${currentLeague.id}&season=${SEASON}&round=${round}`,
+            {
+              headers: {
+                "x-apisports-key": API_KEY,
+              },
+            }
+          );
+          const data = await response.json();
+          updateRoundFixtures(data.response);
+        } catch (error) {
+          handleError(error, "round-fixtures");
+        }
+      }
+
+      // Update round fixtures
+      function updateRoundFixtures(fixtures) {
+        const roundFixtures = document.getElementById("round-fixtures");
+        if (!roundFixtures) return;
+
+        roundFixtures.innerHTML = "";
+
+        if (fixtures.length === 0) {
+          roundFixtures.innerHTML =
+            '<p class="text-center text-gray-500">No fixtures available for this round.</p>';
+          return;
+        }
+
+        fixtures.forEach((fixture) => {
+          const fixtureEl = document.createElement("div");
+          fixtureEl.className = "card";
+          fixtureEl.innerHTML = `
+            <div class="font-bold text-lg mb-2">${new Date(
+              fixture.fixture.date
+            ).toLocaleDateString()} ${new Date(
+            fixture.fixture.date
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}</div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <img src="${fixture.teams.home.logo}" alt="${
+            fixture.teams.home.name
+          }" class="w-8 h-8 mr-2">
+                    <span>${fixture.teams.home.name}</span>
+                </div>
+                <span class="text-xl font-bold">vs</span>
+                <div class="flex items-center">
+                    <span>${fixture.teams.away.name}</span>
+                    <img src="${fixture.teams.away.logo}" alt="${
+            fixture.teams.away.name
+          }" class="w-8 h-8 ml-2">
+                </div>
+            </div>
+            <div class="text-sm text-gray-500 mt-2">${
+              fixture.fixture.venue.name
+            }, ${fixture.fixture.venue.city}</div>
+            <div class="mt-2 font-semibold">${fixture.fixture.status.long}</div>
+        `;
+          roundFixtures.appendChild(fixtureEl);
+        });
+      }
+
+      // Search and filter functionality
+      function setupSearchAndFilter() {
+        const searchInput = document.getElementById("search-input");
+        const filterSelect = document.getElementById("filter-select");
+
+        if (searchInput) {
+          searchInput.addEventListener("input", performSearch);
+        }
+        if (filterSelect) {
+          filterSelect.addEventListener("change", performSearch);
+        }
+      }
+
+      function performSearch() {
+        const searchInput = document.getElementById("search-input");
+        const filterSelect = document.getElementById("filter-select");
+        if (!searchInput || !filterSelect) return;
+
+        const searchTerm = searchInput.value.toLowerCase();
+        const filterType = filterSelect.value;
+
+        // Filter league table
+        const tableRows = document.querySelectorAll("#league-table-body tr");
+        tableRows.forEach((row) => {
+          const teamName = row
+            .querySelector("td:nth-child(2)")
+            .textContent.toLowerCase();
+          if (teamName.includes(searchTerm)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+
+        // Filter fixtures, results, and predictions
+        const elements = document.querySelectorAll(
+          "#fixtures-list > div, #results-list > div, #predictions-list > div, #round-fixtures > div"
+        );
+        elements.forEach((el) => {
+          const content = el.textContent.toLowerCase();
+          if (
+            content.includes(searchTerm) &&
+            (filterType === "all" ||
+              el.closest("section").id.includes(filterType))
+          ) {
+            el.style.display = "";
+          } else {
+            el.style.display = "none";
+          }
+        });
+      }
+
+      // Initialize app
+      async function initApp() {
+        setupSearchAndFilter();
+        updateLeagueSelect();
+        await handleLeagueChange(); // Load default league data
+      }
+
+      // Run the app
+      initApp();
+    </script>
+  </body>
+</html>

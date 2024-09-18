@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Football League Visualizer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background: #009688;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+      }
+      nav {
+        display: flex;
+        justify-content: space-around;
+        background: #00796b;
+      }
+      nav a {
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+      }
+      #leagueTable,
+      #fixtures,
+      #predictions,
+      #teamPerformance {
+        margin-top: 20px;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th,
+      td {
+        padding: 15px;
+      }
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+      .graph {
+        width: 100%;
+        height: 300px;
+      }
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+      }
+      .match {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+      }
+      @media (max-width: 768px) {
+        nav {
+          flex-direction: column;
+        }
+        .calendar {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Football League Visualizer</h1>
+    </header>
+    <nav>
+      <a href="#leagueTable">Table</a>
+      <a href="#fixtures">Fixtures</a>
+      <a href="#predictions">Predictions</a>
+      <a href="#teamPerformance">Team Performance</a>
+    </nav>
+    <div class="container">
+      <section id="leagueTable"></section>
+      <section id="fixtures"></section>
+      <section id="predictions"></section>
+      <section id="teamPerformance"></section>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script>
+      // Placeholder for API Key - replace with actual key
+      const API_KEY = "147fdec0d6b875541243232dca60291e";
+      const API_URL = "https://api.football-data.org/v2/";
+      let leagueData, fixturesData, teams;
+
+      // Fetch league data
+      function fetchData(endpoint, callback) {
+        fetch(API_URL + endpoint, { headers: { "X-Auth-Token": API_KEY } })
+          .then((response) => response.json())
+          .then(callback)
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // Initialize app
+      function init() {
+        fetchData("competitions/PL/standings", displayLeagueTable);
+        fetchData("competitions/PL/matches?status=SCHEDULED", displayFixtures);
+        // Fetch predictions and team performance would require more complex logic or another API for predictions
+      }
+
+      function displayLeagueTable(data) {
+        leagueData = data.standings[0].table;
+        let tableHtml =
+          "<table><tr><th>Position</th><th>Team</th><th>Points</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th></tr>";
+        leagueData.forEach((team) => {
+          tableHtml += `<tr>
+      <td>${team.position}</td>
+      <td>${team.team.name}</td>
+      <td>${team.points}</td>
+      <td>${team.won}</td>
+      <td>${team.draw}</td>
+      <td>${team.lost}</td>
+      <td>${team.goalsFor}</td>
+      <td>${team.goalsAgainst}</td>
+    </tr>`;
+        });
+        tableHtml += "</table>";
+        document.getElementById("leagueTable").innerHTML = tableHtml;
+      }
+
+      function displayFixtures(data) {
+        fixturesData = data.matches;
+        let fixturesHtml = '<div class="calendar">';
+        fixturesData.forEach((match) => {
+          fixturesHtml += `<div class="match">
+      <div>${new Date(match.utcDate).toDateString()}</div>
+      <div>${match.homeTeam.name} vs ${match.awayTeam.name}</div>
+    </div>`;
+        });
+        fixturesHtml += "</div>";
+        document.getElementById("fixtures").innerHTML = fixturesHtml;
+      }
+
+      // Placeholder for predictions and team performance visualizations
+      // These would require additional data and complex logic
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
