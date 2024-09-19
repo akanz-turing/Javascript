@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random User API Visualizer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .container {
+        max-width: 1200px;
+        margin: auto;
+      }
+      .theme-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+      }
+      .dark-theme {
+        background-color: #333;
+        color: white;
+      }
+      .dark-theme .card {
+        background-color: #444;
+        color: white;
+      }
+      .card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+        padding: 15px;
+      }
+      .users-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      #search,
+      #filters select {
+        margin: 10px 0;
+        padding: 10px;
+        width: 100%;
+        max-width: 300px;
+      }
+      .pagination {
+        margin: 20px 0;
+        text-align: center;
+      }
+      .pagination button {
+        margin: 0 5px;
+      }
+      .education {
+        background: #f9f9f9;
+        padding: 20px;
+        margin-top: 20px;
+      }
+      .education h3 {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️</button>
+      <h1>Random User API Explorer</h1>
+      <input type="text" id="search" placeholder="Search users..." />
+      <div id="filters">
+        <select id="genderFilter">
+          <option value="">All Genders</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <select id="natFilter">
+          <option value="">All Nationalities</option>
+        </select>
+        <input type="number" id="ageMin" placeholder="Min Age" />
+        <input type="number" id="ageMax" placeholder="Max Age" />
+      </div>
+      <div class="users-grid" id="userContainer"></div>
+      <div class="pagination">
+        <button onclick="changePage(-1)">Previous</button>
+        <span id="pageNumber">1</span>
+        <button onclick="changePage(1)">Next</button>
+      </div>
+      <div class="education">
+        <h3>Understanding APIs</h3>
+        <p>
+          APIs (Application Programming Interfaces) allow different software
+          applications to communicate with each other. Here's a brief
+          comparison:
+        </p>
+        <ul>
+          <li>
+            <strong>SOAP:</strong> Uses XML for its message format, has built-in
+            security and error handling, but is heavier and less flexible.
+          </li>
+          <li>
+            <strong>REST:</strong> Uses HTTP methods, supports multiple data
+            formats (JSON, XML), stateless, and is lightweight, making it
+            popular for web services.
+          </li>
+          <li>
+            <strong>GraphQL:</strong> A query language for APIs, allows clients
+            to define the structure of the response, reducing over-fetching of
+            data.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      let users = [];
+      let currentPage = 1;
+      const usersPerPage = 10;
+      let totalUsers = 200;
+      let currentFilters = {
+        search: "",
+        gender: "",
+        nat: "",
+        ageMin: "",
+        ageMax: "",
+      };
+
+      function fetchUsers(page = 1) {
+        fetch(
+          `https://randomuser.me/api/?results=${usersPerPage}&page=${page}&seed=abc`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            users = data.results;
+            updateUserDisplay();
+            populateNationalityFilter(users);
+          });
+      }
+
+      function updateUserDisplay() {
+        const filteredUsers = users.filter((user) => {
+          let searchMatch =
+            user.name.first
+              .toLowerCase()
+              .includes(currentFilters.search.toLowerCase()) ||
+            user.name.last
+              .toLowerCase()
+              .includes(currentFilters.search.toLowerCase());
+          let genderMatch =
+            currentFilters.gender === "" ||
+            user.gender === currentFilters.gender;
+          let natMatch =
+            currentFilters.nat === "" || user.nat === currentFilters.nat;
+          let ageMatch =
+            (currentFilters.ageMin === "" ||
+              user.dob.age >= parseInt(currentFilters.ageMin)) &&
+            (currentFilters.ageMax === "" ||
+              user.dob.age <= parseInt(currentFilters.ageMax));
+          return searchMatch && genderMatch && natMatch && ageMatch;
+        });
+
+        $("#userContainer").html(
+          filteredUsers
+            .map(
+              (user) => `
+        <div class="card">
+            <img src="${user.picture.large}" alt="${user.name.first} ${user.name.last}">
+            <h2>${user.name.first} ${user.name.last}</h2>
+            <p>Age: ${user.dob.age}, Gender: ${user.gender}, Location: ${user.location.country}</p>
+        </div>
+    `
+            )
+            .join("")
+        );
+      }
+
+      function changePage(dir) {
+        currentPage += dir;
+        if (currentPage < 1) currentPage = 1;
+        fetchUsers(currentPage);
+        $("#pageNumber").text(currentPage);
+      }
+
+      function populateNationalityFilter(users) {
+        let nationalities = [...new Set(users.map((user) => user.nat))].sort();
+        $("#natFilter").html(
+          '<option value="">All Nationalities</option>' +
+            nationalities
+              .map((nat) => `<option value="${nat}">${nat}</option>`)
+              .join("")
+        );
+      }
+
+      function toggleTheme() {
+        document.body.classList.toggle("dark-theme");
+      }
+
+      $(document).ready(() => {
+        fetchUsers();
+
+        $("#search, #genderFilter, #natFilter, #ageMin, #ageMax").on(
+          "input",
+          function () {
+            currentFilters = {
+              search: $("#search").val(),
+              gender: $("#genderFilter").val(),
+              nat: $("#natFilter").val(),
+              ageMin: $("#ageMin").val(),
+              ageMax: $("#ageMax").val(),
+            };
+            updateUserDisplay();
+          }
+        );
+      });
+    </script>
+  </body>
+</html>

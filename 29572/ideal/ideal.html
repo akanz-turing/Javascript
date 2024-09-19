@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Random User Data Visualizer</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <style>
+      :root {
+        --primary-color: #1da1f2;
+        --secondary-color: #14171a;
+        --background-color: #ffffff;
+        --text-color: #14171a;
+        --border-color: #e1e8ed;
+        --card-background: #f5f8fa;
+        --button-hover: #1991da;
+        --input-background: #e1e8ed;
+        --sidebar-background: #f8f9fa;
+        --sidebar-text: #14171a;
+        --sidebar-border: #e1e8ed;
+      }
+
+      .dark-theme {
+        --primary-color: #1da1f2;
+        --secondary-color: #ffffff;
+        --background-color: #15202b;
+        --text-color: #ffffff;
+        --border-color: #38444d;
+        --card-background: #192734;
+        --button-hover: #1991da;
+        --input-background: #253341;
+        --sidebar-background: #1e2732;
+        --sidebar-text: #ffffff;
+        --sidebar-border: #38444d;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .app-container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 320px;
+        background-color: var(--sidebar-background);
+        color: var(--sidebar-text);
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 1px solid var(--sidebar-border);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      .sidebar-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+
+      .sidebar-subtitle {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 15px;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+
+      .sidebar-text {
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+
+      .sidebar-list {
+        padding-left: 20px;
+        margin-bottom: 15px;
+      }
+
+      .sidebar-list li {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .main-content {
+        flex-grow: 1;
+        padding: 20px;
+        transition: margin-left 0.3s ease-in-out;
+      }
+
+      .main-content.expanded {
+        margin-left: -320px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: var(--button-hover);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      #filters input,
+      #filters select {
+        padding: 10px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 50px;
+        background-color: var(--input-background);
+        color: var(--text-color);
+        font-size: 14px;
+      }
+
+      #filters input::placeholder {
+        color: var(--text-color);
+        opacity: 0.7;
+      }
+
+      #userGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .user-card {
+        background-color: var(--card-background);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .user-card img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+        border: 3px solid var(--primary-color);
+      }
+
+      .user-card h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+
+      .user-card p {
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: var(--text-color);
+      }
+
+      #pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      #currentPage {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .loader {
+        border: 5px solid var(--border-color);
+        border-top: 5px solid var(--primary-color);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .accordion-item {
+        border-bottom: 1px solid var(--sidebar-border);
+      }
+
+      .accordion-button {
+        background-color: transparent;
+        border: none;
+        color: var(--sidebar-text);
+        cursor: pointer;
+        padding: 15px;
+        width: 100%;
+        text-align: left;
+        transition: background-color 0.3s;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .accordion-button:hover {
+        background-color: rgba(29, 161, 242, 0.1);
+      }
+
+      .accordion-content {
+        padding: 0 15px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+
+      .accordion-content.active {
+        max-height: 1000px;
+        padding: 15px;
+      }
+
+      @media (max-width: 768px) {
+        .app-container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        .main-content {
+          margin-left: 0 !important;
+        }
+
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .header-buttons {
+          margin-top: 15px;
+        }
+
+        #filters {
+          flex-direction: column;
+        }
+
+        #userGrid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <aside id="sidebar" class="sidebar">
+        <h2 class="sidebar-title">API Documentation</h2>
+        <div class="accordion">
+          <div class="accordion-item">
+            <button class="accordion-button">Understanding APIs</button>
+            <div class="accordion-content">
+              <p class="sidebar-text">
+                An API (Application Programming Interface) allows different
+                software applications to communicate with each other. In this
+                app, we're using the RandomUser API to fetch and display user
+                data.
+              </p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-button">Types of APIs</button>
+            <div class="accordion-content">
+              <h4 class="sidebar-subtitle">
+                SOAP (Simple Object Access Protocol)
+              </h4>
+              <p class="sidebar-text">
+                SOAP is a protocol that uses XML for exchanging structured data.
+                It's more rigid and has stricter standards, making it suitable
+                for enterprise-level applications.
+              </p>
+
+              <h4 class="sidebar-subtitle">
+                REST (Representational State Transfer)
+              </h4>
+              <p class="sidebar-text">
+                REST is an architectural style that uses HTTP methods to
+                interact with resources. It's widely used due to its simplicity
+                and scalability. The RandomUser API we're using is a RESTful
+                API.
+              </p>
+
+              <h4 class="sidebar-subtitle">GraphQL</h4>
+              <p class="sidebar-text">
+                GraphQL is a query language for APIs that allows clients to
+                request specific data they need. It provides more flexibility in
+                data retrieval compared to REST.
+              </p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-button">Key API Concepts</button>
+            <div class="accordion-content">
+              <h4 class="sidebar-subtitle">Endpoints</h4>
+              <p class="sidebar-text">
+                An endpoint is a specific URL where an API can be accessed. For
+                example, the RandomUser API endpoint we're using is
+                "https://randomuser.me/api/".
+              </p>
+
+              <h4 class="sidebar-subtitle">HTTP Methods</h4>
+              <p class="sidebar-text">
+                APIs use HTTP methods to perform different actions: GET
+                (retrieve data), POST (create data), PUT (update data), DELETE
+                (remove data), etc.
+              </p>
+
+              <h4 class="sidebar-subtitle">Parameters</h4>
+              <p class="sidebar-text">
+                Parameters are used to customize API requests. In our app, we
+                use parameters like "results" to specify the number of users to
+                fetch.
+              </p>
+
+              <h4 class="sidebar-subtitle">Authentication</h4>
+              <p class="sidebar-text">
+                Many APIs require authentication to ensure secure access. This
+                can be done through API keys, OAuth tokens, or other methods.
+              </p>
+
+              <h4 class="sidebar-subtitle">Rate Limiting</h4>
+              <p class="sidebar-text">
+                APIs often implement rate limiting to prevent abuse. This
+                restricts the number of requests a client can make within a
+                given time frame.
+              </p>
+
+              <h4 class="sidebar-subtitle">Pagination</h4>
+              <p class="sidebar-text">
+                For large datasets, APIs often use pagination to return data in
+                manageable chunks. Our app implements client-side pagination to
+                display users.
+              </p>
+
+              <h4 class="sidebar-subtitle">Error Handling</h4>
+              <p class="sidebar-text">
+                APIs return status codes and error messages to indicate the
+                success or failure of a request. Proper error handling is
+                crucial for a robust application.
+              </p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-button">How This App Uses the API</button>
+            <div class="accordion-content">
+              <p class="sidebar-text">
+                This app fetches random user data from the RandomUser API. It
+                sends HTTP GET requests to the API endpoint, specifying
+                parameters like the number of results and page number for
+                pagination. The API responds with JSON data, which we then parse
+                and display in the user interface.
+              </p>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <button class="accordion-button">API Best Practices</button>
+            <div class="accordion-content">
+              <p class="sidebar-text">
+                When working with APIs, it's important to follow these best
+                practices:
+              </p>
+              <ul class="sidebar-list">
+                <li>Use HTTPS for secure communication</li>
+                <li>Implement proper error handling</li>
+                <li>Cache responses when appropriate to reduce API calls</li>
+                <li>Use pagination for large datasets</li>
+                <li>Respect rate limits and implement retry logic</li>
+                <li>Keep authentication credentials secure</li>
+                <li>Version your API to maintain backward compatibility</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header>
+          <h1>Random User Data Visualizer</h1>
+          <div class="header-buttons">
+            <button id="toggleSidebar">Toggle Docs</button>
+            <button id="themeToggle">Toggle Dark Mode</button>
+          </div>
+        </header>
+
+        <section id="filters">
+          <input type="text" id="searchInput" placeholder="Search users..." />
+          <select id="genderFilter">
+            <option value="">All Genders</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <select id="nationalityFilter">
+            <option value="">All Nationalities</option>
+          </select>
+          <input type="number" id="minAge" placeholder="Min Age" />
+          <input type="number" id="maxAge" placeholder="Max Age" />
+          <button id="applyFilters">Apply Filters</button>
+        </section>
+
+        <div id="loader" class="loader" style="display: none"></div>
+        <section id="userGrid"></section>
+
+        <section id="pagination">
+          <button id="prevPage">Previous</button>
+          <span id="currentPage">1</span>
+          <button id="nextPage">Next</button>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      // Global variables
+      let users = [];
+      let filteredUsers = [];
+      let currentPage = 1;
+      const usersPerPage = 10;
+      const totalUsers = 200;
+
+      // DOM elements
+      const userGrid = document.getElementById("userGrid");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
+      const currentPageSpan = document.getElementById("currentPage");
+      const searchInput = document.getElementById("searchInput");
+      const genderFilter = document.getElementById("genderFilter");
+      const nationalityFilter = document.getElementById("nationalityFilter");
+      const minAgeInput = document.getElementById("minAge");
+      const maxAgeInput = document.getElementById("maxAge");
+      const applyFiltersBtn = document.getElementById("applyFilters");
+      const themeToggleBtn = document.getElementById("themeToggle");
+      const toggleSidebarBtn = document.getElementById("toggleSidebar");
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.querySelector(".main-content");
+      const loader = document.getElementById("loader");
+
+      // Fetch users from the RandomUser API
+      async function fetchUsers(page, params = {}) {
+        showLoader();
+        try {
+          const baseUrl = `https://randomuser.me/api/?page=${page}&results=${usersPerPage}&seed=abc`;
+          const queryParams = new URLSearchParams(params).toString();
+          const url = queryParams ? `${baseUrl}&${queryParams}` : baseUrl;
+
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          hideLoader();
+          return data.results;
+        } catch (error) {
+          console.error("Error fetching users:", error);
+          hideLoader();
+          showError("Failed to fetch users. Please try again later.");
+          return [];
+        }
+      }
+
+      // Initialize the app
+      async function initApp() {
+        users = await fetchUsers(currentPage);
+        filteredUsers = [...users];
+        renderUsers();
+        updatePaginationButtons();
+        populateNationalityFilter();
+      }
+
+      // Render users to the grid
+      function renderUsers() {
+        userGrid.innerHTML = "";
+        filteredUsers.forEach((user) => {
+          const userCard = createUserCard(user);
+          userGrid.appendChild(userCard);
+        });
+      }
+
+      // Create a user card element
+      function createUserCard(user) {
+        const card = document.createElement("div");
+        card.classList.add("user-card");
+        card.innerHTML = `
+        <img src="${user.picture.large}" alt="${user.name.first} ${user.name.last}">
+        <h3>${user.name.first} ${user.name.last}</h3>
+        <p>Age: ${user.dob.age}</p>
+        <p>Gender: ${user.gender}</p>
+        <p>Location: ${user.location.city}, ${user.location.country}</p>
+        <p>Email: ${user.email}</p>
+    `;
+        return card;
+      }
+
+      // Update pagination buttons
+      function updatePaginationButtons() {
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled =
+          currentPage === Math.ceil(totalUsers / usersPerPage);
+        currentPageSpan.textContent = currentPage;
+      }
+
+      // Show loader
+      function showLoader() {
+        loader.style.display = "block";
+        userGrid.style.display = "none";
+      }
+
+      // Hide loader
+      function hideLoader() {
+        loader.style.display = "none";
+        userGrid.style.display = "grid";
+      }
+
+      // Show error message
+      function showError(message) {
+        const errorDiv = document.createElement("div");
+        errorDiv.classList.add("error-message");
+        errorDiv.textContent = message;
+        userGrid.innerHTML = "";
+        userGrid.appendChild(errorDiv);
+      }
+
+      // Populate nationality filter
+      function populateNationalityFilter() {
+        const nationalities = [...new Set(users.map((user) => user.nat))];
+        nationalityFilter.innerHTML =
+          '<option value="">All Nationalities</option>';
+        nationalities.forEach((nat) => {
+          const option = document.createElement("option");
+          option.value = nat;
+          option.textContent = nat;
+          nationalityFilter.appendChild(option);
+        });
+      }
+
+      // Filter users
+      function filterUsers() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const gender = genderFilter.value;
+        const nationality = nationalityFilter.value;
+        const minAge = parseInt(minAgeInput.value) || 0;
+        const maxAge = parseInt(maxAgeInput.value) || Infinity;
+
+        filteredUsers = users.filter((user) => {
+          const fullName = `${user.name.first} ${user.name.last}`.toLowerCase();
+          return (
+            fullName.includes(searchTerm) &&
+            (gender === "" || user.gender === gender) &&
+            (nationality === "" || user.nat === nationality) &&
+            user.dob.age >= minAge &&
+            user.dob.age <= maxAge
+          );
+        });
+
+        renderUsers();
+        updatePaginationButtons();
+      }
+
+      // Apply filters
+      async function applyFilters() {
+        currentPage = 1;
+        const params = {
+          gender: genderFilter.value,
+          nat: nationalityFilter.value,
+        };
+
+        users = await fetchUsers(currentPage, params);
+        filterUsers();
+      }
+
+      // Event listeners
+      prevPageBtn.addEventListener("click", async () => {
+        if (currentPage > 1) {
+          currentPage--;
+          users = await fetchUsers(currentPage);
+          filterUsers();
+        }
+      });
+
+      nextPageBtn.addEventListener("click", async () => {
+        if (currentPage < Math.ceil(totalUsers / usersPerPage)) {
+          currentPage++;
+          users = await fetchUsers(currentPage);
+          filterUsers();
+        }
+      });
+
+      applyFiltersBtn.addEventListener("click", applyFilters);
+
+      themeToggleBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-theme");
+        localStorage.setItem(
+          "theme",
+          document.body.classList.contains("dark-theme") ? "dark" : "light"
+        );
+      });
+
+      toggleSidebarBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        mainContent.classList.toggle("expanded");
+      });
+
+      // Accordion functionality
+      const accordionButtons = document.querySelectorAll(".accordion-button");
+
+      accordionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const content = button.nextElementSibling;
+          content.classList.toggle("active");
+
+          // Close other open accordion items
+          accordionButtons.forEach((otherButton) => {
+            if (otherButton !== button) {
+              otherButton.nextElementSibling.classList.remove("active");
+            }
+          });
+        });
+      });
+
+      // Debounce function for search input
+      function debounce(func, delay) {
+        let timeoutId;
+        return function (...args) {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
+
+      // Add event listener for search input with debounce
+      searchInput.addEventListener("input", debounce(filterUsers, 300));
+
+      // Initialize theme
+      function initTheme() {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark-theme");
+        }
+      }
+
+      // Initialize the app
+      async function init() {
+        initTheme();
+        await initApp();
+
+        // Open the first accordion item by default
+        if (accordionButtons.length > 0) {
+          accordionButtons[0].click();
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>
