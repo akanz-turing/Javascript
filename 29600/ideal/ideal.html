@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mood Meme Quiz</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #ff69b4;
+        --secondary-color: #4169e1;
+        --background-color: #f0f8ff;
+        --text-color: #333;
+        --button-color: #ff69b4;
+        --button-text-color: #fff;
+        --correct-color: #32cd32;
+        --incorrect-color: #ff4500;
+      }
+
+      body.dark-mode {
+        --primary-color: #ff1493;
+        --secondary-color: #4169e1;
+        --background-color: #2f4f4f;
+        --text-color: #f0f8ff;
+        --button-color: #ff1493;
+        --button-text-color: #f0f8ff;
+      }
+
+      body {
+        font-family: "Comic Neue", cursive;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      #game-container {
+        max-width: 800px;
+        width: 90%;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        color: var(--primary-color);
+        text-shadow: 2px 2px var(--secondary-color);
+        margin-bottom: 10px;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      button {
+        background-color: var(--button-color);
+        color: var(--button-text-color);
+        border: none;
+        padding: 10px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: transform 0.1s, background-color 0.3s;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      #meme-container {
+        width: 100%;
+        height: 300px;
+        background-color: #ddd;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      #meme-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      #timer-container {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
+        position: relative;
+      }
+
+      .circular-chart {
+        width: 100%;
+        height: 100%;
+      }
+
+      .circle-bg {
+        fill: none;
+        stroke: #eee;
+        stroke-width: 3.8;
+      }
+
+      .circle {
+        fill: none;
+        stroke: var(--primary-color);
+        stroke-width: 2.8;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.1s;
+      }
+
+      .percentage {
+        fill: var(--text-color);
+        font-size: 0.5em;
+        text-anchor: middle;
+        font-weight: bold;
+      }
+
+      #options-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      #custom-answer-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      #custom-answer-input {
+        padding: 10px;
+        font-size: 1rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 5px;
+      }
+
+      #skip-button {
+        display: block;
+        margin: 0 auto;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #progress-bar {
+        width: 100%;
+        height: 10px;
+        background-color: #ddd;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      #progress-bar::before {
+        content: "";
+        display: block;
+        height: 100%;
+        background-color: var(--primary-color);
+        width: var(--progress, 0%);
+        transition: width 0.3s ease-in-out;
+      }
+
+      #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 1000;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #leaderboard {
+        margin-top: 30px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+      }
+
+      #high-scores {
+        padding-left: 20px;
+      }
+
+      #high-scores li {
+        margin-bottom: 5px;
+      }
+
+      #reset-leaderboard {
+        margin-top: 10px;
+        background-color: var(--incorrect-color);
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        #options-container {
+          grid-template-columns: 1fr;
+        }
+
+        #game-container {
+          width: 95%;
+          padding: 10px;
+        }
+
+        #meme-container {
+          height: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <header>
+        <h1>Mood Meme Quiz</h1>
+        <div class="controls">
+          <button id="mode-toggle" aria-label="Toggle dark mode">🌓</button>
+        </div>
+      </header>
+
+      <main>
+        <div id="start-screen">
+          <h2>Ready to test your mood meme skills?</h2>
+          <button id="start-button">Start Quiz</button>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+          <div
+            id="progress-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          ></div>
+          <div id="meme-container" aria-live="polite"></div>
+          <div id="timer-container" aria-live="polite"></div>
+          <div
+            id="options-container"
+            role="radiogroup"
+            aria-label="Mood options"
+          ></div>
+          <div id="custom-answer-container" class="hidden">
+            <input
+              type="text"
+              id="custom-answer-input"
+              placeholder="Enter your own mood"
+            />
+            <button id="submit-custom-answer">Submit Custom Answer</button>
+          </div>
+          <button id="skip-button">Skip</button>
+        </div>
+
+        <div id="result-screen" class="hidden">
+          <h2>Quiz Complete!</h2>
+          <p>Your score: <span id="final-score"></span></p>
+          <button id="restart-button">Play Again</button>
+        </div>
+      </main>
+
+      <aside id="leaderboard">
+        <h3>Leaderboard</h3>
+        <ol id="high-scores"></ol>
+        <button id="reset-leaderboard">Reset Leaderboard</button>
+      </aside>
+    </div>
+    <div id="loading-overlay" class="hidden">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+
+    <script>
+      // Constants
+      const QUIZ_LENGTH = 10;
+      const MOODS = [
+        "Happy",
+        "Sad",
+        "Excited",
+        "Confused",
+        "Angry",
+        "Surprised",
+        "Scared",
+        "Disgusted",
+      ];
+      const API_KEY = "Np5q8gQ91MBNr2ntXYF3OOjUM16bXcAO"; // Replace with your actual Giphy API key
+
+      // Game state
+      let currentQuestion = 0;
+      let score = 0;
+      let timer;
+      let memeUrl;
+      let correctMood;
+      let currentMemeData;
+
+      // DOM elements
+      const startScreen = document.getElementById("start-screen");
+      const quizScreen = document.getElementById("quiz-screen");
+      const resultScreen = document.getElementById("result-screen");
+      const startButton = document.getElementById("start-button");
+      const memeContainer = document.getElementById("meme-container");
+      const timerContainer = document.getElementById("timer-container");
+      const optionsContainer = document.getElementById("options-container");
+      const customAnswerContainer = document.getElementById(
+        "custom-answer-container"
+      );
+      const customAnswerInput = document.getElementById("custom-answer-input");
+      const submitCustomAnswer = document.getElementById(
+        "submit-custom-answer"
+      );
+      const skipButton = document.getElementById("skip-button");
+      const finalScoreSpan = document.getElementById("final-score");
+      const restartButton = document.getElementById("restart-button");
+      const modeToggle = document.getElementById("mode-toggle");
+      const progressBar = document.getElementById("progress-bar");
+      const loadingOverlay = document.getElementById("loading-overlay");
+      const resetLeaderboardButton =
+        document.getElementById("reset-leaderboard");
+
+      // Event listeners
+      startButton.addEventListener("click", startQuiz);
+      skipButton.addEventListener("click", skipQuestion);
+      restartButton.addEventListener("click", restartQuiz);
+      modeToggle.addEventListener("click", toggleDarkMode);
+      submitCustomAnswer.addEventListener("click", () => {
+        const customMood = customAnswerInput.value.trim();
+        if (customMood) {
+          selectAnswer(customMood, true);
+        }
+      });
+      resetLeaderboardButton.addEventListener("click", resetLeaderboard);
+      customAnswerInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          const customMood = customAnswerInput.value.trim();
+          if (customMood) {
+            selectAnswer(customMood, true);
+          }
+        }
+      });
+
+      // Functions
+      async function startQuiz() {
+        startScreen.classList.add("hidden");
+        quizScreen.classList.remove("hidden");
+        resetQuiz();
+        await loadQuestion();
+      }
+
+      function resetQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        updateProgressBar();
+      }
+
+      async function loadQuestion() {
+        if (currentQuestion >= QUIZ_LENGTH) {
+          endQuiz();
+          return;
+        }
+
+        showLoading();
+        try {
+          currentMemeData = await fetchMemeWithMood();
+          memeUrl = currentMemeData.url;
+          correctMood = currentMemeData.mood;
+          displayMeme(memeUrl);
+          displayOptions();
+          displayCustomAnswerOption();
+          startTimer();
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          alert("Failed to load question. Please try again.");
+        }
+      }
+
+      async function fetchMemeWithMood() {
+        const response = await fetch(
+          `https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=reaction&rating=g`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch meme");
+        }
+        const data = await response.json();
+        const url = data.data.images.original.url;
+
+        const tags = data.data.tags || [];
+        const title = data.data.title || "";
+        const slug = data.data.slug || "";
+        const mood = determineMoodFromTagsAndTitle(tags, title, slug);
+
+        return { url, mood, title, slug };
+      }
+
+      function determineMoodFromTagsAndTitle(tags, title, slug) {
+        const moodMap = {
+          happy: [
+            "happy",
+            "joy",
+            "excited",
+            "cheerful",
+            "elated",
+            "glad",
+            "delighted",
+          ],
+          sad: [
+            "sad",
+            "depressed",
+            "unhappy",
+            "gloomy",
+            "miserable",
+            "down",
+            "blue",
+          ],
+          excited: [
+            "excited",
+            "thrilled",
+            "enthusiastic",
+            "energetic",
+            "pumped",
+            "stoked",
+          ],
+          confused: [
+            "confused",
+            "perplexed",
+            "puzzled",
+            "baffled",
+            "unsure",
+            "uncertain",
+          ],
+          angry: [
+            "angry",
+            "mad",
+            "furious",
+            "enraged",
+            "irritated",
+            "annoyed",
+            "frustrated",
+          ],
+          surprised: [
+            "surprised",
+            "shocked",
+            "astonished",
+            "amazed",
+            "startled",
+            "stunned",
+          ],
+          scared: [
+            "scared",
+            "frightened",
+            "terrified",
+            "fearful",
+            "afraid",
+            "panicked",
+          ],
+          disgusted: [
+            "disgusted",
+            "repulsed",
+            "revolted",
+            "grossed out",
+            "nauseated",
+          ],
+        };
+
+        const wordsToCheck = [
+          ...title.toLowerCase().split(" "),
+          ...slug.toLowerCase().split("-"),
+        ];
+
+        for (const [mood, keywords] of Object.entries(moodMap)) {
+          if (wordsToCheck.some((word) => keywords.includes(word))) {
+            return mood;
+          }
+        }
+
+        for (const [mood, keywords] of Object.entries(moodMap)) {
+          if (tags.some((tag) => keywords.includes(tag.toLowerCase()))) {
+            return mood;
+          }
+        }
+
+        return MOODS[Math.floor(Math.random() * MOODS.length)];
+      }
+
+      function displayMeme(url) {
+        memeContainer.innerHTML = `<img src="${url}" alt="Reaction meme" class="fade-in">`;
+      }
+
+      function displayOptions() {
+        optionsContainer.innerHTML = "";
+        const shuffledMoods = shuffleArray([...MOODS]);
+        const displayMoods = shuffledMoods.slice(0, 3);
+        displayMoods.push(correctMood);
+        shuffleArray(displayMoods);
+
+        displayMoods.forEach((mood) => {
+          const button = document.createElement("button");
+          button.textContent = mood;
+          button.classList.add("slide-in");
+          button.addEventListener("click", () => selectAnswer(mood));
+          optionsContainer.appendChild(button);
+        });
+      }
+
+      function displayCustomAnswerOption() {
+        customAnswerContainer.classList.remove("hidden");
+        resetCustomInput();
+      }
+
+      function resetCustomInput() {
+        customAnswerInput.value = "";
+        customAnswerInput.style.backgroundColor = "";
+        customAnswerInput.disabled = false;
+        submitCustomAnswer.disabled = false;
+      }
+
+      function startTimer() {
+        let timeLeft = 45;
+        updateTimerDisplay(timeLeft);
+        timer = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay(timeLeft);
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            skipQuestion();
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay(timeLeft) {
+        const progress = (timeLeft / 45) * 100;
+        timerContainer.innerHTML = `
+        <svg viewBox="0 0 36 36" class="circular-chart">
+            <path class="circle-bg" d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path class="circle" stroke-dasharray="${progress}, 100" d="M18 2.0845
+                a 15.9155 15.9155 0 0 1 0 31.831
+                a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <text x="18" y="20.35" class="percentage">${timeLeft}</text>
+        </svg>
+    `;
+      }
+
+      function selectAnswer(mood, isCustom = false) {
+        clearInterval(timer);
+
+        const wordsToCheck = [
+          ...currentMemeData.title.toLowerCase().split(" "),
+          ...currentMemeData.slug.toLowerCase().split("-"),
+        ];
+        const isCustomCorrect =
+          isCustom && wordsToCheck.includes(mood.toLowerCase());
+
+        const isCorrect =
+          isCustomCorrect || mood.toLowerCase() === correctMood.toLowerCase();
+
+        if (isCorrect) {
+          score++;
+        }
+
+        highlightCorrectAnswer(mood, isCustom, isCustomCorrect);
+
+        disableAllInputs();
+
+        setTimeout(() => {
+          nextQuestion();
+        }, 1500);
+      }
+
+      function highlightCorrectAnswer(selectedMood, isCustom, isCustomCorrect) {
+        const buttons = optionsContainer.getElementsByTagName("button");
+        for (let button of buttons) {
+          if (
+            button.textContent.toLowerCase() === correctMood.toLowerCase() &&
+            !isCustomCorrect
+          ) {
+            button.style.backgroundColor = "var(--correct-color)";
+          } else if (
+            button.textContent.toLowerCase() === selectedMood.toLowerCase() &&
+            !isCustom
+          ) {
+            button.style.backgroundColor = isCustomCorrect
+              ? "var(--correct-color)"
+              : "var(--incorrect-color)";
+          }
+          button.disabled = true;
+        }
+
+        if (isCustom) {
+          customAnswerInput.style.backgroundColor = isCustomCorrect
+            ? "var(--correct-color)"
+            : "var(--incorrect-color)";
+          customAnswerInput.disabled = true;
+          submitCustomAnswer.disabled = true;
+        }
+      }
+
+      function disableAllInputs() {
+        const buttons = optionsContainer.getElementsByTagName("button");
+        for (let button of buttons) {
+          button.disabled = true;
+        }
+        customAnswerInput.disabled = true;
+        submitCustomAnswer.disabled = true;
+      }
+
+      function skipQuestion() {
+        clearInterval(timer);
+        nextQuestion();
+      }
+
+      async function nextQuestion() {
+        currentQuestion++;
+        updateProgressBar();
+        resetCustomInput();
+        await loadQuestion();
+      }
+
+      function updateProgressBar() {
+        const progress = (currentQuestion / QUIZ_LENGTH) * 100;
+        progressBar.style.setProperty("--progress", `${progress}%`);
+        progressBar.setAttribute("aria-valuenow", progress);
+      }
+
+      function endQuiz() {
+        quizScreen.classList.add("hidden");
+        resultScreen.classList.remove("hidden");
+        finalScoreSpan.textContent = `${score}/${QUIZ_LENGTH}`;
+        updateLeaderboard(score);
+      }
+
+      function updateLeaderboard(score) {
+        let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+        leaderboard.push({ score, date: new Date().toISOString() });
+        leaderboard.sort((a, b) => b.score - a.score);
+        leaderboard = leaderboard.slice(0, 10);
+        localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        displayLeaderboard();
+      }
+
+      function displayLeaderboard() {
+        const leaderboard =
+          JSON.parse(localStorage.getItem("leaderboard")) || [];
+        const highScoresList = document.getElementById("high-scores");
+        highScoresList.innerHTML = "";
+        leaderboard.forEach((entry, index) => {
+          const li = document.createElement("li");
+          li.textContent = `#${index + 1}: ${entry.score} points - ${new Date(
+            entry.date
+          ).toLocaleDateString()}`;
+          highScoresList.appendChild(li);
+        });
+      }
+
+      function resetLeaderboard() {
+        localStorage.removeItem("leaderboard");
+        displayLeaderboard();
+      }
+
+      function restartQuiz() {
+        resultScreen.classList.add("hidden");
+        startQuiz();
+      }
+
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        modeToggle.textContent = document.body.classList.contains("dark-mode")
+          ? "🌞"
+          : "🌓";
+      }
+
+      function showLoading() {
+        loadingOverlay.classList.remove("hidden");
+      }
+
+      function hideLoading() {
+        loadingOverlay.classList.add("hidden");
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      // Initialize the game
+      displayLeaderboard();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mood Meme Quiz</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Comic Neue", cursive;
+        background-color: #f0f0f0;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .dark-mode {
+        background-color: #333;
+        color: #f0f0f0;
+      }
+      #game-container {
+        text-align: center;
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 90%;
+      }
+      #meme-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+      #mood-options button {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #ffdb58;
+        border: none;
+        border-radius: 5px;
+        transition: transform 0.1s;
+      }
+      #mood-options button:hover {
+        transform: scale(1.05);
+      }
+      #timer {
+        width: 100%;
+        background: #eee;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      #timer-progress {
+        width: 100%;
+        height: 30px;
+        background-color: #4caf50;
+        transition: width 0.5s linear;
+      }
+      .toggle-mode {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <h1>Mood Meme Quiz</h1>
+      <img id="meme-image" src="" alt="Meme or Emoji" />
+      <div id="timer"><div id="timer-progress"></div></div>
+      <div id="mood-options"></div>
+      <button id="skip">Skip</button>
+      <div id="score">Score: <span id="current-score">0</span></div>
+    </div>
+    <button class="toggle-mode" onclick="toggleDarkMode()">🌙/☀️</button>
+
+    <script>
+      const game = {
+        questions: 10,
+        currentQuestion: 0,
+        score: 0,
+        timePerQuestion: 45,
+        moods: ["Happy", "Sad", "Excited", "Confused"],
+        apiUrl: "https://api.example.com/meme-or-emoji", // Placeholder URL
+
+        start: function () {
+          this.loadQuestion();
+        },
+
+        loadQuestion: function () {
+          fetch(this.apiUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("meme-image").src = data.imageUrl; // Assuming the API returns an image URL
+              this.displayMoods();
+              this.startTimer();
+            });
+        },
+
+        displayMoods: function () {
+          const options = document.getElementById("mood-options");
+          options.innerHTML = "";
+          const shuffledMoods = this.moods
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4);
+          shuffledMoods.forEach((mood) => {
+            const btn = document.createElement("button");
+            btn.textContent = mood;
+            btn.onclick = () => this.checkAnswer(mood);
+            options.appendChild(btn);
+          });
+        },
+
+        startTimer: function () {
+          let timeLeft = this.timePerQuestion;
+          const timerProgress = document.getElementById("timer-progress");
+          const interval = setInterval(() => {
+            if (timeLeft <= 0) {
+              clearInterval(interval);
+              this.nextQuestion();
+            } else {
+              timeLeft--;
+              timerProgress.style.width = `${
+                (timeLeft / this.timePerQuestion) * 100
+              }%`;
+            }
+          }, 1000);
+        },
+
+        checkAnswer: function (mood) {
+          // Here you would check if the mood matches the meme/emoji, for simplicity let's assume it's always correct
+          this.score++;
+          this.nextQuestion();
+        },
+
+        nextQuestion: function () {
+          this.currentQuestion++;
+          if (this.currentQuestion < this.questions) {
+            this.loadQuestion();
+          } else {
+            this.endGame();
+          }
+        },
+
+        endGame: function () {
+          alert("Game Over! Your score: " + this.score);
+          // Here you would handle leaderboard logic
+        },
+      };
+
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+      }
+
+      game.start();
+    </script>
+  </body>
+</html>
