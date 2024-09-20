@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Structures Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+      }
+      .data-structure {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+      .data-structure-header {
+        background-color: #3498db;
+        color: #fff;
+        padding: 10px 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+      }
+      .data-structure-header:hover {
+        background-color: #2980b9;
+      }
+      .data-structure-content {
+        padding: 20px;
+        display: none;
+      }
+      .card {
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      .visualization {
+        width: 100%;
+        height: 300px;
+        background-color: #ecf0f1;
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+        overflow: auto;
+      }
+      pre {
+        background-color: #2d2d2d;
+        border-radius: 4px;
+        padding: 15px;
+        overflow-x: auto;
+      }
+      code {
+        font-family: "Courier New", Courier, monospace;
+      }
+      button {
+        background-color: #2ecc71;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #27ae60;
+      }
+      .node {
+        width: 50px;
+        height: 50px;
+        background-color: #3498db;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 5px;
+        border-radius: 25px;
+      }
+      .arrow {
+        font-size: 24px;
+        margin: 0 5px;
+      }
+
+      #output {
+        background-color: #2d2d2d;
+        color: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Data Structures Visualization</h1>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Array (Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            An array is a linear data structure that stores elements in
+            contiguous memory locations. Each element can be accessed directly
+            using its index.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="array-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Storing and accessing sequential data</li>
+            <li>
+              Implementing other data structures like stacks, queues, and
+              matrices
+            </li>
+            <li>Buffering data in audio and video applications</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Access: O(1)</li>
+            <li>Search: O(n)</li>
+            <li>Insertion: O(n)</li>
+            <li>Deletion: O(n)</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+let arr = [1, 2, 3, 4, 5];
+console.log("Original array:", arr);
+
+// Accessing elements
+console.log("First element:", arr[0]);
+
+// Adding an element to the end
+arr.push(6);
+console.log("After push:", arr);
+
+// Removing the last element
+arr.pop();
+console.log("After pop:", arr);
+
+// Iterating through the array
+console.log("Iterating through the array:");
+for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+}
+                </code></pre>
+          <button onclick="runCode('array')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Linked List (Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A linked list is a linear data structure where elements are stored
+            in nodes. Each node contains a data field and a reference (link) to
+            the next node in the sequence.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="linkedlist-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Implementing file systems</li>
+            <li>Browser's back and forward functionality</li>
+            <li>Music playlists</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Access: O(n)</li>
+            <li>Search: O(n)</li>
+            <li>Insertion: O(1) at the beginning, O(n) at the end</li>
+            <li>Deletion: O(1) at the beginning, O(n) at the end</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class Node {
+    constructor(data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+    }
+
+    append(data) {
+        const newNode = new Node(data);
+        if (!this.head) {
+            this.head = newNode;
+            return;
+        }
+        let current = this.head;
+        while (current.next) {
+            current = current.next;
+        }
+        current.next = newNode;
+    }
+
+    print() {
+        let current = this.head;
+        while (current) {
+            console.log(current.data);
+            current = current.next;
+        }
+    }
+}
+
+const list = new LinkedList();
+list.append(1);
+list.append(2);
+list.append(3);
+console.log("Linked List contents:");
+list.print();
+                </code></pre>
+          <button onclick="runCode('linkedlist')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Stack (Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A stack is a linear data structure that follows the
+            Last-In-First-Out (LIFO) principle. Elements are added and removed
+            from the same end, called the top of the stack.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="stack-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Function call stack in programming languages</li>
+            <li>Undo/Redo functionality in applications</li>
+            <li>
+              Parsing expressions (e.g., checking for balanced parentheses)
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Push: O(1)</li>
+            <li>Pop: O(1)</li>
+            <li>Peek: O(1)</li>
+            <li>Search: O(n)</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class Stack {
+    constructor() {
+        this.items = [];
+    }
+
+    push(element) {
+        this.items.push(element);
+    }
+
+    pop() {
+        if (this.isEmpty()) return "Stack is empty";
+        return this.items.pop();
+    }
+
+    peek() {
+        if (this.isEmpty()) return "Stack is empty";
+        return this.items[this.items.length - 1];
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    print() {
+        console.log(this.items.toString());
+    }
+}
+
+const stack = new Stack();
+stack.push(1);
+stack.push(2);
+stack.push(3);
+
+console.log("Stack contents:");
+stack.print();
+
+console.log("Top element:", stack.peek());
+console.log("Popped element:", stack.pop());
+
+console.log("Stack after pop:");
+stack.print();
+                </code></pre>
+          <button onclick="runCode('stack')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Queue (Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A queue is a linear data structure that follows the
+            First-In-First-Out (FIFO) principle. Elements are added at the rear
+            and removed from the front of the queue.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="queue-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Task scheduling in operating systems</li>
+            <li>
+              Handling requests on a single shared resource (e.g., printer)
+            </li>
+            <li>Breadth-First Search algorithm in graphs</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Enqueue: O(1)</li>
+            <li>Dequeue: O(1)</li>
+            <li>Front: O(1)</li>
+            <li>Search: O(n)</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class Queue {
+    constructor() {
+        this.items = [];
+    }
+
+    enqueue(element) {
+        this.items.push(element);
+    }
+
+    dequeue() {
+        if (this.isEmpty()) return "Queue is empty";
+        return this.items.shift();
+    }
+
+    front() {
+        if (this.isEmpty()) return "Queue is empty";
+        return this.items[0];
+    }
+
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    print() {
+        console.log(this.items.toString());
+    }
+}
+
+const queue = new Queue();
+queue.enqueue(1);
+queue.enqueue(2);
+queue.enqueue(3);
+
+console.log("Queue contents:");
+queue.print();
+
+console.log("Front element:", queue.front());
+console.log("Dequeued element:", queue.dequeue());
+
+console.log("Queue after dequeue:");
+queue.print();
+                </code></pre>
+          <button onclick="runCode('queue')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Heap (Non-Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A heap is a specialized tree-based data structure that satisfies the
+            heap property. In a max heap, for any given node I, the value of I
+            is greater than or equal to the values of its children.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="heap-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Priority queues</li>
+            <li>Scheduling algorithms</li>
+            <li>Heap sort algorithm</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Insert: O(log n)</li>
+            <li>Delete: O(log n)</li>
+            <li>Get Max/Min: O(1)</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class MaxHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    parent(i) { return Math.floor((i - 1) / 2); }
+    leftChild(i) { return 2 * i + 1; }
+    rightChild(i) { return 2 * i + 2; }
+
+    swap(i, j) {
+        [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+    }
+
+    insert(key) {
+        this.heap.push(key);
+        this.heapifyUp(this.heap.length - 1);
+    }
+
+    heapifyUp(i) {
+        while (i > 0 && this.heap[this.parent(i)] < this.heap[i]) {
+            this.swap(i, this.parent(i));
+            i = this.parent(i);
+        }
+    }
+
+    extractMax() {
+        if (this.heap.length === 0) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+
+        const max = this.heap[0];
+        this.heap[0] = this.heap.pop();
+        this.heapifyDown(0);
+
+        return max;
+    }
+
+    heapifyDown(i) {
+        let maxIndex = i;
+        const left = this.leftChild(i);
+        const right = this.rightChild(i);
+
+        if (left < this.heap.length && this.heap[left] > this.heap[maxIndex]) {
+            maxIndex = left;
+        }
+        if (right < this.heap.length && this.heap[right] > this.heap[maxIndex]) {
+            maxIndex = right;
+        }
+
+        if (i !== maxIndex) {
+            this.swap(i, maxIndex);
+            this.heapifyDown(maxIndex);
+        }
+    }
+
+    print() {
+        console.log(this.heap);
+    }
+}
+
+const maxHeap = new MaxHeap();
+maxHeap.insert(4);
+maxHeap.insert(7);
+maxHeap.insert(3);
+maxHeap.insert(9);
+maxHeap.insert(1);
+
+console.log("Max Heap contents:");
+maxHeap.print();
+
+console.log("Extracted max:", maxHeap.extractMax());
+
+console.log("Max Heap after extraction:");
+maxHeap.print();
+                </code></pre>
+          <button onclick="runCode('heap')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Tree (Non-Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A tree is a hierarchical data structure consisting of nodes
+            connected by edges. Each node has a parent (except the root) and
+            zero or more children.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="tree-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>File systems in operating systems</li>
+            <li>Organization charts</li>
+            <li>DOM (Document Object Model) in web browsers</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity (for balanced binary search tree)</h3>
+          <ul>
+            <li>Search: O(log n)</li>
+            <li>Insert: O(log n)</li>
+            <li>Delete: O(log n)</li>
+            <li>Space: O(n)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class TreeNode {
+    constructor(value) {
+        this.value = value;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class BinarySearchTree {
+    constructor() {
+        this.root = null;
+    }
+
+    insert(value) {
+        this.root = this._insert(this.root, value);
+    }
+
+    _insert(node, value) {
+        if (node === null) return new TreeNode(value);
+        if (value < node.value) {
+            node.left = this._insert(node.left, value);
+        } else if (value > node.value) {
+            node.right = this._insert(node.right, value);
+        }
+        return node;
+    }
+
+    inorderTraversal(node = this.root) {
+        if (node !== null) {
+            this.inorderTraversal(node.left);
+            console.log(node.value);
+            this.inorderTraversal(node.right);
+        }
+    }
+}
+
+const bst = new BinarySearchTree();
+bst.insert(5);
+bst.insert(3);
+bst.insert(7);
+bst.insert(1);
+bst.insert(9);
+
+console.log("Binary Search Tree (inorder traversal):");
+bst.inorderTraversal();
+                </code></pre>
+          <button onclick="runCode('tree')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Graph (Non-Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A graph is a non-linear data structure consisting of nodes and
+            edges. The nodes are sometimes also referred to as vertices and the
+            edges are lines or arcs that connect any two nodes in the graph.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="graph-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Social networks</li>
+            <li>GPS and mapping</li>
+            <li>Network routing</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Add Vertex: O(1)</li>
+            <li>Add Edge: O(1)</li>
+            <li>Remove Vertex: O(|V| + |E|)</li>
+            <li>Remove Edge: O(|E|)</li>
+            <li>Space: O(|V| + |E|)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class Graph {
+    constructor() {
+        this.adjacencyList = {};
+    }
+
+    addVertex(vertex) {
+        if (!this.adjacencyList[vertex]) {
+            this.adjacencyList[vertex] = [];
+        }
+    }
+
+    addEdge(vertex1, vertex2) {
+        this.adjacencyList[vertex1].push(vertex2);
+        this.adjacencyList[vertex2].push(vertex1);
+    }
+
+    removeEdge(vertex1, vertex2) {
+        this.adjacencyList[vertex1] = this.adjacencyList[vertex1].filter(v => v !== vertex2);
+        this.adjacencyList[vertex2] = this.adjacencyList[vertex2].filter(v => v !== vertex1);
+    }
+
+    removeVertex(vertex) {
+        while (this.adjacencyList[vertex].length) {
+            const adjacentVertex = this.adjacencyList[vertex].pop();
+            this.removeEdge(vertex, adjacentVertex);
+        }
+        delete this.adjacencyList[vertex];
+    }
+
+    print() {
+        for (let vertex in this.adjacencyList) {
+            console.log(vertex + " -> " + this.adjacencyList[vertex].join(", "));
+        }
+    }
+}
+
+const graph = new Graph();
+graph.addVertex("A");
+graph.addVertex("B");
+graph.addVertex("C");
+graph.addEdge("A", "B");
+graph.addEdge("B", "C");
+graph.addEdge("C", "A");
+
+console.log("Graph contents:");
+graph.print();
+
+graph.removeVertex("B");
+
+console.log("Graph after removing vertex B:");
+graph.print();
+                </code></pre>
+          <button onclick="runCode('graph')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <div class="data-structure">
+      <div class="data-structure-header">
+        <h2>Trie (Non-Linear)</h2>
+        <span>▼</span>
+      </div>
+      <div class="data-structure-content">
+        <div class="card">
+          <h3>Explanation</h3>
+          <p>
+            A trie, also called digital tree or prefix tree, is a type of search
+            tree used to store and retrieve strings. Each node in the trie
+            represents a common prefix of some strings.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Visualization</h3>
+          <div class="visualization" id="trie-visualization"></div>
+        </div>
+        <div class="card">
+          <h3>Real-world Use Cases</h3>
+          <ul>
+            <li>Autocomplete and predictive text</li>
+            <li>Spell checkers</li>
+            <li>IP routing tables</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Time and Space Complexity</h3>
+          <ul>
+            <li>Insert: O(m), where m is the length of the string</li>
+            <li>Search: O(m), where m is the length of the string</li>
+            <li>
+              Space: O(n * m), where n is the number of strings and m is the
+              average length
+            </li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Code Snippet</h3>
+          <pre><code class="language-javascript">
+class TrieNode {
+    constructor() {
+        this.children = {};
+        this.isEndOfWord = false;
+    }
+}
+
+class Trie {
+    constructor() {
+        this.root = new TrieNode();
+    }
+
+    insert(word) {
+        let current = this.root;
+        for (let char of word) {
+            if (!current.children[char]) {
+                current.children[char] = new TrieNode();
+            }
+            current = current.children[char];
+        }
+        current.isEndOfWord = true;
+    }
+
+    search(word) {
+        let current = this.root;
+        for (let char of word) {
+            if (!current.children[char]) {
+                return false;
+            }
+            current = current.children[char];
+        }
+        return current.isEndOfWord;
+    }
+
+    startsWith(prefix) {
+        let current = this.root;
+        for (let char of prefix) {
+            if (!current.children[char]) {
+                return false;
+            }
+            current = current.children[char];
+        }
+        return true;
+    }
+}
+
+const trie = new Trie();
+trie.insert("apple");
+trie.insert("app");
+trie.insert("apricot");
+
+console.log("Search 'apple':", trie.search("apple"));
+console.log("Search 'app':", trie.search("app"));
+console.log("Search 'apricot':", trie.search("apricot"));
+console.log("Search 'apr':", trie.search("apr"));
+console.log("Starts with 'app':", trie.startsWith("app"));
+console.log("Starts with 'apr':", trie.startsWith("apr"));
+                </code></pre>
+          <button onclick="runCode('trie')">Run Code</button>
+        </div>
+        <div id="output"></div>
+      </div>
+    </div>
+
+    <script>
+      // Toggle data structure content visibility
+      document.querySelectorAll(".data-structure-header").forEach((header) => {
+        header.addEventListener("click", (event) => {
+          const content = header.nextElementSibling;
+          const arrow = header.querySelector("span");
+          if (
+            content.style.display === "none" ||
+            content.style.display === ""
+          ) {
+            content.style.display = "block";
+            arrow.textContent = "▲";
+          } else {
+            content.style.display = "none";
+            arrow.textContent = "▼";
+          }
+          event.stopPropagation(); // Prevent the event from triggering twice
+        });
+      });
+
+      // Visualization functions
+      function visualizeArray() {
+        const visualization = document.getElementById("array-visualization");
+        visualization.innerHTML = "";
+        const arr = [1, 2, 3, 4, 5];
+        arr.forEach((num) => {
+          const element = document.createElement("div");
+          element.className = "node";
+          element.textContent = num;
+          visualization.appendChild(element);
+        });
+      }
+
+      function visualizeLinkedList() {
+        const visualization = document.getElementById(
+          "linkedlist-visualization"
+        );
+        visualization.innerHTML = "";
+        const list = [1, 2, 3];
+        list.forEach((num, index) => {
+          const node = document.createElement("div");
+          node.className = "node";
+          node.textContent = num;
+          visualization.appendChild(node);
+
+          if (index < list.length - 1) {
+            const arrow = document.createElement("div");
+            arrow.className = "arrow";
+            arrow.textContent = "→";
+            visualization.appendChild(arrow);
+          }
+        });
+      }
+
+      function visualizeStack() {
+        const visualization = document.getElementById("stack-visualization");
+        visualization.innerHTML = "";
+        const stack = [3, 2, 1];
+        const stackContainer = document.createElement("div");
+        stackContainer.style.display = "flex";
+        stackContainer.style.flexDirection = "column-reverse";
+        stackContainer.style.alignItems = "center";
+        stackContainer.style.height = "200px";
+        stackContainer.style.border = "2px solid #3498db";
+        stackContainer.style.borderRadius = "5px";
+        stackContainer.style.padding = "10px";
+
+        stack.forEach((num) => {
+          const element = document.createElement("div");
+          element.className = "node";
+          element.textContent = num;
+          element.style.margin = "5px 0";
+          element.style.width = "50px";
+          stackContainer.appendChild(element);
+        });
+
+        visualization.appendChild(stackContainer);
+      }
+
+      function visualizeQueue() {
+        const visualization = document.getElementById("queue-visualization");
+        visualization.innerHTML = "";
+        const queue = [1, 2, 3];
+        queue.forEach((num, index) => {
+          const node = document.createElement("div");
+          node.className = "node";
+          node.textContent = num;
+          visualization.appendChild(node);
+
+          if (index < queue.length - 1) {
+            const arrow = document.createElement("div");
+            arrow.className = "arrow";
+            arrow.textContent = "→";
+            visualization.appendChild(arrow);
+          }
+        });
+      }
+
+      function visualizeHeap() {
+        const visualization = document.getElementById("heap-visualization");
+        visualization.innerHTML = "";
+        const heap = [9, 7, 4, 3, 1];
+
+        const svg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", "0 0 300 200");
+        svg.style.display = "block";
+
+        function addNode(value, x, y) {
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          circle.setAttribute("cx", x);
+          circle.setAttribute("cy", y);
+          circle.setAttribute("r", "20");
+          circle.setAttribute("fill", "#3498db");
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", y);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("dominant-baseline", "central");
+          text.setAttribute("fill", "white");
+          text.textContent = value;
+
+          svg.appendChild(circle);
+          svg.appendChild(text);
+        }
+
+        function addEdge(x1, y1, x2, y2) {
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+          line.setAttribute("stroke", "#3498db");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        }
+
+        // Add nodes
+        addNode(heap[0], 150, 30);
+        if (heap.length > 1) addNode(heap[1], 75, 90);
+        if (heap.length > 2) addNode(heap[2], 225, 90);
+        if (heap.length > 3) addNode(heap[3], 37, 150);
+        if (heap.length > 4) addNode(heap[4], 112, 150);
+
+        // Add edges
+        if (heap.length > 1) addEdge(150, 50, 75, 70);
+        if (heap.length > 2) addEdge(150, 50, 225, 70);
+        if (heap.length > 3) addEdge(75, 110, 37, 130);
+        if (heap.length > 4) addEdge(75, 110, 112, 130);
+
+        visualization.appendChild(svg);
+      }
+
+      function visualizeTree() {
+        const visualization = document.getElementById("tree-visualization");
+        visualization.innerHTML = "";
+        const tree = [5, 3, 7, 1, 4, 6, 9];
+
+        const svg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        svg.setAttribute("width", "100%");
+        svg.setAttribute("height", "100%");
+        svg.setAttribute("viewBox", "0 0 300 200");
+        svg.style.display = "block";
+
+        function addNode(value, x, y) {
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          circle.setAttribute("cx", x);
+          circle.setAttribute("cy", y);
+          circle.setAttribute("r", "20");
+          circle.setAttribute("fill", "#3498db");
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", x);
+          text.setAttribute("y", y);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("dominant-baseline", "central");
+          text.setAttribute("fill", "white");
+          text.textContent = value;
+
+          svg.appendChild(circle);
+          svg.appendChild(text);
+        }
+
+        function addEdge(x1, y1, x2, y2) {
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+          line.setAttribute("stroke", "#3498db");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        }
+
+        // Add nodes
+        addNode(tree[0], 150, 30);
+        addNode(tree[1], 75, 90);
+        addNode(tree[2], 225, 90);
+        addNode(tree[3], 37, 150);
+        addNode(tree[4], 112, 150);
+        addNode(tree[5], 187, 150);
+        addNode(tree[6], 262, 150);
+
+        // Add edges
+        addEdge(150, 50, 75, 70);
+        addEdge(150, 50, 225, 70);
+        addEdge(75, 110, 37, 130);
+        addEdge(75, 110, 112, 130);
+        addEdge(225, 110, 187, 130);
+        addEdge(225, 110, 262, 130);
+
+        visualization.appendChild(svg);
+      }
+      function visualizeGraph() {
+        const visualization = document.getElementById("graph-visualization");
+        visualization.innerHTML = "";
+        const graph = {
+          A: ["B", "C"],
+          B: ["A", "C", "D"],
+          C: ["A", "B", "D"],
+          D: ["B", "C"],
+        };
+
+        const graphContainer = document.createElement("div");
+        graphContainer.style.position = "relative";
+        graphContainer.style.width = "100%";
+        graphContainer.style.height = "200px";
+
+        const positions = {
+          A: { x: 50, y: 50 },
+          B: { x: 150, y: 50 },
+          C: { x: 50, y: 150 },
+          D: { x: 150, y: 150 },
+        };
+
+        for (const [vertex, neighbors] of Object.entries(graph)) {
+          const node = document.createElement("div");
+          node.className = "node";
+          node.textContent = vertex;
+          node.style.position = "absolute";
+          node.style.left = `${positions[vertex].x}px`;
+          node.style.top = `${positions[vertex].y}px`;
+          graphContainer.appendChild(node);
+
+          neighbors.forEach((neighbor) => {
+            if (vertex < neighbor) {
+              const edge = document.createElement("div");
+              edge.style.position = "absolute";
+              edge.style.height = "2px";
+              edge.style.backgroundColor = "#3498db";
+              edge.style.transformOrigin = "0 0";
+
+              const dx = positions[neighbor].x - positions[vertex].x;
+              const dy = positions[neighbor].y - positions[vertex].y;
+              const length = Math.sqrt(dx * dx + dy * dy);
+              const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+              edge.style.width = `${length}px`;
+              edge.style.left = `${positions[vertex].x + 25}px`;
+              edge.style.top = `${positions[vertex].y + 25}px`;
+              edge.style.transform = `rotate(${angle}deg)`;
+
+              graphContainer.appendChild(edge);
+            }
+          });
+        }
+
+        visualization.appendChild(graphContainer);
+      }
+
+      function visualizeTrie() {
+        const visualization = document.getElementById("trie-visualization");
+        visualization.innerHTML = "";
+        const words = ["apple", "app", "apricot"];
+
+        const trieContainer = document.createElement("div");
+        trieContainer.style.position = "relative";
+        trieContainer.style.width = "100%";
+        trieContainer.style.height = "250px";
+
+        function createNode(char, x, y) {
+          const node = document.createElement("div");
+          node.className = "node";
+          node.textContent = char;
+          node.style.position = "absolute";
+          node.style.left = `${x}px`;
+          node.style.top = `${y}px`;
+          return node;
+        }
+
+        function createEdge(x1, y1, x2, y2) {
+          const edge = document.createElement("div");
+          edge.style.position = "absolute";
+          edge.style.height = "2px";
+          edge.style.backgroundColor = "#3498db";
+          edge.style.transformOrigin = "0 0";
+
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const length = Math.sqrt(dx * dx + dy * dy);
+          const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+
+          edge.style.width = `${length}px`;
+          edge.style.left = `${x1 + 25}px`;
+          edge.style.top = `${y1 + 25}px`;
+          edge.style.transform = `rotate(${angle}deg)`;
+
+          return edge;
+        }
+
+        const root = createNode("", 150, 10);
+        trieContainer.appendChild(root);
+
+        words.forEach((word, wordIndex) => {
+          let parentX = 150;
+          let parentY = 10;
+          for (let i = 0; i < word.length; i++) {
+            const char = word[i];
+            const x = 50 + 100 * i;
+            const y = 60 + 60 * wordIndex;
+            const node = createNode(char, x, y);
+            const edge = createEdge(parentX, parentY, x, y);
+            trieContainer.appendChild(node);
+            trieContainer.appendChild(edge);
+            parentX = x;
+            parentY = y;
+          }
+        });
+
+        visualization.appendChild(trieContainer);
+      }
+
+      // Run visualizations on page load
+      window.onload = function () {
+        visualizeArray();
+        visualizeLinkedList();
+        visualizeStack();
+        visualizeQueue();
+        visualizeHeap();
+        visualizeTree();
+        visualizeGraph();
+        visualizeTrie();
+      };
+
+      // Run code functions
+      function runCode(dataStructure) {
+        const dataStructureContent = document
+          .querySelector(`#${dataStructure}-visualization`)
+          .closest(".data-structure-content");
+        let output = dataStructureContent.querySelector("#output");
+        if (!output) {
+          output = document.createElement("div");
+          output.id = "output";
+          dataStructureContent.appendChild(output);
+        }
+        output.textContent = ""; // Clear previous output
+
+        const originalLog = console.log;
+        console.log = function (...args) {
+          output.textContent += args.join(" ") + "\n";
+          //   originalLog.apply(console, args);
+        };
+
+        try {
+          switch (dataStructure) {
+            case "array":
+              let arr = [1, 2, 3, 4, 5];
+              console.log("Original array:", arr);
+              console.log("First element:", arr[0]);
+              arr.push(6);
+              console.log("After push:", arr);
+              arr.pop();
+              console.log("After pop:", arr);
+              console.log("Iterating through the array:");
+              for (let i = 0; i < arr.length; i++) {
+                console.log(arr[i]);
+              }
+              break;
+            case "linkedlist":
+              class Node {
+                constructor(data) {
+                  this.data = data;
+                  this.next = null;
+                }
+              }
+              class LinkedList {
+                constructor() {
+                  this.head = null;
+                }
+                append(data) {
+                  const newNode = new Node(data);
+                  if (!this.head) {
+                    this.head = newNode;
+                    return;
+                  }
+                  let current = this.head;
+                  while (current.next) {
+                    current = current.next;
+                  }
+                  current.next = newNode;
+                }
+                print() {
+                  let current = this.head;
+                  while (current) {
+                    console.log(current.data);
+                    current = current.next;
+                  }
+                }
+              }
+              const list = new LinkedList();
+              list.append(1);
+              list.append(2);
+              list.append(3);
+              console.log("Linked List contents:");
+              list.print();
+              break;
+            case "stack":
+              class Stack {
+                constructor() {
+                  this.items = [];
+                }
+                push(element) {
+                  this.items.push(element);
+                }
+                pop() {
+                  if (this.isEmpty()) return "Stack is empty";
+                  return this.items.pop();
+                }
+                peek() {
+                  if (this.isEmpty()) return "Stack is empty";
+                  return this.items[this.items.length - 1];
+                }
+                isEmpty() {
+                  return this.items.length === 0;
+                }
+                print() {
+                  console.log(this.items.toString());
+                }
+              }
+              const stack = new Stack();
+              stack.push(1);
+              stack.push(2);
+              stack.push(3);
+              console.log("Stack contents:");
+              stack.print();
+              console.log("Top element:", stack.peek());
+              console.log("Popped element:", stack.pop());
+              console.log("Stack after pop:");
+              stack.print();
+              break;
+            case "queue":
+              class Queue {
+                constructor() {
+                  this.items = [];
+                }
+                enqueue(element) {
+                  this.items.push(element);
+                }
+                dequeue() {
+                  if (this.isEmpty()) return "Queue is empty";
+                  return this.items.shift();
+                }
+                front() {
+                  if (this.isEmpty()) return "Queue is empty";
+                  return this.items[0];
+                }
+                isEmpty() {
+                  return this.items.length === 0;
+                }
+                print() {
+                  console.log(this.items.toString());
+                }
+              }
+              const queue = new Queue();
+              queue.enqueue(1);
+              queue.enqueue(2);
+              queue.enqueue(3);
+              console.log("Queue contents:");
+              queue.print();
+              console.log("Front element:", queue.front());
+              console.log("Dequeued element:", queue.dequeue());
+              console.log("Queue after dequeue:");
+              queue.print();
+              break;
+            case "heap":
+              class MaxHeap {
+                constructor() {
+                  this.heap = [];
+                }
+                parent(i) {
+                  return Math.floor((i - 1) / 2);
+                }
+                leftChild(i) {
+                  return 2 * i + 1;
+                }
+                rightChild(i) {
+                  return 2 * i + 2;
+                }
+                swap(i, j) {
+                  [this.heap[i], this.heap[j]] = [this.heap[j], this.heap[i]];
+                }
+                insert(key) {
+                  this.heap.push(key);
+                  this.heapifyUp(this.heap.length - 1);
+                }
+                heapifyUp(i) {
+                  while (i > 0 && this.heap[this.parent(i)] < this.heap[i]) {
+                    this.swap(i, this.parent(i));
+                    i = this.parent(i);
+                  }
+                }
+                extractMax() {
+                  if (this.heap.length === 0) return null;
+                  if (this.heap.length === 1) return this.heap.pop();
+                  const max = this.heap[0];
+                  this.heap[0] = this.heap.pop();
+                  this.heapifyDown(0);
+                  return max;
+                }
+                heapifyDown(i) {
+                  let maxIndex = i;
+                  const left = this.leftChild(i);
+                  const right = this.rightChild(i);
+                  if (
+                    left < this.heap.length &&
+                    this.heap[left] > this.heap[maxIndex]
+                  ) {
+                    maxIndex = left;
+                  }
+                  if (
+                    right < this.heap.length &&
+                    this.heap[right] > this.heap[maxIndex]
+                  ) {
+                    maxIndex = right;
+                  }
+                  if (i !== maxIndex) {
+                    this.swap(i, maxIndex);
+                    this.heapifyDown(maxIndex);
+                  }
+                }
+                print() {
+                  console.log(this.heap);
+                }
+              }
+              const maxHeap = new MaxHeap();
+              maxHeap.insert(4);
+              maxHeap.insert(7);
+              maxHeap.insert(3);
+              maxHeap.insert(9);
+              maxHeap.insert(1);
+              console.log("Max Heap contents:");
+              maxHeap.print();
+              console.log("Extracted max:", maxHeap.extractMax());
+              console.log("Max Heap after extraction:");
+              maxHeap.print();
+              break;
+            case "tree":
+              class TreeNode {
+                constructor(value) {
+                  this.value = value;
+                  this.left = null;
+                  this.right = null;
+                }
+              }
+              class BinarySearchTree {
+                constructor() {
+                  this.root = null;
+                }
+                insert(value) {
+                  this.root = this._insert(this.root, value);
+                }
+                _insert(node, value) {
+                  if (node === null) return new TreeNode(value);
+                  if (value < node.value) {
+                    node.left = this._insert(node.left, value);
+                  } else if (value > node.value) {
+                    node.right = this._insert(node.right, value);
+                  }
+                  return node;
+                }
+                inorderTraversal(node = this.root) {
+                  if (node !== null) {
+                    this.inorderTraversal(node.left);
+                    console.log(node.value);
+                    this.inorderTraversal(node.right);
+                  }
+                }
+              }
+              const bst = new BinarySearchTree();
+              bst.insert(5);
+              bst.insert(3);
+              bst.insert(7);
+              bst.insert(1);
+              bst.insert(9);
+              console.log("Binary Search Tree (inorder traversal):");
+              bst.inorderTraversal();
+              break;
+            case "graph":
+              class Graph {
+                constructor() {
+                  this.adjacencyList = {};
+                }
+                addVertex(vertex) {
+                  if (!this.adjacencyList[vertex]) {
+                    this.adjacencyList[vertex] = [];
+                  }
+                }
+                addEdge(vertex1, vertex2) {
+                  this.adjacencyList[vertex1].push(vertex2);
+                  this.adjacencyList[vertex2].push(vertex1);
+                }
+                removeEdge(vertex1, vertex2) {
+                  this.adjacencyList[vertex1] = this.adjacencyList[
+                    vertex1
+                  ].filter((v) => v !== vertex2);
+                  this.adjacencyList[vertex2] = this.adjacencyList[
+                    vertex2
+                  ].filter((v) => v !== vertex1);
+                }
+                removeVertex(vertex) {
+                  while (this.adjacencyList[vertex].length) {
+                    const adjacentVertex = this.adjacencyList[vertex].pop();
+                    this.removeEdge(vertex, adjacentVertex);
+                  }
+                  delete this.adjacencyList[vertex];
+                }
+                print() {
+                  for (let vertex in this.adjacencyList) {
+                    console.log(
+                      vertex + " -> " + this.adjacencyList[vertex].join(", ")
+                    );
+                  }
+                }
+              }
+              const graph = new Graph();
+              graph.addVertex("A");
+              graph.addVertex("B");
+              graph.addVertex("C");
+              graph.addEdge("A", "B");
+              graph.addEdge("B", "C");
+              graph.addEdge("C", "A");
+              console.log("Graph contents:");
+              graph.print();
+              graph.removeVertex("B");
+              console.log("Graph after removing vertex B:");
+              graph.print();
+              break;
+            case "trie":
+              class TrieNode {
+                constructor() {
+                  this.children = {};
+                  this.isEndOfWord = false;
+                }
+              }
+              class Trie {
+                constructor() {
+                  this.root = new TrieNode();
+                }
+                insert(word) {
+                  let current = this.root;
+                  for (let char of word) {
+                    if (!current.children[char]) {
+                      current.children[char] = new TrieNode();
+                    }
+                    current = current.children[char];
+                  }
+                  current.isEndOfWord = true;
+                }
+                search(word) {
+                  let current = this.root;
+                  for (let char of word) {
+                    if (!current.children[char]) {
+                      return false;
+                    }
+                    current = current.children[char];
+                  }
+                  return current.isEndOfWord;
+                }
+                startsWith(prefix) {
+                  let current = this.root;
+                  for (let char of prefix) {
+                    if (!current.children[char]) {
+                      return false;
+                    }
+                    current = current.children[char];
+                  }
+                  return true;
+                }
+              }
+              const trie = new Trie();
+              trie.insert("apple");
+              trie.insert("app");
+              trie.insert("apricot");
+              console.log("Search 'apple':", trie.search("apple"));
+              console.log("Search 'app':", trie.search("app"));
+              console.log("Search 'apricot':", trie.search("apricot"));
+              console.log("Search 'apr':", trie.search("apr"));
+              console.log("Starts with 'app':", trie.startsWith("app"));
+              console.log("Starts with 'apr':", trie.startsWith("apr"));
+              break;
+            default:
+              console.log("Invalid data structure selected");
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
+
+        console.log = originalLog;
+      }
+    </script>
+  </body>
+</html>

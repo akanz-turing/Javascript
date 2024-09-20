@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Structures Visualizer</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-coy.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background: #f4f4f9;
+      }
+      .sidebar {
+        background: #2c3e50;
+        height: 100vh;
+        position: fixed;
+      }
+      .nav-link {
+        color: #ecf0f1;
+      }
+      .card {
+        margin-bottom: 20px;
+      }
+      .code-snippet {
+        background: #282c34;
+        color: #abb2bf;
+      }
+      .visualization {
+        border: 1px solid #ddd;
+        padding: 10px;
+        background: white;
+      }
+      .collapsible-header {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="#array">Array</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#linkedlist">Linked List</a>
+              </li>
+              <!-- Add other data structures similarly -->
+            </ul>
+          </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <div id="array" class="data-structure">
+            <h2 class="collapsible-header">Array</h2>
+            <div class="content">
+              <div class="visualization">Visualization here</div>
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Explanation</h5>
+                  <p>
+                    Arrays are linear data structures where elements are stored
+                    in contiguous memory locations.
+                  </p>
+                  <p>
+                    <strong>Real World Use:</strong> Image processing, storing
+                    data in tabular form.
+                  </p>
+                  <p>
+                    <strong>Time Complexity:</strong> Access O(1), Search O(n),
+                    Insert/Delete O(n).
+                  </p>
+                  <p><strong>Space Complexity:</strong> O(n)</p>
+                  <p><strong>Type:</strong> Linear</p>
+                </div>
+              </div>
+              <pre><code class="language-javascript code-snippet">/* Array example in JavaScript */</code></pre>
+            </div>
+          </div>
+          <!-- Repeat similar structure for other data structures -->
+        </main>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $(".collapsible-header").click(function () {
+          $(this).next(".content").toggle("slow");
+        });
+      });
+    </script>
+  </body>
+</html>
