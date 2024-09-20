@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motivation App</title>
+    <style>
+      :root {
+        --bg-color: #dae0e6;
+        --text-color: #1a1a1b;
+        --card-bg: #ffffff;
+        --button-bg: #0079d3;
+        --button-text: #ffffff;
+        --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --sidebar-bg: #ffffff;
+        --border-color: #ccc;
+      }
+
+      .dark-mode {
+        --bg-color: #1a1a1b;
+        --text-color: #d7dadc;
+        --card-bg: #1a1a1b;
+        --button-bg: #d7dadc;
+        --button-text: #1a1a1b;
+        --card-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        --sidebar-bg: #030303;
+        --border-color: #343536;
+      }
+
+      body {
+        font-family: "IBM Plex Sans", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: var(--sidebar-bg);
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 1px solid var(--border-color);
+      }
+
+      .main-content {
+        flex-grow: 1;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2 {
+        color: var(--text-color);
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: box-shadow 0.3s;
+      }
+
+      .card:hover {
+        box-shadow: var(--card-shadow);
+      }
+
+      .button {
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: background-color 0.3s, opacity 0.3s;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .button:hover {
+        opacity: 0.8;
+      }
+
+      .button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      #categoryFilter {
+        margin-bottom: 20px;
+      }
+
+      #darkModeToggle {
+        margin-bottom: 20px;
+      }
+
+      #adviceContainer {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .advice-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: box-shadow 0.3s;
+      }
+
+      .advice-card:hover {
+        box-shadow: var(--card-shadow);
+      }
+
+      #statusIcon {
+        text-align: center;
+        font-size: 48px;
+        margin: 20px 0;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .collapsible {
+        background-color: var(--card-bg);
+        color: var(--text-color);
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+        transition: 0.4s;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .active,
+      .collapsible:hover {
+        background-color: var(--bg-color);
+      }
+
+      .collapsible:after {
+        content: "\002B";
+        color: var(--text-color);
+        font-weight: bold;
+        float: right;
+        margin-left: 5px;
+      }
+
+      .active:after {
+        content: "\2212";
+      }
+
+      .content {
+        padding: 0 18px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease-out;
+        background-color: var(--sidebar-bg);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-content {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <h2>Motivation App</h2>
+      <button id="darkModeToggle" class="button">Toggle Dark Mode</button>
+      <div id="categoryFilter">
+        <label for="category">Select Category:</label>
+        <select id="category" class="button">
+          <option value="all">All</option>
+          <option value="life">Life</option>
+          <option value="career">Career</option>
+          <option value="relationships">Relationships</option>
+        </select>
+      </div>
+      <h3>Psychological Terms</h3>
+      <div id="psychTerms"></div>
+    </div>
+
+    <div class="main-content">
+      <div id="statusIcon"></div>
+      <div id="adviceContainer"></div>
+      <div class="pagination">
+        <button id="prevBtn" class="button">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn" class="button">Next</button>
+      </div>
+    </div>
+
+    <script>
+      const adviceContainer = document.getElementById("adviceContainer");
+      const categorySelect = document.getElementById("category");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const pageInfo = document.getElementById("pageInfo");
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      const psychTerms = document.getElementById("psychTerms");
+      const statusIcon = document.getElementById("statusIcon");
+
+      let currentPage = 1;
+      const itemsPerPage = 10;
+      let allAdvice = [];
+
+      const ADVICE_API_URL = "https://api.adviceslip.com/advice";
+      const ADVICE_SEARCH_API_URL = "https://api.adviceslip.com/advice/search/";
+      const categories = ["life", "career", "relationships"];
+
+      const psychologicalTerms = [
+        {
+          term: "Motivation",
+          description: "The driving force behind human actions and behaviors.",
+        },
+        {
+          term: "Cognitive Dissonance",
+          description:
+            "Mental discomfort experienced when holding contradictory beliefs.",
+        },
+        {
+          term: "Mindfulness",
+          description:
+            "The practice of being fully present and engaged in the moment.",
+        },
+        {
+          term: "Resilience",
+          description:
+            "The ability to bounce back from adversity and adapt to challenges.",
+        },
+        {
+          term: "Self-efficacy",
+          description:
+            "Belief in one ability to succeed in specific situations or accomplish tasks.",
+        },
+        {
+          term: "Emotional Intelligence",
+          description:
+            "The capacity to be aware of, control, and express one emotions, and to handle interpersonal relationships judiciously and empathetically.",
+        },
+        {
+          term: "Growth Mindset",
+          description:
+            "The belief that abilities and intelligence can be developed through dedication and hard work.",
+        },
+        {
+          term: "Cognitive Behavioral Therapy (CBT)",
+          description:
+            "A type of psychotherapy that helps people identify and change destructive or disturbing thought patterns.",
+        },
+      ];
+
+      function displayPsychTerms() {
+        psychTerms.innerHTML = psychologicalTerms
+          .map(
+            (term) => `
+                <button class="collapsible">${term.term}</button>
+                <div class="content">
+                    <p>${term.description}</p>
+                    <a href="https://en.wikipedia.org/wiki/${term.term.replace(
+                      " ",
+                      "_"
+                    )}" target="_blank">Learn More</a>
+                </div>
+            `
+          )
+          .join("");
+
+        const coll = document.getElementsByClassName("collapsible");
+        for (let i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            const content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+      }
+
+      async function fetchAdvice(category = "all") {
+        showStatus("loading");
+        try {
+          let response;
+          let data;
+
+          if (category === "all") {
+            const requests = Array(10)
+              .fill()
+              .map(() => fetch(ADVICE_API_URL));
+            const responses = await Promise.all(requests);
+            const jsonPromises = responses.map((r) => r.json());
+            data = await Promise.all(jsonPromises);
+            return data.map((d) => d.slip);
+          } else {
+            response = await fetch(ADVICE_SEARCH_API_URL + category);
+            data = await response.json();
+            return data.slips || [];
+          }
+        } catch (error) {
+          console.error("Error fetching advice:", error);
+          showStatus("error");
+          return [];
+        }
+      }
+
+      function showStatus(status) {
+        switch (status) {
+          case "loading":
+            statusIcon.innerHTML = "🔄";
+            statusIcon.title = "Loading...";
+            break;
+          case "empty":
+            statusIcon.innerHTML = "📭";
+            statusIcon.title = "No advice found";
+            break;
+          case "error":
+            statusIcon.innerHTML = "❌";
+            statusIcon.title = "Error loading advice";
+            break;
+          default:
+            statusIcon.innerHTML = "";
+        }
+      }
+
+      function displayAdvice() {
+        if (allAdvice.length === 0) {
+          showStatus("empty");
+          adviceContainer.innerHTML =
+            "<p>No advice available. Try fetching more!</p>";
+        } else {
+          showStatus("");
+          const startIndex = (currentPage - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const pageAdvice = allAdvice.slice(startIndex, endIndex);
+          adviceContainer.innerHTML = pageAdvice
+            .map(
+              (advice) => `
+                    <div class="advice-card fade-in">
+                        <p>${advice.advice}</p>
+                    </div>
+                `
+            )
+            .join("");
+        }
+
+        updatePagination();
+      }
+
+      function updatePagination() {
+        const totalPages = Math.ceil(allAdvice.length / itemsPerPage);
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+      }
+
+      async function getInitialAdvice() {
+        const newAdvice = await fetchAdvice(categorySelect.value);
+        allAdvice = newAdvice.slice(0, itemsPerPage);
+        currentPage = 1;
+        displayAdvice();
+      }
+
+      async function getNextAdvice() {
+        if (currentPage * itemsPerPage >= allAdvice.length) {
+          const newAdvice = await fetchAdvice(categorySelect.value);
+          allAdvice = [...allAdvice, ...newAdvice];
+        }
+        currentPage++;
+        displayAdvice();
+      }
+
+      categorySelect.addEventListener("change", getInitialAdvice);
+
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          displayAdvice();
+        }
+      });
+
+      nextBtn.addEventListener("click", getNextAdvice);
+
+      darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+      });
+
+      // Initialize the app
+      displayPsychTerms();
+      getInitialAdvice();
+    </script>
+  </body>
+</html>

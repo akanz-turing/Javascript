@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motivation App</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #333333;
+        --card-bg: #f9f9f9;
+        --shadow: rgba(0, 0, 0, 0.1);
+      }
+
+      body {
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        transition: all 0.3s ease;
+      }
+
+      .dark-mode {
+        --bg-color: #121212;
+        --text-color: #e0e0e0;
+        --card-bg: #1e1e1e;
+        --shadow: rgba(255, 255, 255, 0.1);
+      }
+
+      header {
+        background: var(--card-bg);
+        padding: 1rem;
+        box-shadow: 0 2px 4px var(--shadow);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      #app {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 1rem;
+      }
+
+      #adviceContainer {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+
+      .advice-card {
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px var(--shadow);
+      }
+
+      #pagination,
+      #categoryFilter {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      #termsSection {
+        margin-top: 2rem;
+      }
+
+      #termsModal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      #termsContent {
+        background-color: var(--bg-color);
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+      }
+
+      @media (max-width: 768px) {
+        #adviceContainer {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>Motivation App</h1>
+        <button id="darkModeToggle"><i class="fas fa-moon"></i></button>
+        <select id="categoryFilter">
+          <option value="all">All Categories</option>
+          <!-- Options will be dynamically filled -->
+        </select>
+      </header>
+      <div id="adviceContainer"></div>
+      <div id="pagination"></div>
+      <button id="showTerms">Psychological Terms</button>
+      <div id="termsModal">
+        <div id="termsContent"></div>
+      </div>
+    </div>
+    <script>
+      const API_URL = "https://api.adviceslip.com/advice";
+      const adviceContainer = document.getElementById("adviceContainer");
+      const paginationContainer = document.getElementById("pagination");
+      const darkModeToggle = document.getElementById("darkModeToggle");
+      const categoryFilter = document.getElementById("categoryFilter");
+      const termsModal = document.getElementById("termsModal");
+      const termsContent = document.getElementById("termsContent");
+      let currentPage = 1;
+      const advicesPerPage = 10;
+      let allAdvices = [];
+      let categories = new Set(["all"]);
+
+      // Dark Mode
+      darkModeToggle.onclick = () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem(
+          "darkMode",
+          document.body.classList.contains("dark-mode")
+        );
+      };
+
+      // Check for dark mode preference
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+      }
+
+      // Fetch advice from API or cache
+      async function fetchAdvice(id = null) {
+        let advice;
+        if (id) {
+          advice = localStorage.getItem(`advice_${id}`);
+          if (advice) return JSON.parse(advice);
+        }
+
+        const response = await fetch(API_URL + (id ? `/${id}` : ""));
+        const data = await response.json();
+        if (!id) {
+          allAdvices.push(data.slip);
+          localStorage.setItem(
+            `advice_${data.slip.id}`,
+            JSON.stringify(data.slip)
+          );
+          categories.add(data.slip.category || "general");
+          updateCategories();
+        } else {
+          advice = data.slip;
+        }
+        return advice;
+      }
+
+      // Display advices
+      function displayAdvices(advices) {
+        adviceContainer.innerHTML = "";
+        advices.forEach((advice) => {
+          const card = document.createElement("div");
+          card.className = "advice-card";
+          card.innerHTML = `<h3>Advice #${advice.id}</h3><p>${advice.advice}</p>`;
+          adviceContainer.appendChild(card);
+        });
+      }
+
+      // Pagination
+      function setupPagination(totalItems, itemsPerPage) {
+        const pages = Math.ceil(totalItems / itemsPerPage);
+        paginationContainer.innerHTML = "";
+        for (let i = 1; i <= pages; i++) {
+          let button = document.createElement("button");
+          button.textContent = i;
+          button.onclick = () => {
+            currentPage = i;
+            displayAdvicesWithFilter();
+          };
+          if (i === currentPage) button.disabled = true;
+          paginationContainer.appendChild(button);
+        }
+      }
+
+      // Filter and display
+      function displayAdvicesWithFilter() {
+        let filteredAdvices =
+          categoryFilter.value === "all"
+            ? allAdvices
+            : allAdvices.filter((a) => a.category === categoryFilter.value);
+        const start = (currentPage - 1) * advicesPerPage;
+        const end = start + advicesPerPage;
+        displayAdvices(filteredAdvices.slice(start, end));
+        setupPagination(filteredAdvices.length, advicesPerPage);
+      }
+
+      // Update categories in filter
+      function updateCategories() {
+        categoryFilter.innerHTML = "";
+        categories.forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat;
+          option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+          categoryFilter.appendChild(option);
+        });
+      }
+
+      // Psychological terms
+      function showTerms() {
+        const terms = [
+          {
+            term: "Motivation",
+            explanation:
+              "The process that initiates, guides, and maintains goal-oriented behaviors.",
+            link: "motivation.html",
+          },
+          {
+            term: "Cognitive Dissonance",
+            explanation:
+              "The mental discomfort experienced when holding two or more contradictory beliefs.",
+            link: "dissonance.html",
+          },
+          // Add more terms here
+        ];
+        termsContent.innerHTML = terms
+          .map(
+            (term) =>
+              `<div><h4>${term.term}</h4><p>${term.explanation}</p><a href="${term.link}">Learn More</a></div>`
+          )
+          .join("");
+        termsModal.style.display = "block";
+      }
+
+      document.getElementById("showTerms").onclick = showTerms;
+      termsModal.onclick = (event) => {
+        if (event.target === termsModal) termsModal.style.display = "none";
+      };
+
+      // Initial load
+      (async () => {
+        for (let i = 0; i < 50; i++) {
+          // Fetch initial set of advices
+          await fetchAdvice();
+        }
+        updateCategories();
+        displayAdvicesWithFilter();
+      })();
+    </script>
+  </body>
+</html>
