@@ -13,44 +13,40 @@
     <style>
       body {
         font-family: "Arial", sans-serif;
-        background-color: #f0f2f5;
+        background-color: #f0f4f8;
       }
-      .container {
-        max-width: 1200px;
+      .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+        padding: 1rem;
       }
-      .card {
+      .dashboard-item {
         background-color: #ffffff;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
         transition: all 0.3s ease;
       }
-      .card:hover {
+      .dashboard-item:hover {
         transform: translateY(-5px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
-      .card-title {
-        color: #2c3e50;
-        font-weight: 600;
+      .full-width {
+        grid-column: span 12;
       }
-      .btn {
-        transition: all 0.3s ease;
+      .half-width {
+        grid-column: span 6;
       }
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      .dashboard-header {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        padding: 1rem;
+        margin-bottom: 1rem;
       }
-      #errorMessage {
-        background-color: #fff5f5;
-        border-color: #fc8181;
-      }
-      #newsFeed a {
-        color: #4299e1;
-        text-decoration: none;
-        transition: all 0.3s ease;
-      }
-      #newsFeed a:hover {
-        color: #2b6cb0;
-        text-decoration: underline;
+      .chart-container {
+        position: relative;
+        height: 300px;
       }
       .news-item {
         border-bottom: 1px solid #e2e8f0;
@@ -60,107 +56,132 @@
       .news-item:last-child {
         border-bottom: none;
       }
+      .btn {
+        transition: all 0.3s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
     </style>
   </head>
-  <body class="bg-gray-100">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">
-        Financial Market Observer
-      </h1>
+  <body>
+    <header class="dashboard-header">
+      <h1 class="text-3xl font-bold text-center">Financial Market Observer</h1>
+    </header>
 
+    <div class="dashboard-container">
       <div
         id="errorMessage"
-        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+        class="full-width bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
         style="display: none"
         role="alert"
       ></div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Stock Search and Chart -->
-        <div class="card p-6">
-          <h2 class="card-title text-2xl mb-4">Stock Prices</h2>
+      <!-- Stock Search and Chart -->
+      <div class="dashboard-item full-width">
+        <h2 class="text-2xl font-bold mb-4">Stock Prices</h2>
+        <input
+          type="text"
+          id="stockSearch"
+          placeholder="Search stocks..."
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <div class="flex space-x-4 mb-4">
           <input
-            type="text"
-            id="stockSearch"
-            placeholder="Search stocks..."
-            class="w-full p-2 mb-4 border rounded"
+            type="date"
+            id="stockStartDate"
+            class="flex-1 p-2 border rounded"
           />
-          <div class="flex space-x-4 mb-4">
-            <input
-              type="date"
-              id="stockStartDate"
-              class="flex-1 p-2 border rounded"
-            />
-            <input
-              type="date"
-              id="stockEndDate"
-              class="flex-1 p-2 border rounded"
-            />
-            <button
-              id="stockDateFilter"
-              class="btn bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Filter
-            </button>
-          </div>
+          <input
+            type="date"
+            id="stockEndDate"
+            class="flex-1 p-2 border rounded"
+          />
+          <button
+            id="stockDateFilter"
+            class="btn bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Filter
+          </button>
+        </div>
+        <div class="chart-container">
           <canvas id="stockChart"></canvas>
-        </div>
-
-        <!-- Sector Performance Chart -->
-        <div class="card p-6">
-          <h2 class="card-title text-2xl mb-4">Sector Performance</h2>
-          <canvas id="sectorChart"></canvas>
-        </div>
-
-        <!-- Stock Comparison -->
-        <div class="card p-6">
-          <h2 class="card-title text-2xl mb-4">Stock Comparison</h2>
-          <div class="flex space-x-4 mb-4">
-            <select id="stock1" class="flex-1 p-2 border rounded">
-              <option value="">Select Stock 1</option>
-            </select>
-            <select id="stock2" class="flex-1 p-2 border rounded">
-              <option value="">Select Stock 2</option>
-            </select>
-          </div>
-          <div class="flex space-x-4 mb-4">
-            <input
-              type="date"
-              id="comparisonStartDate"
-              class="flex-1 p-2 border rounded"
-            />
-            <input
-              type="date"
-              id="comparisonEndDate"
-              class="flex-1 p-2 border rounded"
-            />
-            <button
-              id="comparisonDateFilter"
-              class="btn bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Filter
-            </button>
-          </div>
-          <canvas id="comparisonChart"></canvas>
-        </div>
-
-        <!-- News Feed -->
-        <div class="card p-6">
-          <h2 class="card-title text-2xl mb-4">Financial News</h2>
-          <div id="newsFeed" class="space-y-4 overflow-y-auto max-h-96"></div>
         </div>
       </div>
 
+      <!-- Stock-specific News Feed -->
+      <div class="dashboard-item full-width">
+        <h2 class="text-2xl font-bold mb-4">Stock-specific News</h2>
+        <div
+          id="stockNewsFeed"
+          class="space-y-4 overflow-y-auto"
+          style="max-height: 400px"
+        ></div>
+      </div>
+
+      <!-- Sector Performance Chart -->
+      <div class="dashboard-item half-width">
+        <h2 class="text-2xl font-bold mb-4">Sector Performance</h2>
+        <div class="chart-container">
+          <canvas id="sectorChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Stock Comparison -->
+      <div class="dashboard-item half-width">
+        <h2 class="text-2xl font-bold mb-4">Stock Comparison</h2>
+        <div class="flex space-x-4 mb-4">
+          <select id="stock1" class="flex-1 p-2 border rounded">
+            <option value="">Select Stock 1</option>
+          </select>
+          <select id="stock2" class="flex-1 p-2 border rounded">
+            <option value="">Select Stock 2</option>
+          </select>
+        </div>
+        <div class="flex space-x-4 mb-4">
+          <input
+            type="date"
+            id="comparisonStartDate"
+            class="flex-1 p-2 border rounded"
+          />
+          <input
+            type="date"
+            id="comparisonEndDate"
+            class="flex-1 p-2 border rounded"
+          />
+          <button
+            id="comparisonDateFilter"
+            class="btn bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Filter
+          </button>
+        </div>
+        <div class="chart-container">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
+
+      <!-- General News Feed -->
+      <div class="dashboard-item full-width">
+        <h2 class="text-2xl font-bold mb-4">Financial News</h2>
+        <div
+          id="newsFeed"
+          class="space-y-4 overflow-y-auto"
+          style="max-height: 400px"
+        ></div>
+      </div>
+
       <!-- Financial Terms Glossary -->
-      <div class="card mt-8 p-6">
-        <h2 class="card-title text-2xl mb-4">Financial Glossary</h2>
+      <div class="dashboard-item full-width">
+        <h2 class="text-2xl font-bold mb-4">Financial Glossary</h2>
         <div id="glossary" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
       </div>
     </div>
 
     <script>
       // API configuration
-      const MARKETSTACK_API_KEY = "af43bad7c43fdb5bacef761fab421c83";
+      const MARKETSTACK_API_KEY = "7ac4b765150c7019069e1641d2c69fb5";
       const FMP_API_KEY = "DUCb2KPXxI8aeadWQMxeVHgcKOz1Dj9r";
       const FINNHUB_API_KEY = "crkalr1r01qq23fhcr6gcrkalr1r01qq23fhcr70";
       const MARKETSTACK_BASE_URL = "https://api.marketstack.com/v1";
@@ -199,19 +220,18 @@
             url += `&date_from=${startDate}&date_to=${endDate}`;
           }
           const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error("API request failed");
-          }
           const data = await response.json();
-          if (data.data && data.data.length > 0) {
-            return data.data.reverse(); // Reverse to get chronological order
-          } else {
-            throw new Error("No data found for this stock");
+
+          if (!response.ok || !data.data || data.data.length === 0) {
+            displayErrorMessage(`No data found for ${symbol}`);
+            console.clear();
+            return null;
           }
+
+          return data.data.reverse(); // Reverse to get chronological order
         } catch (error) {
-          displayErrorMessage(
-            `Error fetching data for ${symbol}: ${error.message}`
-          );
+          displayErrorMessage(`Error fetching data for ${symbol}`);
+          console.clear();
           return null;
         }
       }
@@ -221,21 +241,22 @@
         try {
           const url = `${FMP_BASE_URL}/sector-performance?apikey=${FMP_API_KEY}`;
           const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error("API request failed");
-          }
           const data = await response.json();
+          if (!response.ok || !Array.isArray(data)) {
+            displayErrorMessage("Error fetching sector performance");
+            console.clear();
+            return null;
+          }
           return data;
         } catch (error) {
-          displayErrorMessage(
-            `Error fetching sector performance: ${error.message}`
-          );
+          displayErrorMessage("Error fetching sector performance");
+          console.clear();
           return null;
         }
       }
 
       // Fetch news data from Finnhub API
-      async function fetchNews() {
+      async function fetchNews(symbol = "") {
         try {
           const currentDate = new Date();
           const pastDate = new Date(
@@ -244,15 +265,29 @@
           const from = pastDate.toISOString().split("T")[0];
           const to = currentDate.toISOString().split("T")[0];
 
-          const url = `${FINNHUB_BASE_URL}/news?category=general&from=${from}&to=${to}&token=${FINNHUB_API_KEY}`;
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error("API request failed");
+          let url = `${FINNHUB_BASE_URL}/company-news?from=${from}&to=${to}&token=${FINNHUB_API_KEY}`;
+
+          if (symbol) {
+            url += `&symbol=${symbol}`;
+          } else {
+            url = `${FINNHUB_BASE_URL}/news?category=general&from=${from}&to=${to}&token=${FINNHUB_API_KEY}`;
           }
+
+          const response = await fetch(url);
           const data = await response.json();
+          if (!response.ok || !Array.isArray(data)) {
+            displayErrorMessage(
+              `Error fetching news${symbol ? ` for ${symbol}` : ""}`
+            );
+            console.clear();
+            return null;
+          }
           return data;
         } catch (error) {
-          displayErrorMessage(`Error fetching news: ${error.message}`);
+          displayErrorMessage(
+            `Error fetching news${symbol ? ` for ${symbol}` : ""}`
+          );
+          console.clear();
           return null;
         }
       }
@@ -268,105 +303,9 @@
           }, 5000); // Hide the message after 5 seconds
         }
       }
-      // Fetch commodity data from Alpha Vantage API
-      async function fetchCommodityData() {
-        const commodities = [
-          { symbol: "BRENT", name: "Crude Oil Brent" },
-          { symbol: "NATURAL_GAS", name: "Natural Gas" },
-          { symbol: "COPPER", name: "Copper" },
-        ];
-
-        const commodityData = [];
-
-        for (const commodity of commodities) {
-          try {
-            const url = `https://www.alphavantage.co/query?function=${commodity.symbol}&interval=monthly&apikey=${ALPHA_VANTAGE_API_KEY}`;
-            const response = await fetch(url);
-            if (!response.ok) {
-              throw new Error("API request failed");
-            }
-            const data = await response.json();
-            if (data["data"]) {
-              const latestData = data["data"][0];
-              commodityData.push({
-                name: commodity.name,
-                value: parseFloat(latestData.value),
-                unit: latestData.unit,
-                date: latestData.date,
-              });
-            }
-          } catch (error) {
-            displayErrorMessage(
-              `Error fetching data for ${commodity.name}: ${error.message}`
-            );
-          }
-        }
-
-        return commodityData;
-      }
-
-      // Fetch digital currency data from Alpha Vantage API
-      async function fetchDigitalCurrencyData() {
-        const currencies = ["BTC", "ETH"];
-        const digitalCurrencyData = [];
-
-        for (const currency of currencies) {
-          try {
-            const url = `${ALPHA_VANTAGE_BASE_URL}?function=DIGITAL_CURRENCY_DAILY&symbol=${currency}&market=USD&apikey=${ALPHA_VANTAGE_API_KEY}`;
-            const response = await fetch(url);
-            if (!response.ok) {
-              throw new Error("API request failed");
-            }
-            const data = await response.json();
-            if (data["Time Series (Digital Currency Daily)"]) {
-              const latestDate = Object.keys(
-                data["Time Series (Digital Currency Daily)"]
-              )[0];
-              const latestData =
-                data["Time Series (Digital Currency Daily)"][latestDate];
-              digitalCurrencyData.push({
-                name: currency,
-                value: parseFloat(latestData["4a. close (USD)"]),
-                date: latestDate,
-              });
-            }
-          } catch (error) {
-            displayErrorMessage(
-              `Error fetching data for ${currency}: ${error.message}`
-            );
-          }
-        }
-
-        return digitalCurrencyData;
-      }
-
-      // Update commodity and digital currency chart
-      async function updateCommodityChart() {
-        const commodityData = await fetchCommodityData();
-        const digitalCurrencyData = await fetchDigitalCurrencyData();
-
-        if (
-          commodityData.length > 0 &&
-          digitalCurrencyData.length > 0 &&
-          commodityChart
-        ) {
-          const labels = [
-            ...commodityData.map((item) => item.name),
-            ...digitalCurrencyData.map((item) => item.name),
-          ];
-          const data = [
-            ...commodityData.map((item) => item.value),
-            ...digitalCurrencyData.map((item) => item.value),
-          ];
-
-          commodityChart.data.labels = labels;
-          commodityChart.data.datasets[0].data = data;
-          commodityChart.update();
-        }
-      }
 
       // Initialize charts
-      let stockChart, comparisonChart, commodityChart;
+      let stockChart, comparisonChart, sectorChart;
 
       function initializeCharts() {
         const stockChartCtx = document.getElementById("stockChart");
@@ -382,11 +321,20 @@
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 tooltip: {
                   mode: "index",
                   intersect: false,
                 },
+              },
+              onClick: (event, elements) => {
+                if (elements.length > 0) {
+                  const index = elements[0].index;
+                  const symbol = stockChart.data.datasets[0].label;
+                  const date = stockChart.data.labels[index];
+                  fetchStockNews(symbol, date);
+                }
               },
             },
           });
@@ -401,6 +349,7 @@
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 tooltip: {
                   mode: "index",
@@ -426,6 +375,7 @@
             },
             options: {
               responsive: true,
+              maintainAspectRatio: false,
               plugins: {
                 tooltip: {
                   callbacks: {
@@ -538,7 +488,7 @@
         }
       }
 
-      // Populate news feed
+      // Populate general news feed
       async function populateNewsFeed() {
         const newsData = await fetchNews();
         const newsFeed = document.getElementById("newsFeed");
@@ -547,15 +497,55 @@
           newsData.slice(0, 10).forEach((item) => {
             // Display top 10 news items
             const newsItem = document.createElement("div");
+            newsItem.className = "news-item p-4 bg-white rounded-lg shadow-md";
             const date = new Date(item.datetime * 1000).toLocaleDateString();
             newsItem.innerHTML = `
-                <h3 class="font-semibold">${item.headline}</h3>
+                <h3 class="font-semibold text-lg">${item.headline}</h3>
                 <p class="text-sm text-gray-600">${date} - ${item.source}</p>
-                <p>${item.summary}</p>
-                <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline">Read more</a>
+                <p class="mt-2">${item.summary}</p>
+                <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline mt-2 inline-block">Read more</a>
             `;
             newsFeed.appendChild(newsItem);
           });
+        }
+      }
+
+      // Fetch stock-specific news
+      async function fetchStockNews(symbol, date) {
+        const newsData = await fetchNews(symbol);
+        if (newsData) {
+          const filteredNews = newsData.filter((item) => {
+            const newsDate = new Date(item.datetime * 1000)
+              .toISOString()
+              .split("T")[0];
+            return newsDate === date;
+          });
+          displayStockNews(symbol, date, filteredNews);
+        }
+      }
+
+      // Display stock-specific news
+      function displayStockNews(symbol, date, news) {
+        const stockNewsFeed = document.getElementById("stockNewsFeed");
+        if (stockNewsFeed) {
+          stockNewsFeed.innerHTML = `<h3 class="font-semibold text-xl mb-4">News for ${symbol} on ${date}</h3>`;
+          if (news.length === 0) {
+            stockNewsFeed.innerHTML += `<p>No news found for this date.</p>`;
+          } else {
+            news.forEach((item) => {
+              const newsItem = document.createElement("div");
+              newsItem.className =
+                "news-item p-4 bg-white rounded-lg shadow-md mb-4";
+              const itemDate = new Date(item.datetime * 1000).toLocaleString();
+              newsItem.innerHTML = `
+                <h4 class="font-semibold text-lg">${item.headline}</h4>
+                <p class="text-sm text-gray-600">${itemDate} - ${item.source}</p>
+                <p class="mt-2">${item.summary}</p>
+                <a href="${item.url}" target="_blank" class="text-blue-500 hover:underline mt-2 inline-block">Read more</a>
+              `;
+              stockNewsFeed.appendChild(newsItem);
+            });
+          }
         }
       }
 
@@ -689,6 +679,7 @@
                 );
                 if (stockData) {
                   updateStockChart(searchTerm, stockData);
+                  await fetchStockNews(searchTerm, endDate);
                 }
               }
             }
@@ -709,6 +700,7 @@
                 );
                 if (stockData) {
                   updateStockChart(symbol, stockData);
+                  await fetchStockNews(symbol, endDate);
                 }
               }
             } else {
@@ -746,17 +738,21 @@
         displayErrorMessage(
           "An unexpected error occurred. Please try again later."
         );
-        // Prevent the error from being logged to the console
         event.preventDefault();
+        return true; // Prevents the error from being logged to the console
       });
+      window.onerror = function (msg, url, line, col, error) {
+        // Catch the error and do whatever is necessary
+        return true; // Prevent the original error message from appearing in the console
+      };
 
       // Unhandled promise rejection handler
       window.addEventListener("unhandledrejection", function (event) {
         displayErrorMessage(
           "An unexpected error occurred. Please try again later."
         );
-        // Prevent the error from being logged to the console
         event.preventDefault();
+        return true; // Prevents the error from being logged to the console
       });
     </script>
   </body>

@@ -4,350 +4,191 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Job Search App</title>
-    <style>
-      :root {
-        --bg-color: #f3f4f6;
-        --text-color: #1f2937;
-        --card-bg-color: #ffffff;
-        --card-text-color: #4b5563;
-        --button-bg-color: #e5e7eb;
-        --chart-bar-color: rgba(75, 192, 192, 0.6);
-        --chart-border-color: rgba(75, 192, 192, 1);
-      }
-
-      .dark-theme {
-        --bg-color: #1f2937;
-        --text-color: #f3f4f6;
-        --card-bg-color: #374151;
-        --card-text-color: #9ca3af;
-        --button-bg-color: #4b5563;
-        --chart-bar-color: rgba(129, 140, 248, 0.6);
-        --chart-border-color: rgba(129, 140, 248, 1);
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        margin: 0;
-        padding: 0;
-        transition: background-color 0.3s, color 0.3s;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      #darkModeToggle {
-        background-color: var(--button-bg-color);
-        border: none;
-        padding: 10px 15px;
-        border-radius: 5px;
-        cursor: pointer;
-        color: var(--text-color);
-      }
-
-      .search-filters {
-        margin-bottom: 20px;
-      }
-
-      #searchInput {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid var(--card-text-color);
-        border-radius: 5px;
-        background-color: var(--card-bg-color);
-        color: var(--text-color);
-      }
-
-      .filters {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 10px;
-      }
-
-      select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--card-text-color);
-        border-radius: 5px;
-        background-color: var(--card-bg-color);
-        color: var(--text-color);
-      }
-
-      .chart-container,
-      .comparison-section {
-        margin-bottom: 20px;
-      }
-
-      .chart-wrapper {
-        position: relative;
-        height: 0;
-        width: 100%;
-        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-      }
-
-      .chart-wrapper canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100% !important;
-        height: 100% !important;
-      }
-
-      .comparison-charts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-      }
-
-      .job-listings {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-      }
-
-      .job-card {
-        background-color: var(--card-bg-color);
-        color: var(--card-text-color);
-        border-radius: 5px;
-        padding: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .job-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 10px;
-      }
-
-      .job-header h3 {
-        margin: 0;
-        font-size: 1.2em;
-        color: var(--text-color);
-      }
-
-      .job-compare-checkbox {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--text-color);
-        border-radius: 4px;
-        outline: none;
-        cursor: pointer;
-        position: relative;
-      }
-
-      .job-compare-checkbox:checked {
-        background-color: var(--text-color);
-      }
-
-      .job-compare-checkbox:checked::after {
-        content: "\2714";
-        font-size: 14px;
-        color: var(--bg-color);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-
-      .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-
-      .loading-spinner {
-        display: inline-block;
-        position: relative;
-        width: 80px;
-        height: 80px;
-      }
-
-      .loading-spinner div {
-        box-sizing: border-box;
-        display: block;
-        position: absolute;
-        width: 64px;
-        height: 64px;
-        margin: 8px;
-        border: 8px solid #fff;
-        border-radius: 50%;
-        animation: loading-spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-        border-color: #fff transparent transparent transparent;
-      }
-
-      .loading-spinner div:nth-child(1) {
-        animation-delay: -0.45s;
-      }
-
-      .loading-spinner div:nth-child(2) {
-        animation-delay: -0.3s;
-      }
-
-      .loading-spinner div:nth-child(3) {
-        animation-delay: -0.15s;
-      }
-
-      @keyframes loading-spinner {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-overlay p {
-        margin-top: 20px;
-        color: #fff;
-        font-size: 18px;
-      }
-
-      .not-found-message {
-        text-align: center;
-        font-size: 1.2em;
-        color: #e53e3e;
-        margin-top: 20px;
-      }
-
-      .hidden {
-        display: none;
-      }
-      .exp-card {
-        display: none;
-      }
-
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .header {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        #darkModeToggle {
-          margin-top: 10px;
-        }
-
-        .comparison-charts {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .container {
-          padding: 10px;
-        }
-
-        h1 {
-          font-size: 1.5em;
-        }
-
-        .job-card {
-          padding: 10px;
-        }
-
-        .job-header h3 {
-          font-size: 1em;
-        }
-    
-      }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                100: "#dbeafe",
+                200: "#bfdbfe",
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+                800: "#1e40af",
+                900: "#1e3a8a",
+                950: "#172554",
+              },
+            },
+          },
+          fontFamily: {
+            body: [
+              "Inter",
+              "ui-sans-serif",
+              "system-ui",
+              "-apple-system",
+              "system-ui",
+              "Segoe UI",
+              "Roboto",
+              "Helvetica Neue",
+              "Arial",
+              "Noto Sans",
+              "sans-serif",
+              "Apple Color Emoji",
+              "Segoe UI Emoji",
+              "Segoe UI Symbol",
+              "Noto Color Emoji",
+            ],
+            sans: [
+              "Inter",
+              "ui-sans-serif",
+              "system-ui",
+              "-apple-system",
+              "system-ui",
+              "Segoe UI",
+              "Roboto",
+              "Helvetica Neue",
+              "Arial",
+              "Noto Sans",
+              "sans-serif",
+              "Apple Color Emoji",
+              "Segoe UI Emoji",
+              "Segoe UI Symbol",
+              "Noto Color Emoji",
+            ],
+          },
+        },
+      };
+    </script>
   </head>
-  <body>
-    <div class="container">
-      <header class="header">
-        <h1>Job Search App</h1>
-        <button id="darkModeToggle">Toggle Dark Mode</button>
+  <body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300"
+  >
+    <div class="container mx-auto p-4">
+      <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">Job Search App</h1>
+        <button
+          id="darkModeToggle"
+          class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded"
+        >
+          Toggle Dark Mode
+        </button>
       </header>
 
-      <div class="search-filters">
-        <input type="text" id="searchInput" placeholder="Search jobs..." />
-
-        <div class="filters">
-          <select id="categoryFilter">
-            <option value="">Filter by category</option>
-          </select>
-          <select id="locationFilter">
-            <option value="">Filter by location</option>
-          </select>
-          <select id="degreeFilter">
-            <option value="">Filter by degree</option>
-          </select>
-          <select id="experienceFilter">
-            <option value="">Filter by experience</option>
-          </select>
+      <div class="mb-8">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search jobs..."
+          class="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+        />
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+          <select
+            id="categoryFilter"
+            class="p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+          ></select>
+          <select
+            id="locationFilter"
+            class="p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+          ></select>
+          <select
+            id="degreeFilter"
+            class="p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+          ></select>
+          <select
+            id="experienceFilter"
+            class="p-2 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+          ></select>
         </div>
       </div>
 
-      <div class="chart-container">
-        <h2>Jobs by Category</h2>
-        <div class="chart-wrapper">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Jobs by Category</h2>
+        <div class="h-96">
           <canvas id="categoryChart"></canvas>
         </div>
       </div>
-
-      <div id="comparisonSection" class="comparison-section hidden">
-        <h2>Job Comparison</h2>
-        <div class="comparison-charts">
-          <div class="chart-wrapper">
+      <div
+        id="infoCard"
+        class="bg-blue-100 dark:bg-blue-900 border-l-4 border-blue-500 text-blue-700 dark:text-blue-200 p-4 mb-8 hidden"
+      >
+        <p class="font-bold">Job Comparison</p>
+        <p id="infoMessage"></p>
+      </div>
+      <div id="comparisonSection" class="mb-8 hidden">
+        <h2 class="text-2xl font-bold mb-4">Job Comparison</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="h-64">
             <canvas id="salaryChart"></canvas>
           </div>
-          <div class="chart-wrapper exp-card">
+          <div class="h-64">
+            <canvas id="locationChart"></canvas>
+          </div>
+          <div class="h-64">
+            <canvas id="degreeChart"></canvas>
+          </div>
+          <div class="h-64">
             <canvas id="experienceChart"></canvas>
           </div>
         </div>
       </div>
 
-      <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loading-spinner">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-        <p>Loading...</p>
+      <div
+        id="jobListings"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      ></div>
+
+      <div
+        id="loadingOverlay"
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"
+      >
+        <div
+          class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"
+        ></div>
       </div>
 
-      <div id="notFoundMessage" class="not-found-message hidden">
+      <div
+        id="notFoundMessage"
+        class="text-center text-xl text-red-600 dark:text-red-400 mt-8 hidden"
+      >
         No jobs found. Please try a different search.
       </div>
+    </div>
 
-      <div id="jobListings" class="job-listings"></div>
+    <div
+      id="jobDetailModal"
+      class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 p-8 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <h2 id="modalJobTitle" class="text-2xl font-bold"></h2>
+          <button class="text-3xl leading-none">&times;</button>
+        </div>
+        <p id="modalJobDescription" class="mb-4"></p>
+        <p id="modalJobLocation" class="mb-2"></p>
+        <p id="modalJobQualifications" class="mb-2"></p>
+        <p id="modalJobSalary" class="mb-2"></p>
+      </div>
     </div>
 
     <template id="jobCardTemplate">
-      <div class="job-card">
-        <div class="job-header">
-          <h3></h3>
-          <input type="checkbox" class="job-compare-checkbox" />
+      <div class="job-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-xl font-semibold"></h3>
+          <input type="checkbox" class="job-compare-checkbox w-5 h-5" />
         </div>
-        <p class="company"></p>
-        <p class="location"></p>
-        <p class="degree"></p>
-        <p class="salary"></p>
+        <p class="company mb-2"></p>
+        <p class="location mb-2"></p>
+        <p class="degree mb-2"></p>
+        <p class="salary mb-2"></p>
       </div>
     </template>
 
@@ -355,7 +196,11 @@
       // Global variables
       let jobs = [];
       let categories = {};
-      let categoryChart, salaryChart, experienceChart;
+      let categoryChart,
+        salaryChart,
+        locationChart,
+        degreeChart,
+        experienceChart;
       let selectedJobs = [];
 
       // DOM elements
@@ -370,6 +215,7 @@
       const comparisonSection = document.getElementById("comparisonSection");
       const loadingOverlay = document.getElementById("loadingOverlay");
       const notFoundMessage = document.getElementById("notFoundMessage");
+      const infoCard = document.getElementById("infoCard");
 
       // Fetch jobs from USA Jobs API
       async function fetchJobs() {
@@ -380,7 +226,6 @@
           const response = await fetch("https://data.usajobs.gov/api/search", {
             headers: {
               "Authorization-Key": apiKey,
-
               Host: "data.usajobs.gov",
             },
           });
@@ -400,6 +245,7 @@
             populateFilters();
             renderJobs(jobs);
             await renderCategoryChart();
+            updateChartsTheme();
           }
         } catch (error) {
           handleError(error, "Error loading jobs. Please try again later.");
@@ -460,14 +306,18 @@
           ),
         ];
 
-        populateSelect(categoryFilter, uniqueCategories);
-        populateSelect(locationFilter, uniqueLocations);
-        populateSelect(degreeFilter, uniqueDegrees);
-        populateSelect(experienceFilter, uniqueExperiences);
+        populateSelect(categoryFilter, uniqueCategories, "All Categories");
+        populateSelect(locationFilter, uniqueLocations, "All Locations");
+        populateSelect(degreeFilter, uniqueDegrees, "All Degrees");
+        populateSelect(
+          experienceFilter,
+          uniqueExperiences,
+          "All Experience Levels"
+        );
       }
 
-      function populateSelect(selectElement, options) {
-        selectElement.innerHTML = '<option value="">All</option>';
+      function populateSelect(selectElement, options, placeholder) {
+        selectElement.innerHTML = `<option value="">${placeholder}</option>`;
         options.forEach((option) => {
           const optionElement = document.createElement("option");
           optionElement.value = option;
@@ -512,12 +362,26 @@
             checkbox.dataset.jobId = job.MatchedObjectId;
             checkbox.addEventListener("change", handleJobSelection);
 
+            jobCard
+              .querySelector(".job-card")
+              .addEventListener("click", (e) => {
+                if (!e.target.classList.contains("job-compare-checkbox")) {
+                  showJobDetail(job);
+                }
+              });
+
             jobListings.appendChild(jobCard);
           });
         }
       }
 
       function createChart(ctx, type, data, options) {
+        const isDark = document.documentElement.classList.contains("dark");
+        const textColor = isDark ? "#e5e7eb" : "#1f2937";
+        const gridColor = isDark
+          ? "rgba(229, 231, 235, 0.1)"
+          : "rgba(31, 41, 55, 0.1)";
+
         return new Chart(ctx, {
           type: type,
           data: data,
@@ -526,48 +390,20 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              ...options.plugins,
               legend: {
-                ...options.plugins?.legend,
                 labels: {
-                  ...options.plugins?.legend?.labels,
-                  color: getComputedStyle(document.body).getPropertyValue(
-                    "--text-color"
-                  ),
+                  color: textColor,
                 },
               },
             },
             scales: {
-              ...options.scales,
               x: {
-                ...options.scales?.x,
-                ticks: {
-                  ...options.scales?.x?.ticks,
-                  color: getComputedStyle(document.body).getPropertyValue(
-                    "--text-color"
-                  ),
-                },
-                grid: {
-                  ...options.scales?.x?.grid,
-                  color: getComputedStyle(document.body).getPropertyValue(
-                    "--card-text-color"
-                  ),
-                },
+                ticks: { color: textColor },
+                grid: { color: gridColor },
               },
               y: {
-                ...options.scales?.y,
-                ticks: {
-                  ...options.scales?.y?.ticks,
-                  color: getComputedStyle(document.body).getPropertyValue(
-                    "--text-color"
-                  ),
-                },
-                grid: {
-                  ...options.scales?.y?.grid,
-                  color: getComputedStyle(document.body).getPropertyValue(
-                    "--card-text-color"
-                  ),
-                },
+                ticks: { color: textColor },
+                grid: { color: gridColor },
               },
             },
           },
@@ -590,19 +426,16 @@
                 {
                   label: "Number of Jobs",
                   data: Object.values(categories),
-                  backgroundColor: getComputedStyle(
-                    document.body
-                  ).getPropertyValue("--chart-bar-color"),
-                  borderColor: getComputedStyle(document.body).getPropertyValue(
-                    "--chart-border-color"
-                  ),
+                  backgroundColor: "rgba(75, 192, 192, 0.6)",
+                  borderColor: "rgba(75, 192, 192, 1)",
                   borderWidth: 1,
                 },
               ],
             },
             {
+              indexAxis: "y",
               scales: {
-                y: {
+                x: {
                   beginAtZero: true,
                 },
               },
@@ -623,6 +456,37 @@
             }
           );
         });
+      }
+
+      function renderComparisonCharts() {
+        const chartContainers = [
+          document.getElementById("salaryChart").parentNode,
+          document.getElementById("locationChart").parentNode,
+          document.getElementById("degreeChart").parentNode,
+          document.getElementById("experienceChart").parentNode,
+        ];
+
+        // Hide all chart containers initially
+        chartContainers.forEach((container) =>
+          container.classList.add("hidden")
+        );
+
+        if (hasSalaryData()) {
+          renderSalaryChart();
+          chartContainers[0].classList.remove("hidden");
+        }
+        if (hasLocationData()) {
+          renderLocationChart();
+          chartContainers[1].classList.remove("hidden");
+        }
+        if (hasDegreeData()) {
+          renderDegreeChart();
+          chartContainers[2].classList.remove("hidden");
+        }
+        if (hasExperienceData()) {
+          renderExperienceChart();
+          chartContainers[3].classList.remove("hidden");
+        }
       }
 
       function renderSalaryChart() {
@@ -646,9 +510,7 @@
                       .MinimumRange
                   )
                 ),
-                backgroundColor: getComputedStyle(
-                  document.body
-                ).getPropertyValue("--chart-bar-color"),
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
               },
               {
                 label: "Maximum Salary",
@@ -658,26 +520,84 @@
                       .MaximumRange
                   )
                 ),
-                backgroundColor: getComputedStyle(
-                  document.body
-                ).getPropertyValue("--chart-border-color"),
+                backgroundColor: "rgba(255, 99, 132, 0.6)",
               },
             ],
           },
           {
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Salary (USD)",
-                },
-              },
-            },
             plugins: {
               title: {
                 display: true,
                 text: "Salary Comparison",
+              },
+            },
+          }
+        );
+      }
+
+      function renderLocationChart() {
+        const ctx = document.getElementById("locationChart").getContext("2d");
+        if (locationChart) {
+          locationChart.destroy();
+        }
+        locationChart = createChart(
+          ctx,
+          "bar",
+          {
+            labels: selectedJobs.map(
+              (job) => job.MatchedObjectDescriptor.PositionTitle
+            ),
+            datasets: [
+              {
+                label: "Location",
+                data: selectedJobs.map(
+                  (job) =>
+                    job.MatchedObjectDescriptor.PositionLocation[0].LocationName
+                ),
+                backgroundColor: "rgba(153, 102, 255, 0.6)",
+              },
+            ],
+          },
+          {
+            indexAxis: "y",
+            plugins: {
+              title: {
+                display: true,
+                text: "Location Comparison",
+              },
+            },
+          }
+        );
+      }
+
+      function renderDegreeChart() {
+        const ctx = document.getElementById("degreeChart").getContext("2d");
+        if (degreeChart) {
+          degreeChart.destroy();
+        }
+        degreeChart = createChart(
+          ctx,
+          "bar",
+          {
+            labels: selectedJobs.map(
+              (job) => job.MatchedObjectDescriptor.PositionTitle
+            ),
+            datasets: [
+              {
+                label: "Degree Requirement",
+                data: selectedJobs.map(
+                  (job) => job.MatchedObjectDescriptor.MinimumEducation
+                ),
+                backgroundColor: "rgba(255, 159, 64, 0.6)",
+              },
+            ],
+          },
+          {
+            indexAxis: "y",
+            plugins: {
+              title: {
+                display: true,
+                text: "Degree Requirement Comparison",
               },
             },
           }
@@ -689,14 +609,6 @@
         if (experienceChart) {
           experienceChart.destroy();
         }
-
-        const getExperienceYears = (job) => {
-          const qualifications =
-            job.MatchedObjectDescriptor.QualificationSummary.toLowerCase();
-          const experienceMatch = qualifications.match(/(\d+)\s*(year|years)/);
-          return experienceMatch ? parseInt(experienceMatch[1]) : 0;
-        };
-
         experienceChart = createChart(
           ctx,
           "bar",
@@ -707,23 +619,18 @@
             datasets: [
               {
                 label: "Years of Experience",
-                data: selectedJobs.map(getExperienceYears),
-                backgroundColor: getComputedStyle(
-                  document.body
-                ).getPropertyValue("--chart-bar-color"),
+                data: selectedJobs.map((job) => {
+                  const qualifications =
+                    job.MatchedObjectDescriptor.QualificationSummary.toLowerCase();
+                  const experienceMatch =
+                    qualifications.match(/(\d+)\s*(year|years)/);
+                  return experienceMatch ? parseInt(experienceMatch[1]) : 0;
+                }),
+                backgroundColor: "rgba(255, 206, 86, 0.6)",
               },
             ],
           },
           {
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "Years of Experience",
-                },
-              },
-            },
             plugins: {
               title: {
                 display: true,
@@ -734,8 +641,138 @@
         );
       }
 
-      async function applyFilters() {
-        showLoading(true);
+      function handleJobSelection(event) {
+        const jobId = event.target.dataset.jobId;
+        const job = jobs.find((j) => j.MatchedObjectId === jobId);
+
+        if (event.target.checked) {
+          if (selectedJobs.length < 2) {
+            selectedJobs.push(job);
+          } else {
+            event.target.checked = false;
+            alert("You can only compare up to 2 jobs at a time.");
+            return;
+          }
+        } else {
+          selectedJobs = selectedJobs.filter(
+            (j) => j.MatchedObjectId !== jobId
+          );
+        }
+
+        updateInfoCard();
+
+        if (selectedJobs.length === 2) {
+          renderComparisonCharts();
+          comparisonSection.classList.remove("hidden");
+        } else {
+          comparisonSection.classList.add("hidden");
+        }
+      }
+
+      function updateInfoCard() {
+        if (selectedJobs.length === 0) {
+          infoCard.classList.remove("hidden");
+          infoCard.innerHTML = `
+            <p class="font-bold">Job Comparison</p>
+            <p>Select 2 jobs to compare their details side by side.</p>
+        `;
+        } else if (selectedJobs.length === 1) {
+          infoCard.classList.remove("hidden");
+          infoCard.innerHTML = `
+            <p class="font-bold">Job Comparison</p>
+            <p>Select 1 more job to compare.</p>
+        `;
+        } else {
+          infoCard.classList.add("hidden");
+        }
+      }
+
+      function showJobDetail(job) {
+        const modal = document.getElementById("jobDetailModal");
+        const jobData = job.MatchedObjectDescriptor;
+
+        document.getElementById("modalJobTitle").textContent =
+          jobData.PositionTitle;
+        document.getElementById("modalJobDescription").textContent =
+          jobData.UserArea.Details.JobSummary;
+        document.getElementById(
+          "modalJobLocation"
+        ).textContent = `Location: ${jobData.PositionLocation[0].LocationName}`;
+        document.getElementById(
+          "modalJobQualifications"
+        ).textContent = `Qualifications: ${jobData.QualificationSummary}`;
+        document.getElementById(
+          "modalJobSalary"
+        ).textContent = `Salary Range: ${formatSalary(
+          parseSalary(jobData.PositionRemuneration[0].MinimumRange)
+        )} - ${formatSalary(
+          parseSalary(jobData.PositionRemuneration[0].MaximumRange)
+        )}`;
+
+        modal.classList.remove("hidden");
+      }
+
+      function toggleDarkMode() {
+        if (document.documentElement.classList.contains("dark")) {
+          document.documentElement.classList.remove("dark");
+          localStorage.setItem("darkMode", "light");
+        } else {
+          document.documentElement.classList.add("dark");
+          localStorage.setItem("darkMode", "dark");
+        }
+        updateChartsTheme();
+      }
+
+      function updateChartsTheme() {
+        const isDark = document.documentElement.classList.contains("dark");
+        const textColor = isDark ? "#e5e7eb" : "#1f2937";
+        const gridColor = isDark
+          ? "rgba(229, 231, 235, 0.1)"
+          : "rgba(31, 41, 55, 0.1)";
+
+        [
+          categoryChart,
+          salaryChart,
+          locationChart,
+          degreeChart,
+          experienceChart,
+        ].forEach((chart) => {
+          if (chart) {
+            chart.options.plugins.legend.labels.color = textColor;
+            chart.options.scales.x.ticks.color = textColor;
+            chart.options.scales.x.grid.color = gridColor;
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.scales.y.grid.color = gridColor;
+            chart.update();
+          }
+        });
+      }
+
+      function initDarkMode() {
+        if (
+          localStorage.getItem("darkMode") === "dark" ||
+          (!("darkMode" in localStorage) &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+        updateChartsTheme();
+      }
+
+      function parseSalary(salaryString) {
+        return parseFloat(salaryString.replace(/[^0-9.]/g, ""));
+      }
+
+      function formatSalary(salary) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(salary);
+      }
+
+      function applyFilters() {
         const searchTerm = searchInput.value.toLowerCase();
         const category = categoryFilter.value;
         const location = locationFilter.value;
@@ -762,11 +799,10 @@
 
         clearComparison();
         renderJobs(filteredJobs);
-        await updateCategoryChart(filteredJobs);
-        showLoading(false);
+        updateCategoryChart(filteredJobs);
       }
 
-      async function updateCategoryChart(filteredJobs) {
+      function updateCategoryChart(filteredJobs) {
         const filteredCategories = filteredJobs.reduce((acc, job) => {
           const category = job.MatchedObjectDescriptor.JobCategory[0].Name;
           acc[category] = (acc[category] || 0) + 1;
@@ -775,110 +811,7 @@
 
         categoryChart.data.labels = Object.keys(filteredCategories);
         categoryChart.data.datasets[0].data = Object.values(filteredCategories);
-        await new Promise((resolve) => {
-          categoryChart.update();
-          categoryChart.options.animation.onComplete = () => {
-            resolve();
-          };
-        });
-      }
-
-      function handleJobSelection(event) {
-        const jobId = event.target.dataset.jobId;
-        const job = jobs.find((j) => j.MatchedObjectId === jobId);
-
-        if (event.target.checked) {
-          if (selectedJobs.length < 2) {
-            selectedJobs.push(job);
-          } else {
-            event.target.checked = false;
-            alert("You can only compare up to 2 jobs at a time.");
-          }
-        } else {
-          selectedJobs = selectedJobs.filter(
-            (j) => j.MatchedObjectId !== jobId
-          );
-        }
-
-        if (selectedJobs.length === 2) {
-          renderComparisonCharts();
-          comparisonSection.classList.remove("hidden");
-        } else {
-          comparisonSection.classList.add("hidden");
-        }
-      }
-
-      function renderComparisonCharts() {
-        renderSalaryChart();
-        renderExperienceChart();
-      }
-
-      function toggleDarkMode() {
-        document.body.classList.toggle("dark-theme");
-        updateChartsTheme();
-        localStorage.setItem(
-          "darkMode",
-          document.body.classList.contains("dark-theme") ? "dark" : "light"
-        );
-      }
-
-      function updateChartsTheme() {
-        [categoryChart, salaryChart, experienceChart].forEach((chart) => {
-          if (chart) {
-            chart.options.plugins.legend.labels.color = getComputedStyle(
-              document.body
-            ).getPropertyValue("--text-color");
-            chart.options.scales.x.ticks.color = getComputedStyle(
-              document.body
-            ).getPropertyValue("--text-color");
-            chart.options.scales.x.grid.color = getComputedStyle(
-              document.body
-            ).getPropertyValue("--card-text-color");
-            chart.options.scales.y.ticks.color = getComputedStyle(
-              document.body
-            ).getPropertyValue("--text-color");
-            chart.options.scales.y.grid.color = getComputedStyle(
-              document.body
-            ).getPropertyValue("--card-text-color");
-            chart.data.datasets.forEach((dataset) => {
-              dataset.backgroundColor = getComputedStyle(
-                document.body
-              ).getPropertyValue("--chart-bar-color");
-              dataset.borderColor = getComputedStyle(
-                document.body
-              ).getPropertyValue("--chart-border-color");
-            });
-            chart.update();
-          }
-        });
-      }
-
-      function initDarkMode() {
-        const darkModePreference = localStorage.getItem("darkMode");
-        if (darkModePreference === "dark") {
-          document.body.classList.add("dark-theme");
-        }
-      }
-
-      function parseSalary(salaryString) {
-        return parseFloat(salaryString.replace(/[^0-9.]/g, ""));
-      }
-
-      function formatSalary(salary) {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(salary);
-      }
-
-      function debounce(func, delay) {
-        let debounceTimer;
-        return function () {
-          const context = this;
-          const args = arguments;
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => func.apply(context, args), delay);
-        };
+        categoryChart.update();
       }
 
       function clearComparison() {
@@ -889,25 +822,64 @@
           .forEach((checkbox) => {
             checkbox.checked = false;
           });
+        updateInfoCard();
       }
 
       function handleError(error, message) {
         console.error(error);
-        jobListings.innerHTML = `<p class="error-message">${message}</p>`;
+        jobListings.innerHTML = `<p class="text-red-600 dark:text-red-400">${message}</p>`;
         showLoading(false);
+      }
+
+      // Helper functions to check for chart data
+      function hasSalaryData() {
+        return selectedJobs.every(
+          (job) =>
+            job.MatchedObjectDescriptor.PositionRemuneration &&
+            job.MatchedObjectDescriptor.PositionRemuneration.length > 0
+        );
+      }
+
+      function hasLocationData() {
+        return selectedJobs.every(
+          (job) =>
+            job.MatchedObjectDescriptor.PositionLocation &&
+            job.MatchedObjectDescriptor.PositionLocation.length > 0
+        );
+      }
+
+      function hasDegreeData() {
+        return selectedJobs.every(
+          (job) => job.MatchedObjectDescriptor.MinimumEducation
+        );
+      }
+
+      function hasExperienceData() {
+        return selectedJobs.some((job) => {
+          const qualifications =
+            job.MatchedObjectDescriptor.QualificationSummary.toLowerCase();
+          return qualifications.match(/(\d+)\s*(year|years)/);
+        });
       }
 
       // Event listeners
       darkModeToggle.addEventListener("click", toggleDarkMode);
-      searchInput.addEventListener("input", debounce(applyFilters, 300));
+      searchInput.addEventListener("input", applyFilters);
       categoryFilter.addEventListener("change", applyFilters);
       locationFilter.addEventListener("change", applyFilters);
       degreeFilter.addEventListener("change", applyFilters);
       experienceFilter.addEventListener("change", applyFilters);
 
+      document
+        .querySelector("#jobDetailModal button")
+        .addEventListener("click", () => {
+          document.getElementById("jobDetailModal").classList.add("hidden");
+        });
+
       // Initialize app
       function initApp() {
         initDarkMode();
+        updateInfoCard();
         fetchJobs();
       }
 
