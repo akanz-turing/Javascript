@@ -39,7 +39,7 @@
       }
 
       .sidebar {
-        width: 250px;
+        width: 300px;
         background-color: var(--sidebar-bg);
         padding: 20px;
         overflow-y: auto;
@@ -54,7 +54,8 @@
       }
 
       h1,
-      h2 {
+      h2,
+      h3 {
         color: var(--text-color);
       }
 
@@ -213,8 +214,7 @@
           <option value="relationships">Relationships</option>
         </select>
       </div>
-      <h3>Psychological Terms</h3>
-      <div id="psychTerms"></div>
+      <div id="termsContainer"></div>
     </div>
 
     <div class="main-content">
@@ -228,81 +228,136 @@
     </div>
 
     <script>
+      // DOM Elements
       const adviceContainer = document.getElementById("adviceContainer");
       const categorySelect = document.getElementById("category");
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
       const pageInfo = document.getElementById("pageInfo");
       const darkModeToggle = document.getElementById("darkModeToggle");
-      const psychTerms = document.getElementById("psychTerms");
+      const termsContainer = document.getElementById("termsContainer");
       const statusIcon = document.getElementById("statusIcon");
 
+      // Global variables
       let currentPage = 1;
       const itemsPerPage = 10;
       let allAdvice = [];
 
-      const ADVICE_API_URL = "https://api.adviceslip.com/advice";
+      // API endpoint
       const ADVICE_SEARCH_API_URL = "https://api.adviceslip.com/advice/search/";
-      const categories = ["life", "career", "relationships"];
 
-      const psychologicalTerms = [
+      // Psychological and Psychiatric terms data
+      const terms = [
         {
+          category: "Psychology",
           term: "Motivation",
           description: "The driving force behind human actions and behaviors.",
         },
         {
+          category: "Psychology",
           term: "Cognitive Dissonance",
           description:
             "Mental discomfort experienced when holding contradictory beliefs.",
         },
         {
+          category: "Psychology",
           term: "Mindfulness",
           description:
             "The practice of being fully present and engaged in the moment.",
         },
         {
+          category: "Psychology",
           term: "Resilience",
           description:
             "The ability to bounce back from adversity and adapt to challenges.",
         },
         {
+          category: "Psychology",
           term: "Self-efficacy",
           description:
             "Belief in one ability to succeed in specific situations or accomplish tasks.",
         },
         {
+          category: "Psychology",
           term: "Emotional Intelligence",
           description:
             "The capacity to be aware of, control, and express one emotions, and to handle interpersonal relationships judiciously and empathetically.",
         },
         {
+          category: "Psychology",
           term: "Growth Mindset",
           description:
             "The belief that abilities and intelligence can be developed through dedication and hard work.",
         },
         {
-          term: "Cognitive Behavioral Therapy (CBT)",
+          category: "Psychiatry",
+          term: "Major Depressive Disorder",
           description:
-            "A type of psychotherapy that helps people identify and change destructive or disturbing thought patterns.",
+            "A mental health condition characterized by persistently depressed mood or loss of interest in activities.",
+        },
+        {
+          category: "Psychiatry",
+          term: "Bipolar Disorder",
+          description:
+            "A mental health condition that causes extreme mood swings that include emotional highs (mania or hypomania) and lows (depression).",
+        },
+        {
+          category: "Psychiatry",
+          term: "Schizophrenia",
+          description:
+            "A chronic brain disorder that affects how a person thinks, feels, and behaves.",
+        },
+        {
+          category: "Psychiatry",
+          term: "Anxiety Disorders",
+          description:
+            "A group of mental health disorders characterized by significant feelings of anxiety and fear.",
+        },
+        {
+          category: "Psychiatry",
+          term: "Post-Traumatic Stress Disorder (PTSD)",
+          description:
+            "A mental health condition triggered by experiencing or witnessing a terrifying event.",
         },
       ];
 
-      function displayPsychTerms() {
-        psychTerms.innerHTML = psychologicalTerms
+      // Function to display psychological and psychiatric terms
+      function displayTerms() {
+        const psychologyTerms = terms.filter(
+          (term) => term.category === "Psychology"
+        );
+        const psychiatryTerms = terms.filter(
+          (term) => term.category === "Psychiatry"
+        );
+
+        termsContainer.innerHTML = `
+              <h3>Psychological Terms</h3>
+              ${generateTermsHTML(psychologyTerms)}
+              <h3>Psychiatric Terms</h3>
+              ${generateTermsHTML(psychiatryTerms)}
+          `;
+
+        addCollapsibleListeners();
+      }
+
+      function generateTermsHTML(terms) {
+        return terms
           .map(
             (term) => `
-                <button class="collapsible">${term.term}</button>
-                <div class="content">
-                    <p>${term.description}</p>
-                    <a href="https://en.wikipedia.org/wiki/${term.term.replace(
-                      " ",
-                      "_"
-                    )}" target="_blank">Learn More</a>
-                </div>
-            `
+              <button class="collapsible">${term.term}</button>
+              <div class="content">
+                  <p>${term.description}</p>
+                  <a href="https://en.wikipedia.org/wiki/${term.term.replace(
+                    / /g,
+                    "_"
+                  )}" target="_blank">Learn More</a>
+              </div>
+          `
           )
           .join("");
+      }
 
+      function addCollapsibleListeners() {
         const coll = document.getElementsByClassName("collapsible");
         for (let i = 0; i < coll.length; i++) {
           coll[i].addEventListener("click", function () {
@@ -317,25 +372,21 @@
         }
       }
 
-      async function fetchAdvice(category = "all") {
+      // Function to fetch advice
+      async function fetchAdvice(category = "all", page = 1) {
         showStatus("loading");
         try {
-          let response;
-          let data;
-
-          if (category === "all") {
-            const requests = Array(10)
-              .fill()
-              .map(() => fetch(ADVICE_API_URL));
-            const responses = await Promise.all(requests);
-            const jsonPromises = responses.map((r) => r.json());
-            data = await Promise.all(jsonPromises);
-            return data.map((d) => d.slip);
-          } else {
-            response = await fetch(ADVICE_SEARCH_API_URL + category);
-            data = await response.json();
-            return data.slips || [];
+          let searchTerm = category === "all" ? "a" : category;
+          const response = await fetch(`${ADVICE_SEARCH_API_URL}${searchTerm}`);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
           }
+          const data = await response.json();
+          const startIndex = (page - 1) * itemsPerPage;
+          return (data.slips || []).slice(
+            startIndex,
+            startIndex + itemsPerPage
+          );
         } catch (error) {
           console.error("Error fetching advice:", error);
           showStatus("error");
@@ -343,6 +394,7 @@
         }
       }
 
+      // Function to show status
       function showStatus(status) {
         switch (status) {
           case "loading":
@@ -362,6 +414,7 @@
         }
       }
 
+      // Function to display advice
       function displayAdvice() {
         if (allAdvice.length === 0) {
           showStatus("empty");
@@ -369,51 +422,53 @@
             "<p>No advice available. Try fetching more!</p>";
         } else {
           showStatus("");
-          const startIndex = (currentPage - 1) * itemsPerPage;
-          const endIndex = startIndex + itemsPerPage;
-          const pageAdvice = allAdvice.slice(startIndex, endIndex);
-          adviceContainer.innerHTML = pageAdvice
+          adviceContainer.innerHTML = allAdvice
             .map(
               (advice) => `
-                    <div class="advice-card fade-in">
-                        <p>${advice.advice}</p>
-                    </div>
-                `
+                  <div class="advice-card fade-in">
+                      <p>${advice.advice}</p>
+                  </div>
+              `
             )
             .join("");
         }
-
         updatePagination();
       }
 
+      // Function to update pagination
       function updatePagination() {
-        const totalPages = Math.ceil(allAdvice.length / itemsPerPage);
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        pageInfo.textContent = `Page ${currentPage}`;
         prevBtn.disabled = currentPage === 1;
-        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.disabled = false; // Always enable next button to allow fetching more advice
       }
 
+      // Function to get initial advice
       async function getInitialAdvice() {
-        const newAdvice = await fetchAdvice(categorySelect.value);
-        allAdvice = newAdvice.slice(0, itemsPerPage);
         currentPage = 1;
+        allAdvice = await fetchAdvice(categorySelect.value, currentPage);
         displayAdvice();
       }
 
+      // Function to get next advice
       async function getNextAdvice() {
-        if (currentPage * itemsPerPage >= allAdvice.length) {
-          const newAdvice = await fetchAdvice(categorySelect.value);
-          allAdvice = [...allAdvice, ...newAdvice];
-        }
         currentPage++;
-        displayAdvice();
+        const newAdvice = await fetchAdvice(categorySelect.value, currentPage);
+        if (newAdvice.length > 0) {
+          allAdvice = newAdvice;
+          displayAdvice();
+        } else {
+          currentPage--;
+          nextBtn.disabled = true;
+        }
       }
 
+      // Event Listeners
       categorySelect.addEventListener("change", getInitialAdvice);
 
-      prevBtn.addEventListener("click", () => {
+      prevBtn.addEventListener("click", async () => {
         if (currentPage > 1) {
           currentPage--;
+          allAdvice = await fetchAdvice(categorySelect.value, currentPage);
           displayAdvice();
         }
       });
@@ -425,7 +480,7 @@
       });
 
       // Initialize the app
-      displayPsychTerms();
+      displayTerms();
       getInitialAdvice();
     </script>
   </body>
