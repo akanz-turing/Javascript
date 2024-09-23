@@ -1,1 +1,748 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Governance and Politics Education</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+      }
+      .section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+      .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+      .chart {
+        width: 100%;
+        max-width: 600px;
+        height: 400px;
+        margin: 20px auto;
+      }
+      nav {
+        background-color: #2c3e50;
+        padding: 10px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+      }
+      nav ul li {
+        margin: 5px;
+      }
+      nav ul li a {
+        color: #fff;
+        text-decoration: none;
+        padding: 5px 10px;
+      }
+      nav ul li a:hover {
+        background-color: #34495e;
+      }
+      .infographic {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 20px auto;
+      }
+      svg {
+        max-width: 100%;
+        height: auto;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        .chart {
+          height: 300px;
+        }
+        nav ul {
+          flex-direction: column;
+          align-items: center;
+        }
+        h1 {
+          font-size: 24px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        h3 {
+          font-size: 18px;
+        }
+        .section {
+          padding: 10px;
+        }
+      }
+      @media (max-width: 480px) {
+        .chart {
+          height: 200px;
+        }
+        h1 {
+          font-size: 20px;
+        }
+        h2 {
+          font-size: 18px;
+        }
+        h3 {
+          font-size: 16px;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="#intro">Introduction</a></li>
+        <li><a href="#definitions">Definitions</a></li>
+        <li><a href="#ruling-systems">Ruling Systems</a></li>
+        <li><a href="#key-terms">Key Terms</a></li>
+        <li><a href="#government-arms">Government Arms</a></li>
+        <li><a href="#resources">Resources</a></li>
+      </ul>
+    </nav>
+
+    <h1>Understanding Governance and Politics</h1>
+
+    <div class="section" id="intro">
+      <h2>Introduction</h2>
+      <p>
+        Governance and politics are two interconnected concepts that play
+        crucial roles in shaping nations and societies. While often used
+        interchangeably, they have distinct meanings and functions. This
+        educational app aims to provide a comprehensive understanding of these
+        concepts and their impact on our daily lives.
+      </p>
+    </div>
+
+    <div class="section" id="definitions">
+      <h2>Definitions and Differences</h2>
+      <div class="card">
+        <h3>Governance</h3>
+        <p>
+          Governance refers to the process of decision-making and the process by
+          which decisions are implemented (or not implemented). It focuses on
+          the mechanisms, processes, and institutions through which citizens and
+          groups articulate their interests, exercise their legal rights, meet
+          their obligations, and mediate their differences.
+        </p>
+        <p>
+          <strong>Example:</strong> The implementation of a city's waste
+          management policy, involving various stakeholders such as local
+          government, waste management companies, and citizens, is an example of
+          governance in action.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Politics</h3>
+        <p>
+          Politics involves activities associated with the governance of a
+          country or area, especially the debate between parties having power.
+          It includes the theory and practice of influencing people on a civic
+          or individual level, and the distribution of power and resources
+          within a given community.
+        </p>
+        <p>
+          <strong>Example:</strong> A presidential election campaign, where
+          candidates debate policies and vie for votes, is a clear demonstration
+          of politics in practice.
+        </p>
+      </div>
+      <p>
+        While governance is about the framework and systems in place, politics
+        often deals with the strategies and competition for power within that
+        framework. Governance can be seen as the 'how' of running a society,
+        while politics is often the 'who' and 'why'.
+      </p>
+      <div class="infographic">
+        <svg
+          width="800"
+          height="400"
+          viewBox="0 0 800 400"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="0" y="0" width="800" height="400" fill="#f0f0f0" />
+          <rect
+            x="50"
+            y="50"
+            width="300"
+            height="300"
+            fill="#3498db"
+            opacity="0.8"
+          />
+          <rect
+            x="450"
+            y="50"
+            width="300"
+            height="300"
+            fill="#e74c3c"
+            opacity="0.8"
+          />
+          <text
+            x="200"
+            y="30"
+            font-family="Arial"
+            font-size="24"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Governance
+          </text>
+          <text
+            x="600"
+            y="30"
+            font-family="Arial"
+            font-size="24"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Politics
+          </text>
+          <text
+            x="200"
+            y="80"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Decision-making processes
+          </text>
+          <text
+            x="200"
+            y="120"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Implementation of policies
+          </text>
+          <text
+            x="200"
+            y="160"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Institutional frameworks
+          </text>
+          <text
+            x="200"
+            y="200"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Public participation
+          </text>
+          <text
+            x="600"
+            y="80"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Power dynamics
+          </text>
+          <text
+            x="600"
+            y="120"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Ideological debates
+          </text>
+          <text
+            x="600"
+            y="160"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Electoral processes
+          </text>
+          <text
+            x="600"
+            y="200"
+            font-family="Arial"
+            font-size="16"
+            fill="#ffffff"
+            text-anchor="middle"
+          >
+            Interest group influence
+          </text>
+          <text
+            x="400"
+            y="380"
+            font-family="Arial"
+            font-size="20"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Governance vs Politics
+          </text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="section" id="ruling-systems">
+      <h2>Types of Ruling Systems</h2>
+      <p>
+        Different countries adopt various ruling systems. Here are some of the
+        most common:
+      </p>
+      <div class="card">
+        <h3>Democracy</h3>
+        <p>
+          A system of government by the whole population or all eligible members
+          of a state, typically through elected representatives.
+        </p>
+        <p>
+          <strong>Example:</strong> The United States, where citizens elect
+          their president and members of Congress.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Autocracy</h3>
+        <p>
+          A system of government in which supreme power is concentrated in the
+          hands of one person, whose decisions are subject to neither external
+          legal restraints nor regularized mechanisms of popular control.
+        </p>
+        <p>
+          <strong>Example:</strong> North Korea, where the Supreme Leader has
+          absolute authority.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Monarchy</h3>
+        <p>
+          A form of government in which a country is ruled by a monarch,
+          typically a king or queen, who inherits the role from birth and holds
+          it until death or abdication.
+        </p>
+        <p>
+          <strong>Example:</strong> The United Kingdom, which has a
+          constitutional monarchy where the monarch is the head of state but has
+          limited political power.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Oligarchy</h3>
+        <p>
+          A form of power structure in which power rests with a small number of
+          people, distinguished by wealth, family, nobility, corporate, or
+          military control.
+        </p>
+        <p>
+          <strong>Example:</strong> Some argue that Russia exhibits oligarchic
+          tendencies, with significant power concentrated among wealthy business
+          leaders.
+        </p>
+      </div>
+      <div class="chart">
+        <canvas id="powerDistributionChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section" id="key-terms">
+      <h2>Key Terms in Governance and Politics</h2>
+      <div class="card">
+        <h3>Constitution</h3>
+        <p>
+          A body of fundamental principles or established precedents according
+          to which a state or other organization is acknowledged to be governed.
+        </p>
+        <p>
+          <strong>Example:</strong> The United States Constitution, which
+          outlines the structure of the government and the rights of citizens.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Law</h3>
+        <p>
+          The system of rules which a particular country or community recognizes
+          as regulating the actions of its members and which it may enforce by
+          the imposition of penalties.
+        </p>
+        <p>
+          <strong>Example:</strong> Traffic laws that regulate driving behavior
+          and impose fines for violations.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Sovereignty</h3>
+        <p>
+          The full right and power of a governing body over itself, without any
+          interference from outside sources or bodies.
+        </p>
+        <p>
+          <strong>Example:</strong> A country's ability to make its own laws and
+          conduct its own foreign policy without external interference.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Separation of Powers</h3>
+        <p>
+          A model for the governance of a state in which the state is divided
+          into branches, each with separate and independent powers and areas of
+          responsibility.
+        </p>
+        <p>
+          <strong>Example:</strong> In the U.S., power is divided among the
+          executive (President), legislative (Congress), and judicial (Supreme
+          Court) branches.
+        </p>
+      </div>
+      <div class="infographic">
+        <svg
+          width="800"
+          height="600"
+          viewBox="0 0 800 600"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="0" y="0" width="800" height="600" fill="#f0f0f0" />
+          <circle cx="400" cy="300" r="250" fill="#3498db" opacity="0.1" />
+          <circle cx="400" cy="300" r="200" fill="#3498db" opacity="0.2" />
+          <circle cx="400" cy="300" r="150" fill="#3498db" opacity="0.3" />
+          <circle cx="400" cy="300" r="100" fill="#3498db" opacity="0.4" />
+          <text
+            x="400"
+            y="300"
+            font-family="Arial"
+            font-size="24"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Key Political Terms
+          </text>
+          <text
+            x="400"
+            y="100"
+            font-family="Arial"
+            font-size="18"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Constitution
+          </text>
+          <text
+            x="400"
+            y="520"
+            font-family="Arial"
+            font-size="18"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Law
+          </text>
+          <text
+            x="150"
+            y="300"
+            font-family="Arial"
+            font-size="18"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Sovereignty
+          </text>
+          <text
+            x="650"
+            y="300"
+            font-family="Arial"
+            font-size="18"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Separation of Powers
+          </text>
+          <line
+            x1="400"
+            y1="120"
+            x2="400"
+            y2="270"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+          <line
+            x1="400"
+            y1="330"
+            x2="400"
+            y2="500"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+          <line
+            x1="170"
+            y1="300"
+            x2="370"
+            y2="300"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+          <line
+            x1="430"
+            y1="300"
+            x2="630"
+            y2="300"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="section" id="government-arms">
+      <h2>Three Arms of Government</h2>
+      <div class="card">
+        <h3>Executive</h3>
+        <p>
+          The branch of government responsible for implementing and enforcing
+          laws, typically led by a president or prime minister.
+        </p>
+        <p>
+          <strong>Example:</strong> The President of the United States and their
+          cabinet, who are responsible for executing federal laws.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Legislative</h3>
+        <p>
+          The branch responsible for making laws, typically a parliament or
+          congress.
+        </p>
+        <p>
+          <strong>Example:</strong> The United States Congress, consisting of
+          the Senate and House of Representatives, which drafts and passes
+          federal legislation.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Judiciary</h3>
+        <p>
+          The branch responsible for interpreting the law and administering
+          justice.
+        </p>
+        <p>
+          <strong>Example:</strong> The Supreme Court of the United States,
+          which has the power to interpret the Constitution and strike down laws
+          that violate it.
+        </p>
+      </div>
+      <div class="infographic">
+        <svg
+          width="800"
+          height="500"
+          viewBox="0 0 800 500"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect x="0" y="0" width="800" height="500" fill="#f0f0f0" />
+          <polygon
+            points="400,50 100,450 700,450"
+            fill="#3498db"
+            opacity="0.2"
+          />
+          <text
+            x="400"
+            y="30"
+            font-family="Arial"
+            font-size="24"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Three Arms of Government
+          </text>
+          <text
+            x="400"
+            y="180"
+            font-family="Arial"
+            font-size="20"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Executive
+          </text>
+          <text
+            x="200"
+            y="400"
+            font-family="Arial"
+            font-size="20"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Legislative
+          </text>
+          <text
+            x="600"
+            y="400"
+            font-family="Arial"
+            font-size="20"
+            fill="#2c3e50"
+            text-anchor="middle"
+          >
+            Judiciary
+          </text>
+          <line
+            x1="400"
+            y1="50"
+            x2="100"
+            y2="450"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+          <line
+            x1="400"
+            y1="50"
+            x2="700"
+            y2="450"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+          <line
+            x1="100"
+            y1="450"
+            x2="700"
+            y2="450"
+            stroke="#2c3e50"
+            stroke-width="2"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="section" id="resources">
+      <h2>Additional Resources</h2>
+      <ul>
+        <li>
+          <a
+            href="https://www.un.org/en/observances/democracy-day"
+            target="_blank"
+            >United Nations - Democracy</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.britannica.com/topic/political-system"
+            target="_blank"
+            >Encyclopedia Britannica - Political Systems</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://www.worldbank.org/en/topic/governance"
+            target="_blank"
+            >World Bank - Governance</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://plato.stanford.edu/entries/political-philosophy/"
+            target="_blank"
+            >Stanford Encyclopedia of Philosophy - Political Philosophy</a
+          >
+        </li>
+        <li>
+          <a href="https://www.icivics.org/" target="_blank"
+            >iCivics - Civic Education Resources</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      // Chart for power distribution
+      const ctx = document
+        .getElementById("powerDistributionChart")
+        .getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Democracy", "Autocracy", "Monarchy", "Oligarchy"],
+          datasets: [
+            {
+              label: "Power Distribution",
+              data: [80, 20, 30, 40],
+              backgroundColor: [
+                "rgba(75, 192, 192, 0.6)",
+                "rgba(255, 99, 132, 0.6)",
+                "rgba(255, 206, 86, 0.6)",
+                "rgba(54, 162, 235, 0.6)",
+              ],
+              borderColor: [
+                "rgba(75, 192, 192, 1)",
+                "rgba(255, 99, 132, 1)",
+                "rgba(255, 206, 86, 1)",
+                "rgba(54, 162, 235, 1)",
+              ],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: {
+                display: true,
+                text: "Power Distribution (%)",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: "Power Distribution in Different Ruling Systems",
+            },
+          },
+        },
+      });
+
+      // Smooth scrolling for navigation
+      document.querySelectorAll("nav a").forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
