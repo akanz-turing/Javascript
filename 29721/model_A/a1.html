@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Mechanics Explained</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+
+      header {
+        background: #333;
+        color: white;
+        padding: 10px 0;
+        text-align: center;
+      }
+
+      nav ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      nav ul li {
+        display: inline;
+        margin: 0 15px;
+      }
+
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+      }
+
+      main {
+        padding: 20px;
+        max-width: 1200px;
+        margin: auto;
+      }
+
+      section {
+        background: white;
+        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .term-card .content {
+        display: none;
+        padding-top: 10px;
+      }
+
+      .term-card h3 {
+        cursor: pointer;
+      }
+
+      #assembly-timeline {
+        /* Style for timeline or flowchart */
+      }
+
+      footer {
+        text-align: center;
+        padding: 10px 0;
+        background: #333;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        nav ul li {
+          display: block;
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="#engines">Engines</a></li>
+          <li><a href="#assembly">Assembly</a></li>
+          <li><a href="#evs">EVs & Hybrids</a></li>
+          <li><a href="#terms">Key Terms</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="engines">
+        <h2>Types of Engines</h2>
+        <!-- Engine type explanations here -->
+      </section>
+
+      <section id="assembly">
+        <h2>Car Assembly Process</h2>
+        <div id="assembly-timeline">
+          <!-- Interactive timeline or flowchart will be here -->
+        </div>
+      </section>
+
+      <section id="evs">
+        <h2>Electric and Hybrid Vehicles</h2>
+        <!-- Content about EVs and Hybrids -->
+      </section>
+
+      <section id="terms">
+        <h2>Key Automotive Terms</h2>
+        <div class="term-card" onclick="toggleTerm(this)">
+          <h3>Torque <i class="fas fa-chevron-down"></i></h3>
+          <div class="content">Explanation of torque...</div>
+        </div>
+        <!-- More term cards -->
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2023 Car Mechanics Explained</p>
+    </footer>
+
+    <script>
+      function toggleTerm(element) {
+        const content = element.querySelector(".content");
+        const icon = element.querySelector("i");
+        if (content.style.display === "block") {
+          content.style.display = "none";
+          icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+        } else {
+          content.style.display = "block";
+          icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+        }
+      }
+
+      // Example for an interactive assembly timeline (using a library like D3.js or simple DOM manipulation)
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const timeline = document.getElementById("assembly-timeline");
+        // Here you would dynamically create or animate the timeline elements
+        // For simplicity, let's assume we're adding static steps
+        const steps = [
+          "Chassis",
+          "Engine Installation",
+          "Body Assembly",
+          "Painting",
+          "Interior",
+          "Testing",
+        ];
+        steps.forEach((step, index) => {
+          const stepDiv = document.createElement("div");
+          stepDiv.textContent = step;
+          stepDiv.className = "step";
+          // Add click event for more details or hover effects
+          timeline.appendChild(stepDiv);
+        });
+      });
+    </script>
+  </body>
+</html>
