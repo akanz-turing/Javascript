@@ -538,9 +538,47 @@
       function displayOptions() {
         optionsContainer.innerHTML = "";
         const shuffledMoods = shuffleArray([...MOODS]);
-        const displayMoods = shuffledMoods.slice(0, 3);
-        displayMoods.push(correctMood);
-        shuffleArray(displayMoods);
+        let displayMoods = [];
+
+        // Helper function for case-insensitive inclusion check
+        const includesMoodCaseInsensitive = (array, mood) => {
+          return array.some(
+            (item) => item.toLowerCase() === mood.toLowerCase()
+          );
+        };
+
+        // Ensure correctMood is included
+        if (!includesMoodCaseInsensitive(shuffledMoods, correctMood)) {
+          displayMoods.push(correctMood);
+        }
+
+        // Fill the rest with unique moods
+        for (let mood of shuffledMoods) {
+          if (
+            displayMoods.length < 4 &&
+            !includesMoodCaseInsensitive(displayMoods, mood)
+          ) {
+            displayMoods.push(mood);
+          }
+          if (displayMoods.length === 4) break;
+        }
+
+        // If we don't have 4 options yet, add more from MOODS
+        while (displayMoods.length < 4) {
+          const remainingMoods = MOODS.filter(
+            (mood) => !includesMoodCaseInsensitive(displayMoods, mood)
+          );
+          if (remainingMoods.length > 0) {
+            displayMoods.push(
+              remainingMoods[Math.floor(Math.random() * remainingMoods.length)]
+            );
+          } else {
+            break; // Break if no more unique moods are available
+          }
+        }
+
+        // Shuffle the final array of moods
+        displayMoods = shuffleArray(displayMoods);
 
         displayMoods.forEach((mood) => {
           const button = document.createElement("button");
