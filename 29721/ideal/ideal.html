@@ -1,1 +1,965 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Mechanics Learning App</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: auto;
+        overflow: hidden;
+        padding: 20px;
+      }
+      header {
+        background: #333;
+        color: #fff;
+        padding: 1rem 0;
+        text-align: center;
+      }
+      header h1 {
+        margin: 0;
+      }
+      nav ul {
+        padding: 0;
+        list-style: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      nav li {
+        padding: 0.5rem;
+      }
+      nav a {
+        color: #fff;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+      }
+      .section {
+        padding: 20px;
+        background: #fff;
+        margin-top: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .collapsible {
+        background-color: #f1f1f1;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+      }
+      .active,
+      .collapsible:hover {
+        background-color: #ccc;
+      }
+      .content {
+        padding: 0 18px;
+        display: none;
+        overflow: hidden;
+        background-color: #f9f9f9;
+      }
+      #assembly-timeline {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        overflow-x: auto;
+      }
+      .timeline-step {
+        fill: #f0f0f0;
+        stroke: #333;
+        stroke-width: 2;
+      }
+      .timeline-arrow {
+        fill: none;
+        stroke: #666;
+        stroke-width: 2;
+      }
+      .timeline-text {
+        font-size: 12px;
+        font-family: Arial, sans-serif;
+      }
+      @media screen and (max-width: 600px) {
+        nav ul {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Car Mechanics Learning App</h1>
+        <nav>
+          <ul>
+            <li><a href="#car-parts">Car Parts</a></li>
+            <li><a href="#assembly">Assembly</a></li>
+            <li><a href="#engines">Engines</a></li>
+            <li><a href="#hybrid-ev">Hybrid & EV</a></li>
+            <li><a href="#terms">Key Terms</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="car-parts" class="section">
+        <h2>Essential Car Parts</h2>
+
+        <div class="collapsible">Engine</div>
+        <div class="content">
+          <p>
+            The engine is the heart of the car, converting fuel into motion
+            through a series of controlled explosions. Key components include:
+          </p>
+          <ul>
+            <li>
+              Cylinders: Where the fuel-air mixture is compressed and ignited
+            </li>
+            <li>
+              Pistons: Move up and down inside the cylinders, driving the
+              crankshaft
+            </li>
+            <li>
+              Crankshaft: Converts the up-and-down motion of the pistons into
+              rotational motion
+            </li>
+            <li>
+              Valves: Control the intake of fuel and air, and the exhaust of
+              combustion gases
+            </li>
+            <li>
+              Spark plugs: Provide the spark to ignite the fuel-air mixture in
+              gasoline engines
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Transmission</div>
+        <div class="content">
+          <p>
+            The transmission system transfers power from the engine to the
+            wheels, allowing the vehicle to move at different speeds. There are
+            several types:
+          </p>
+          <ul>
+            <li>
+              Manual: Requires the driver to shift gears manually using a clutch
+              pedal and gear stick
+            </li>
+            <li>
+              Automatic: Shifts gears automatically based on vehicle speed and
+              engine load
+            </li>
+            <li>
+              Continuously Variable Transmission (CVT): Provides seamless
+              acceleration without distinct gear shifts
+            </li>
+            <li>
+              Dual-clutch: Combines the efficiency of a manual transmission with
+              the convenience of an automatic
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Suspension</div>
+        <div class="content">
+          <p>
+            The suspension system is designed to maximize the friction between
+            the tires and the road surface, providing steering stability and
+            good handling while ensuring passenger comfort. Key components
+            include:
+          </p>
+          <ul>
+            <li>Springs: Absorb and store energy from road bumps</li>
+            <li>
+              Shock absorbers: Dissipate the energy stored by the springs,
+              preventing excessive bouncing
+            </li>
+            <li>
+              Struts: Combine spring and shock absorber functions in a single
+              unit
+            </li>
+            <li>
+              Control arms: Connect the wheel hub and steering knuckle to the
+              frame of the vehicle
+            </li>
+            <li>Anti-roll bars: Reduce body roll during cornering</li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Brakes</div>
+        <div class="content">
+          <p>
+            The braking system is crucial for slowing down and stopping the
+            vehicle. Most modern cars use a hydraulic braking system with these
+            main components:
+          </p>
+          <ul>
+            <li>
+              Brake pedal: The driver interface to activate the braking system
+            </li>
+            <li>
+              Master cylinder: Converts the force from the brake pedal into
+              hydraulic pressure
+            </li>
+            <li>
+              Brake lines: Carry brake fluid to transmit the force from the
+              pedal to the wheels
+            </li>
+            <li>
+              Brake calipers: House the brake pads and push them against the
+              rotors
+            </li>
+            <li>Brake pads: Create friction to slow the wheels</li>
+            <li>Brake rotors: The discs that the brake pads clamp onto</li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Steering System</div>
+        <div class="content">
+          <p>
+            The steering system allows the driver to control the direction of
+            the vehicle. Modern cars typically use a rack-and-pinion steering
+            system, which includes:
+          </p>
+          <ul>
+            <li>
+              Steering wheel: The driver interface for controlling direction
+            </li>
+            <li>
+              Steering column: Connects the steering wheel to the rack and
+              pinion
+            </li>
+            <li>
+              Rack and pinion: Converts the rotational motion of the steering
+              wheel into the linear motion needed to turn the wheels
+            </li>
+            <li>
+              Tie rods: Connect the rack to the steering knuckle on each front
+              wheel
+            </li>
+            <li>
+              Power steering system: Assists the driver in turning the wheels,
+              reducing required effort
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Exhaust System</div>
+        <div class="content">
+          <p>
+            The exhaust system is responsible for guiding reaction exhaust gases
+            away from the engine combustion chamber. It also reduces harmful
+            emissions and engine noise. Main components include:
+          </p>
+          <ul>
+            <li>
+              Exhaust manifold: Collects exhaust gases from multiple cylinders
+              into one pipe
+            </li>
+            <li>
+              Catalytic converter: Reduces harmful emissions in exhaust gases
+            </li>
+            <li>Muffler: Reduces engine noise</li>
+            <li>Resonator: Further tunes the exhaust note and reduces noise</li>
+            <li>Tailpipe: Directs exhaust gases out of the vehicle</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="assembly" class="section">
+        <h2>Car Assembly Process</h2>
+        <p>
+          The car assembly process is a complex series of steps that brings
+          together thousands of individual parts to create a finished vehicle.
+          Here's a step-by-step guide:
+        </p>
+
+        <ol>
+          <li>
+            <strong>Body Shop:</strong> The car's body is assembled from stamped
+            metal parts that are welded together.
+          </li>
+          <li>
+            <strong>Paint Shop:</strong> The body is cleaned, primed, and
+            painted with multiple layers for protection and aesthetics.
+          </li>
+          <li>
+            <strong>Chassis Assembly:</strong> The car's frame, suspension, and
+            drivetrain components are assembled.
+          </li>
+          <li>
+            <strong>Engine and Transmission Installation:</strong> The
+            powertrain is lowered into the chassis and secured.
+          </li>
+          <li>
+            <strong>Interior Assembly:</strong> Seats, dashboard, electronics,
+            and other interior components are installed.
+          </li>
+          <li>
+            <strong>Doors and Windows:</strong> Doors are hung and adjusted, and
+            windows are installed.
+          </li>
+          <li>
+            <strong>Wheel and Tire Installation:</strong> Wheels and tires are
+            mounted to the vehicle.
+          </li>
+          <li>
+            <strong>Fluid Fill:</strong> All necessary fluids (oil, coolant,
+            brake fluid, etc.) are added.
+          </li>
+          <li>
+            <strong>Battery Installation:</strong> The battery is installed and
+            connected.
+          </li>
+          <li>
+            <strong>Quality Control:</strong> The vehicle undergoes a series of
+            tests to ensure everything is working correctly.
+          </li>
+          <li>
+            <strong>Final Inspection:</strong> A thorough visual inspection is
+            performed to catch any defects.
+          </li>
+          <li>
+            <strong>Road Test:</strong> The vehicle is driven to ensure it
+            performs as expected.
+          </li>
+        </ol>
+
+        <h3>Car Assembly Stages Timeline</h3>
+        <div id="assembly-timeline">
+          <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="0"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon points="0 0, 10 3.5, 0 7" />
+              </marker>
+            </defs>
+            <rect x="10" y="50" width="120" height="60" class="timeline-step" />
+            <text x="70" y="85" text-anchor="middle" class="timeline-text">
+              Body Shop
+            </text>
+            <line
+              x1="130"
+              y1="80"
+              x2="170"
+              y2="80"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="170"
+              y="50"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="230" y="85" text-anchor="middle" class="timeline-text">
+              Paint Shop
+            </text>
+            <line
+              x1="290"
+              y1="80"
+              x2="330"
+              y2="80"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="330"
+              y="50"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="390" y="85" text-anchor="middle" class="timeline-text">
+              Chassis Assembly
+            </text>
+            <line
+              x1="450"
+              y1="80"
+              x2="490"
+              y2="80"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="490"
+              y="50"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="550" y="75" text-anchor="middle" class="timeline-text">
+              Engine and
+            </text>
+            <text x="550" y="95" text-anchor="middle" class="timeline-text">
+              Transmission
+            </text>
+            <line
+              x1="610"
+              y1="80"
+              x2="650"
+              y2="80"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="650"
+              y="50"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="710" y="85" text-anchor="middle" class="timeline-text">
+              Interior Assembly
+            </text>
+            <line
+              x1="710"
+              y1="110"
+              x2="710"
+              y2="150"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="650"
+              y="150"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="710" y="185" text-anchor="middle" class="timeline-text">
+              Doors and Windows
+            </text>
+            <line
+              x1="650"
+              y1="180"
+              x2="610"
+              y2="180"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="490"
+              y="150"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="550" y="175" text-anchor="middle" class="timeline-text">
+              Wheel and Tire
+            </text>
+            <text x="550" y="195" text-anchor="middle" class="timeline-text">
+              Installation
+            </text>
+            <line
+              x1="490"
+              y1="180"
+              x2="450"
+              y2="180"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="330"
+              y="150"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="390" y="185" text-anchor="middle" class="timeline-text">
+              Fluid Fill
+            </text>
+            <line
+              x1="330"
+              y1="180"
+              x2="290"
+              y2="180"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="170"
+              y="150"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="230" y="185" text-anchor="middle" class="timeline-text">
+              Battery Installation
+            </text>
+            <line
+              x1="170"
+              y1="180"
+              x2="130"
+              y2="180"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="10"
+              y="150"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="70" y="185" text-anchor="middle" class="timeline-text">
+              Quality Control
+            </text>
+            <line
+              x1="70"
+              y1="210"
+              x2="70"
+              y2="250"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="10"
+              y="250"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="70" y="285" text-anchor="middle" class="timeline-text">
+              Final Inspection
+            </text>
+            <line
+              x1="130"
+              y1="280"
+              x2="170"
+              y2="280"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="170"
+              y="250"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="230" y="285" text-anchor="middle" class="timeline-text">
+              Road Test
+            </text>
+            <line
+              x1="290"
+              y1="280"
+              x2="330"
+              y2="280"
+              class="timeline-arrow"
+              marker-end="url(#arrowhead)"
+            />
+
+            <rect
+              x="330"
+              y="250"
+              width="120"
+              height="60"
+              class="timeline-step"
+            />
+            <text x="390" y="275" text-anchor="middle" class="timeline-text">
+              Ready for
+            </text>
+            <text x="390" y="295" text-anchor="middle" class="timeline-text">
+              Delivery
+            </text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="engines" class="section">
+        <h2>Types of Car Engines</h2>
+
+        <div class="collapsible">Internal Combustion Engines (ICE)</div>
+        <div class="content">
+          <h3>Gasoline Engines</h3>
+          <p>
+            Gasoline engines are the most common type of internal combustion
+            engine. They work by igniting a mixture of fuel and air using spark
+            plugs. Key features include:
+          </p>
+          <ul>
+            <li>
+              Four-stroke cycle: intake, compression, combustion, and exhaust
+            </li>
+            <li>Spark-ignition system</li>
+            <li>
+              Generally higher RPM and lower torque compared to diesel engines
+            </li>
+            <li>Requires more frequent maintenance</li>
+          </ul>
+
+          <h3>Diesel Engines</h3>
+          <p>
+            Diesel engines use compression ignition instead of spark plugs. They
+            are more efficient but typically produce more emissions.
+            Characteristics include:
+          </p>
+          <ul>
+            <li>Higher compression ratios</li>
+            <li>Self-ignition of the fuel-air mixture due to high pressure</li>
+            <li>Generally more fuel-efficient than gasoline engines</li>
+            <li>
+              Higher torque output, making them suitable for heavy-duty
+              applications
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Hybrid Engines</div>
+        <div class="content">
+          <p>
+            Hybrid engines combine a gasoline engine with one or more electric
+            motors. This combination allows for improved fuel efficiency,
+            especially in city driving conditions. Key features include:
+          </p>
+          <ul>
+            <li>
+              Ability to use either the gasoline engine or electric motor, or
+              both simultaneously
+            </li>
+            <li>Regenerative braking to recharge the battery</li>
+            <li>
+              Automatic switching between power sources for optimal efficiency
+            </li>
+            <li>Reduced emissions compared to traditional ICE vehicles</li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Electric Motors</div>
+        <div class="content">
+          <p>
+            Electric vehicles (EVs) use one or more electric motors powered by
+            rechargeable batteries. They produce zero direct emissions and are
+            highly efficient. Key components include:
+          </p>
+          <ul>
+            <li>Electric motor(s) for propulsion</li>
+            <li>Large battery pack for energy storage</li>
+            <li>Power electronics to control motor operation</li>
+            <li>Regenerative braking system to recapture energy</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="hybrid-ev" class="section">
+        <h2>Hybrid and Electric Vehicles</h2>
+
+        <div class="collapsible">Hybrid Vehicles</div>
+        <div class="content">
+          <p>
+            Hybrid vehicles combine a gasoline engine with electric motors. Key
+            features and advantages include:
+          </p>
+          <ul>
+            <li>Improved fuel efficiency, especially in city driving</li>
+            <li>Reduced emissions compared to traditional gasoline vehicles</li>
+            <li>Regenerative braking to recapture energy</li>
+            <li>Ability to run on electric power alone for short distances</li>
+            <li>
+              Automatic switching between gasoline and electric power for
+              optimal efficiency
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Electric Vehicles (EVs)</div>
+        <div class="content">
+          <p>
+            Electric vehicles run entirely on electric power stored in
+            rechargeable batteries. Key aspects include:
+          </p>
+          <ul>
+            <li>
+              Zero direct emissions, making them more environmentally friendly
+            </li>
+            <li>High efficiency and lower operating costs</li>
+            <li>Quieter operation compared to ICE vehicles</li>
+            <li>Instant torque, providing quick acceleration</li>
+            <li>Dependence on charging infrastructure</li>
+            <li>Currently limited range compared to gasoline vehicles</li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Battery Technology</div>
+        <div class="content">
+          <p>
+            Most modern EVs use lithium-ion batteries due to their high energy
+            density and long lifespan. Key aspects of EV battery technology
+            include:
+          </p>
+          <ul>
+            <li>High energy density for longer driving range</li>
+            <li>Fast charging capabilities</li>
+            <li>
+              Thermal management systems for optimal performance and safety
+            </li>
+            <li>
+              Battery management systems to monitor and control individual cells
+            </li>
+            <li>
+              Ongoing research to improve capacity, reduce costs, and enhance
+              sustainability
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Charging Infrastructure</div>
+        <div class="content">
+          <p>
+            The growth of EVs depends heavily on the availability of charging
+            stations. There are three main types of EV chargers:
+          </p>
+          <ul>
+            <li>
+              Level 1 (120V AC): Standard household outlet, slowest charging
+            </li>
+            <li>
+              Level 2 (240V AC): Faster charging, common in homes and public
+              spaces
+            </li>
+            <li>
+              Level 3 (DC Fast Charging): Rapid charging, typically found along
+              highways
+            </li>
+          </ul>
+          <p>
+            The expansion of charging networks is crucial for widespread EV
+            adoption.
+          </p>
+        </div>
+
+        <div class="collapsible">Regenerative Braking</div>
+        <div class="content">
+          <p>
+            Regenerative braking is a key feature in hybrid and electric
+            vehicles. It works by:
+          </p>
+          <ol>
+            <li>Using the electric motor as a generator when slowing down</li>
+            <li>Converting kinetic energy into electrical energy</li>
+            <li>Storing the captured energy in the battery for later use</li>
+          </ol>
+          <p>Benefits of regenerative braking include:</p>
+          <ul>
+            <li>Increased energy efficiency</li>
+            <li>Extended driving range</li>
+            <li>Reduced wear on traditional friction brakes</li>
+          </ul>
+          <p>
+            This technology significantly contributes to the overall efficiency
+            of hybrid and electric vehicles, especially in stop-and-go traffic
+            conditions.
+          </p>
+        </div>
+      </section>
+
+      <section id="terms" class="section">
+        <h2>Key Automotive Terms</h2>
+
+        <div class="collapsible">Torque</div>
+        <div class="content">
+          <p>
+            Torque is a measure of rotational force. In automotive context, it
+            represents the twisting force that the engine can apply to the
+            drivetrain. Key points about torque include:
+          </p>
+          <ul>
+            <li>Measured in pound-feet (lb-ft) or Newton-meters (Nm)</li>
+            <li>
+              Determines a vehicle's acceleration capability, especially from a
+              stop
+            </li>
+            <li>Crucial for towing and hauling performance</li>
+            <li>
+              Diesel engines typically produce more torque than gasoline engines
+            </li>
+            <li>Electric motors can deliver maximum torque instantly</li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Horsepower</div>
+        <div class="content">
+          <p>
+            Horsepower is a unit of measurement for power. In vehicles, it
+            represents the rate at which work is done by the engine. Important
+            aspects of horsepower include:
+          </p>
+          <ul>
+            <li>
+              Calculated using the formula: Horsepower = (Torque × RPM) / 5,252
+            </li>
+            <li>
+              Influences a vehicle's top speed and acceleration at higher speeds
+            </li>
+            <li>Often peaks at higher RPMs compared to torque</li>
+            <li>
+              Modern cars typically range from about 100 hp for small cars to
+              over 1000 hp for high-performance vehicles
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Drivetrain</div>
+        <div class="content">
+          <p>
+            The drivetrain is the group of components that deliver power from
+            the engine to the wheels. It includes:
+          </p>
+          <ul>
+            <li>Transmission</li>
+            <li>Driveshaft</li>
+            <li>Differentials</li>
+            <li>Axles</li>
+          </ul>
+          <p>Common drivetrain configurations include:</p>
+          <ul>
+            <li>
+              Front-wheel drive (FWD): Engine power is sent to the front wheels
+            </li>
+            <li>
+              Rear-wheel drive (RWD): Engine power is sent to the rear wheels
+            </li>
+            <li>
+              All-wheel drive (AWD): Power can be sent to all four wheels, often
+              with a bias towards front or rear
+            </li>
+            <li>
+              Four-wheel drive (4WD): Similar to AWD, but typically with a
+              transfer case for low-range gearing
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Efficiency</div>
+        <div class="content">
+          <p>
+            In automotive terms, efficiency primarily refers to fuel efficiency
+            or energy efficiency. It's a measure of how effectively a vehicle
+            converts fuel or energy into motion. Key points include:
+          </p>
+          <ul>
+            <li>
+              Measured in miles per gallon (mpg) or liters per 100 kilometers
+              (L/100km) for ICE vehicles
+            </li>
+            <li>
+              For electric vehicles, efficiency is often measured in
+              kilowatt-hours per 100 miles (kWh/100mi) or miles per
+              kilowatt-hour (mi/kWh)
+            </li>
+            <li>
+              Affected by factors such as engine design, vehicle weight,
+              aerodynamics, and driving conditions
+            </li>
+            <li>
+              Hybrid vehicles aim to improve efficiency by combining ICE and
+              electric propulsion
+            </li>
+            <li>
+              Electric vehicles are generally more efficient in converting
+              stored energy into motion compared to ICE vehicles
+            </li>
+          </ul>
+        </div>
+
+        <div class="collapsible">Turbocharging</div>
+        <div class="content">
+          <p>
+            Turbocharging is a method of forced induction that increases an
+            engine's efficiency and power output. Key aspects of turbocharging
+            include:
+          </p>
+          <ul>
+            <li>
+              Uses a turbine driven by exhaust gases to compress intake air
+            </li>
+            <li>
+              Allows a smaller engine to produce more power, a concept known as
+              "downsizing"
+            </li>
+            <li>
+              Can improve fuel efficiency when not operating at full boost
+            </li>
+            <li>
+              May experience "turbo lag" - a delay between pressing the
+              accelerator and feeling increased power
+            </li>
+            <li>Often used in both gasoline and diesel engines</li>
+            <li>
+              Can be combined with direct fuel injection for further efficiency
+              gains
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+      // Function to toggle content visibility
+      function toggleContent(element) {
+        element.classList.toggle("active");
+        var content = element.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      }
+
+      // Add click event listeners to all collapsibles
+      document.addEventListener("DOMContentLoaded", function () {
+        var collapsibles = document.querySelectorAll(".collapsible");
+        collapsibles.forEach(function (collapsible) {
+          collapsible.addEventListener("click", function () {
+            toggleContent(this);
+          });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute("href")).scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
