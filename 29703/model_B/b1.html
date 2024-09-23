@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Algorithm Visualizer</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism-twilight.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .dark-mode {
+        background-color: #121212;
+        color: #ffffff;
+      }
+      .algorithm-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .code-area {
+        background: #f4f4f4;
+        border-left: 5px solid #007bff;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      .dark-mode .code-area {
+        background: #1e1e1e;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="bg-light p-3">
+      <h1>Algorithm Visualizer</h1>
+      <button id="darkModeToggle" class="btn btn-secondary">
+        Toggle Dark Mode
+      </button>
+    </header>
+    <div class="container mt-4">
+      <!-- Algorithm sections will be dynamically added here -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+    <script>
+      const algorithms = [
+        {
+          name: "Dynamic Programming",
+          visualization: "dpAnimation",
+          complexity: "Time: O(n*m), Space: O(n)",
+        },
+        // Add other algorithms similarly
+      ];
+
+      const container = document.querySelector(".container");
+      algorithms.forEach((algo) => {
+        const section = `
+            <div class="algorithm-section">
+                <h2>${algo.name}</h2>
+                <p>Explanation: ...</p>
+                <div id="${algo.visualization}">Visualization Placeholder</div>
+                <pre class="language-js"><code class="language-js">function ${algo.name.toLowerCase()}() {
+    // Code here
+}</code></pre>
+                <button onclick="runCode('${algo.name.toLowerCase()}')">Run Code</button>
+                <p><strong>Complexity:</strong> ${algo.complexity}</p>
+            </div>`;
+        container.innerHTML += section;
+      });
+
+      function runCode(name) {
+        // Here, you would typically execute the code or show an animation
+        alert(`Running ${name}...`);
+      }
+
+      document
+        .getElementById("darkModeToggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("dark-mode");
+        });
+    </script>
+  </body>
+</html>

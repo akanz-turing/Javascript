@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Algorithm Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg-color: white;
+        --text-color: black;
+        --card-bg: #f3f4f6;
+      }
+      body.dark-theme {
+        --bg-color: #121212;
+        --text-color: #e1e1ff;
+        --card-bg: #1e1e1e;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+      .card {
+        background-color: var(--card-bg);
+      }
+    </style>
+  </head>
+  <body class="font-sans bg-gray-100 dark:bg-gray-900">
+    <nav class="bg-blue-600 p-4 text-white dark:bg-gray-800">
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-2xl">Algorithm Visualizer</h1>
+        <button
+          id="theme-toggle"
+          class="p-2 rounded hover:bg-blue-700 dark:hover:bg-gray-700"
+        >
+          🌙/☀️
+        </button>
+      </div>
+    </nav>
+    <div class="container mx-auto mt-8 p-4">
+      <!-- Algorithm sections will be dynamically added here -->
+    </div>
+
+    <script>
+      const themeToggle = document.getElementById("theme-toggle");
+      const body = document.body;
+
+      themeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark-theme");
+        themeToggle.textContent = body.classList.contains("dark-theme")
+          ? "☀️"
+          : "🌙";
+      });
+
+      const algorithms = [
+        {
+          name: "Dynamic Programming",
+          animation: "dpAnimation",
+          complexity: "Time: O(n), Space: O(n)",
+        },
+        {
+          name: "Sliding Window",
+          animation: "swAnimation",
+          complexity: "Time: O(n), Space: O(1)",
+        },
+        // Add other algorithms similarly
+      ];
+
+      const container = document.querySelector(".container");
+
+      algorithms.forEach((algo) => {
+        const section = `
+            <section class="card mb-4 p-4 rounded-lg shadow-lg">
+                <h2 class="text-xl mb-2">${algo.name}</h2>
+                <div id="${algo.name
+                  .toLowerCase()
+                  .replace(
+                    " ",
+                    "-"
+                  )}-anim" class="mb-4">Animation goes here</div>
+                <details>
+                    <summary>Explanation & Use Cases</summary>
+                    <p>Explanation of ${algo.name}...</p>
+                    <p><strong>Use Cases:</strong> Where ${
+                      algo.name
+                    } is used...</p>
+                    <p><strong>Complexity:</strong> ${algo.complexity}</p>
+                </details>
+                <pre class="bg-gray-200 dark:bg-gray-700 p-2 rounded mt-2"><code class="language-javascript">function ${algo.name
+                  .replace(" ", "")
+                  .toLowerCase()}Example() {
+    // Example code here
+}</code></pre>
+            </section>`;
+        container.innerHTML += section;
+      });
+
+      // Placeholder for animations - this would be where you implement or call animation functions
+      function dpAnimation() {
+        // Animation logic for Dynamic Programming
+      }
+
+      // Add similar functions for other animations
+    </script>
+  </body>
+</html>
