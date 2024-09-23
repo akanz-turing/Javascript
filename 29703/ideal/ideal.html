@@ -1,1 +1,928 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Algorithm Visualizer</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+      .dark-mode {
+        @apply bg-gray-900 text-white;
+      }
+      .algorithm-section {
+        @apply mb-8 border rounded-lg p-4 transition-all duration-300 ease-in-out;
+      }
+      .collapsible {
+        @apply cursor-pointer;
+      }
+      .content {
+        @apply hidden mt-4;
+      }
+      .active .content {
+        @apply block;
+      }
+      #darkModeToggle {
+        color: black;
+      }
+      pre {
+        @apply bg-gray-100 p-4 rounded-lg overflow-x-auto;
+      }
+      .dark-mode pre {
+        @apply bg-gray-800;
+      }
+      /* Custom styles */
+      /* Custom styles */
+      body {
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .dark-mode {
+        background-color: #1a202c;
+        color: #f7fafc;
+      }
+
+      .algorithm-section {
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+      }
+
+      .dark-mode .algorithm-section {
+        background-color: #2d3748;
+        border-color: #4a5568;
+      }
+
+      .collapsible {
+        cursor: pointer;
+        padding: 10px;
+        width: 100%;
+        text-align: left;
+        outline: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .collapsible:after {
+        content: "\002B";
+        font-weight: bold;
+        font-size: 1.5em;
+        transition: transform 0.3s ease;
+      }
+
+      .active .collapsible:after {
+        content: "\2212";
+        transform: rotate(180deg);
+      }
+
+      .content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+
+      .active .content {
+        max-height: none;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background-color: #f0f4f8;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-x: auto;
+      }
+
+      .dark-mode pre {
+        background-color: #2d3748;
+      }
+
+      .run-code {
+        transition: background-color 0.3s;
+      }
+
+      .run-code:hover {
+        background-color: #2b6cb0;
+      }
+
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .explanation-card {
+        background-color: #f0f4f8;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .dark-mode .explanation-card {
+        background-color: #2d3748;
+      }
+
+      .complexity {
+        font-family: monospace;
+        background-color: #e2e8f0;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+      }
+
+      .dark-mode .complexity {
+        background-color: #4a5568;
+      }
+
+      .output {
+        background-color: #f0f4f8;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .graph-svg-container {
+        min-height: 300px;
+        overflow: visible;
+      }
+
+      .dark-mode .output {
+        background-color: #2d3748;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .algorithm-section {
+          padding: 1rem;
+        }
+
+        pre,
+        .output {
+          font-size: 0.875rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 text-gray-900 p-8">
+    <button
+      id="darkModeToggle"
+      class="bg-gray-200 dark:bg-gray-700 dark:text-black px-4 py-2 rounded-full"
+    >
+      Toggle Dark Mode
+    </button>
+    <h1 class="text-4xl font-bold mb-8 text-center">Algorithm Visualizer</h1>
+    <div id="app" class="max-w-4xl mx-auto">
+      <!-- Algorithm sections will be dynamically inserted here -->
+    </div>
+    <script>
+      // Algorithm data
+
+      const algorithms = [
+        {
+          name: "Dynamic Programming",
+          description:
+            "A method for solving complex problems by breaking them down into simpler subproblems.",
+          useCase: "Fibonacci sequence calculation",
+          complexity: "Time: O(n), Space: O(n)",
+          code: `function fibonacci(n) {
+    const fib = [0, 1];
+    for (let i = 2; i <= n; i++) {
+        fib[i] = fib[i-1] + fib[i-2];
+    }
+    return fib[n];
+}
+
+console.log(fibonacci(10)); // Output: 55`,
+          animate: (svg) => {
+            const width = 300,
+              height = 150;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            const fibSequence = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+            const barWidth = width / fibSequence.length;
+            const maxHeight = Math.max(...fibSequence);
+
+            fibSequence.forEach((value, index) => {
+              const rect = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "rect"
+              );
+              rect.setAttribute("x", index * barWidth);
+              rect.setAttribute("y", height - (value / maxHeight) * height);
+              rect.setAttribute("width", barWidth - 1);
+              rect.setAttribute("height", (value / maxHeight) * height);
+              rect.setAttribute("fill", "#4299e1");
+              svg.appendChild(rect);
+
+              const text = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              text.setAttribute("x", index * barWidth + barWidth / 2);
+              text.setAttribute("y", height - 5);
+              text.setAttribute("text-anchor", "middle");
+              text.setAttribute("fill", "currentColor");
+              text.textContent = value;
+              svg.appendChild(text);
+            });
+          },
+        },
+        {
+          name: "Sliding Window",
+          description:
+            "An algorithmic technique that uses a window which slides over data to process it efficiently.",
+          useCase: "Finding the maximum sum subarray of size k",
+          complexity: "Time: O(n), Space: O(1)",
+          code: `function maxSubarraySum(arr, k) {
+    let maxSum = 0;
+    let windowSum = 0;
+    
+    for (let i = 0; i < k; i++) {
+        windowSum += arr[i];
+    }
+    
+    maxSum = windowSum;
+    
+    for (let i = k; i < arr.length; i++) {
+        windowSum = windowSum - arr[i-k] + arr[i];
+        maxSum = Math.max(maxSum, windowSum);
+    }
+    
+    return maxSum;
+}
+
+console.log(maxSubarraySum([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)); // Output: 39`,
+          animate: (svg) => {
+            const width = 300,
+              height = 100;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            const arr = [1, 4, 2, 10, 23, 3, 1, 0, 20];
+            const barWidth = width / arr.length;
+            const maxHeight = Math.max(...arr);
+
+            arr.forEach((value, index) => {
+              const rect = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "rect"
+              );
+              rect.setAttribute("x", index * barWidth);
+              rect.setAttribute("y", height - (value / maxHeight) * height);
+              rect.setAttribute("width", barWidth - 1);
+              rect.setAttribute("height", (value / maxHeight) * height);
+              rect.setAttribute("fill", "#4299e1");
+              svg.appendChild(rect);
+            });
+
+            const window = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+            window.setAttribute("x", 0);
+            window.setAttribute("y", 0);
+            window.setAttribute("width", barWidth * 4);
+            window.setAttribute("height", height);
+            window.setAttribute("fill", "none");
+            window.setAttribute("stroke", "#f56565");
+            window.setAttribute("stroke-width", "2");
+            svg.appendChild(window);
+
+            gsap.to(window, {
+              x: width - barWidth * 4,
+              duration: 3,
+              repeat: -1,
+              yoyo: true,
+              ease: "linear",
+            });
+          },
+        },
+        {
+          name: "Two Pointers",
+          description:
+            "A technique where two pointers iterate through the data structure in tandem until one or both of the pointers hit a certain condition.",
+          useCase: "Checking if a string is a palindrome",
+          complexity: "Time: O(n), Space: O(1)",
+          code: `function isPalindrome(s) {
+    s = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let left = 0;
+    let right = s.length - 1;
+    
+    while (left < right) {
+        if (s[left] !== s[right]) {
+            return false;
+        }
+        left++;
+        right--;
+    }
+    
+    return true;
+}
+
+console.log(isPalindrome("A man, a plan, a canal: Panama")); // Output: true`,
+          animate: (svg) => {
+            const width = 300,
+              height = 50;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            const text = "AMANAPLANACANALPANAMA";
+            const charWidth = width / text.length;
+
+            text.split("").forEach((char, index) => {
+              const textEl = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              textEl.setAttribute("x", index * charWidth + charWidth / 2);
+              textEl.setAttribute("y", height / 2);
+              textEl.setAttribute("text-anchor", "middle");
+              textEl.setAttribute("dominant-baseline", "middle");
+              textEl.setAttribute("fill", "currentColor");
+              textEl.textContent = char;
+              svg.appendChild(textEl);
+            });
+
+            const leftPointer = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon"
+            );
+            leftPointer.setAttribute(
+              "points",
+              `0,${height} ${charWidth},${height / 2} 0,0`
+            );
+            leftPointer.setAttribute("fill", "#48bb78");
+
+            const rightPointer = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "polygon"
+            );
+            rightPointer.setAttribute(
+              "points",
+              `${width},${height} ${width - charWidth},${height / 2} ${width},0`
+            );
+            rightPointer.setAttribute("fill", "#48bb78");
+
+            svg.appendChild(leftPointer);
+            svg.appendChild(rightPointer);
+
+            gsap.to([leftPointer, rightPointer], {
+              x: (index) =>
+                index === 0 ? width / 2 - charWidth : -width / 2 + charWidth,
+              duration: 3,
+              repeat: -1,
+              yoyo: true,
+              ease: "power1.inOut",
+            });
+          },
+        },
+        {
+          name: "Greedy Algorithm",
+          description:
+            "An algorithmic paradigm that builds up a solution piece by piece, always choosing the next piece that offers the most obvious and immediate benefit.",
+          useCase: "Coin change problem",
+          complexity:
+            "Time: O(n), Space: O(1) where n is the number of coin denominations",
+          code: `function coinChange(coins, amount) {
+    coins.sort((a, b) => b - a); // Sort coins in descending order
+    let totalCoins = 0;
+    let remainingAmount = amount;
+
+    for (let coin of coins) {
+        const count = Math.floor(remainingAmount / coin);
+        totalCoins += count;
+        remainingAmount -= count * coin;
+    }
+
+    return totalCoins;
+}
+
+const coins = [25, 10, 5, 1];
+const amount = 41;
+console.log(\`Coins needed for \${amount} cents: \${coinChange(coins, amount)}\`);`,
+          animate: (svg) => {
+            const width = 300,
+              height = 100;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            const coins = [25, 10, 5, 1];
+            const amount = 41;
+            let remaining = amount;
+            let x = 10;
+            const y = height / 2;
+
+            coins.forEach((coin, index) => {
+              while (remaining >= coin) {
+                const circle = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "circle"
+                );
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", y);
+                circle.setAttribute("r", coin / 2);
+                circle.setAttribute(
+                  "fill",
+                  ["#ffd700", "#c0c0c0", "#cd7f32", "#a0a0a0"][index]
+                );
+                svg.appendChild(circle);
+
+                const text = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "text"
+                );
+                text.setAttribute("x", x);
+                text.setAttribute("y", y);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.setAttribute("fill", "black");
+                text.setAttribute("font-size", "10");
+                text.textContent = coin;
+                svg.appendChild(text);
+
+                x += coin + 5;
+                remaining -= coin;
+              }
+            });
+
+            const resultText = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text"
+            );
+            resultText.setAttribute("x", width / 2);
+            resultText.setAttribute("y", height - 10);
+            resultText.setAttribute("text-anchor", "middle");
+            resultText.setAttribute("fill", "currentColor");
+            resultText.textContent = `Total coins: ${amount - remaining}`;
+            svg.appendChild(resultText);
+          },
+        },
+        {
+          name: "Recursion",
+          description:
+            "A method of solving a problem where the solution depends on solutions to smaller instances of the same problem.",
+          useCase: "Calculating factorial",
+          complexity: "Time: O(n), Space: O(n) due to the call stack",
+          code: `function factorial(n) {
+    // Base case
+    if (n === 0 || n === 1) {
+        return 1;
+    }
+    // Recursive case
+    return n * factorial(n - 1);
+}
+
+console.log(factorial(3)); // Output: 6`,
+          animate: (svg) => {
+            const width = 300,
+              height = 200;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            function drawTree(x, y, n) {
+              if (n === 0) return;
+
+              const nodeRadius = 20;
+              const verticalGap = 50;
+              const horizontalGap = 40;
+
+              // Draw current node
+              const circle = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+              );
+              circle.setAttribute("cx", x);
+              circle.setAttribute("cy", y);
+              circle.setAttribute("r", nodeRadius);
+              circle.setAttribute("fill", "#4299e1");
+              svg.appendChild(circle);
+
+              const text = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              text.setAttribute("x", x);
+              text.setAttribute("y", y);
+              text.setAttribute("text-anchor", "middle");
+              text.setAttribute("dominant-baseline", "middle");
+              text.setAttribute("fill", "white");
+              text.textContent = n;
+              svg.appendChild(text);
+
+              if (n > 1) {
+                // Draw lines to child nodes
+                const leftLine = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "line"
+                );
+                leftLine.setAttribute("x1", x);
+                leftLine.setAttribute("y1", y + nodeRadius);
+                leftLine.setAttribute("x2", x - horizontalGap);
+                leftLine.setAttribute("y2", y + verticalGap - nodeRadius);
+                leftLine.setAttribute("stroke", "#4299e1");
+                leftLine.setAttribute("stroke-width", "2");
+                svg.appendChild(leftLine);
+
+                const rightLine = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "line"
+                );
+                rightLine.setAttribute("x1", x);
+                rightLine.setAttribute("y1", y + nodeRadius);
+                rightLine.setAttribute("x2", x + horizontalGap);
+                rightLine.setAttribute("y2", y + verticalGap - nodeRadius);
+                rightLine.setAttribute("stroke", "#4299e1");
+                rightLine.setAttribute("stroke-width", "2");
+                svg.appendChild(rightLine);
+
+                // Draw child nodes
+                drawTree(x - horizontalGap, y + verticalGap, n - 1);
+                drawTree(x + horizontalGap, y + verticalGap, n - 1);
+              }
+            }
+
+            drawTree(width / 2, 30, 3);
+          },
+        },
+        {
+          name: "Backtracking",
+          description:
+            "An algorithmic technique that considers searching every possible combination in order to solve a computational problem.",
+          useCase: "N-Queens problem",
+          complexity:
+            "Time: O(N!), Space: O(N) for a chess board of size N x N",
+          code: `function solveNQueens(n) {
+    const board = Array(n).fill().map(() => Array(n).fill('.'));
+    const solutions = [];
+
+    function isSafe(row, col) {
+        // Check this row on left side
+        for (let i = 0; i < col; i++)
+            if (board[row][i] === 'Q') return false;
+
+        // Check upper diagonal on left side
+        for (let i = row, j = col; i >= 0 && j >= 0; i--, j--)
+            if (board[i][j] === 'Q') return false;
+
+        // Check lower diagonal on left side
+        for (let i = row, j = col; j >= 0 && i < n; i++, j--)
+            if (board[i][j] === 'Q') return false;
+
+        return true;
+    }
+
+    function backtrack(col) {
+        if (col === n) {
+            solutions.push(board.map(row => row.join('')));
+            return;
+        }
+
+        for (let i = 0; i < n; i++) {
+            if (isSafe(i, col)) {
+                board[i][col] = 'Q';
+                backtrack(col + 1);
+                board[i][col] = '.';
+            }
+        }
+    }
+
+    backtrack(0);
+    return solutions;
+}
+
+console.log(solveNQueens(4));`,
+          animate: (svg) => {
+            const width = 300,
+              height = 300;
+            svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+            const n = 4;
+            const cellSize = width / n;
+
+            // Draw the chessboard
+            for (let i = 0; i < n; i++) {
+              for (let j = 0; j < n; j++) {
+                const rect = document.createElementNS(
+                  "http://www.w3.org/2000/svg",
+                  "rect"
+                );
+                rect.setAttribute("x", j * cellSize);
+                rect.setAttribute("y", i * cellSize);
+                rect.setAttribute("width", cellSize);
+                rect.setAttribute("height", cellSize);
+                rect.setAttribute(
+                  "fill",
+                  (i + j) % 2 === 0 ? "#f0d9b5" : "#b58863"
+                );
+                svg.appendChild(rect);
+              }
+            }
+
+            const solution = [
+              [1, 0],
+              [3, 1],
+              [0, 2],
+              [2, 3],
+            ];
+            solution.forEach(([row, col], index) => {
+              const queen = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              queen.setAttribute("x", col * cellSize + cellSize / 2);
+              queen.setAttribute("y", row * cellSize + cellSize / 2);
+              queen.setAttribute("font-size", cellSize * 0.8);
+              queen.setAttribute("text-anchor", "middle");
+              queen.setAttribute("dominant-baseline", "central");
+              queen.setAttribute("fill", "black");
+              queen.textContent = "♕";
+              svg.appendChild(queen);
+
+              const number = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              number.setAttribute("x", col * cellSize + 10);
+              number.setAttribute("y", row * cellSize + 20);
+              number.setAttribute("font-size", "16");
+              number.setAttribute("fill", "red");
+              number.textContent = index + 1;
+              svg.appendChild(number);
+            });
+          },
+        },
+        {
+          name: "Breadth-First Search (BFS)",
+          description:
+            "A graph traversal algorithm that explores all vertices of a graph or all nodes of a tree at the present depth before moving to the vertices at the next depth level.",
+          useCase: "Finding shortest path in an unweighted graph",
+          complexity:
+            "Time: O(V + E), Space: O(V) where V is the number of vertices and E is the number of edges",
+          code: `function bfs(graph, start) {
+    const visited = new Set();
+    const queue = [start];
+    const result = [];
+
+    while (queue.length > 0) {
+        const vertex = queue.shift();
+        if (!visited.has(vertex)) {
+            visited.add(vertex);
+            result.push(vertex);
+            queue.push(...(graph[vertex] || []));
+        }
+    }
+
+    return result;
+}
+
+const graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': [],
+    'F': []
+};
+
+console.log(bfs(graph, 'A')); // Output: ['A', 'B', 'C', 'D', 'E', 'F']`,
+          animate: (svg) => graphAnimate(svg, ["A", "B", "C", "D", "E", "F"]),
+        },
+        {
+          name: "Depth-First Search (DFS)",
+          description:
+            "A graph traversal algorithm that explores as far as possible along each branch before backtracking.",
+          useCase: "Topological sorting, detecting cycles",
+          complexity:
+            "Time: O(V + E), Space: O(V) where V is the number of vertices and E is the number of edges",
+          code: `function dfs(graph, start, visited = new Set()) {
+    visited.add(start);
+    console.log(start);
+
+    for (let neighbor of graph[start] || []) {
+        if (!visited.has(neighbor)) {
+            dfs(graph, neighbor, visited);
+        }
+    }
+}
+
+const graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': [],
+    'F': []
+};
+
+dfs(graph, 'A');
+// Output: A, B, D, E, C, F`,
+          animate: (svg) => graphAnimate(svg, ["A", "B", "C", "D", "E", "F"]),
+        },
+      ];
+
+      // Function to run code examples
+      function runCode(event) {
+        if (event.target.classList.contains("run-code")) {
+          const code = event.target.previousElementSibling.textContent;
+          const outputElement = event.target.nextElementSibling;
+          try {
+            // Capture console.log output
+            const logs = [];
+            const originalConsoleLog = console.log;
+            console.log = (...args) => {
+              logs.push(args.map((arg) => JSON.stringify(arg)).join(" "));
+            };
+
+            // Execute the code
+            eval(code);
+
+            // Restore original console.log
+            console.log = originalConsoleLog;
+
+            // Display the output
+            outputElement.textContent = "Output: " + logs.join("\n");
+            outputElement.style.display = "block";
+          } catch (error) {
+            outputElement.textContent = "Error: " + error.message;
+            outputElement.style.display = "block";
+          }
+        }
+      }
+
+      // Function to create algorithm sections
+      function createAlgorithmSections() {
+        const app = document.getElementById("app");
+        algorithms.forEach((algo, index) => {
+          const section = document.createElement("div");
+          section.className = "algorithm-section mb-8";
+          section.innerHTML = `
+            <h2 class="text-2xl font-bold mb-2 collapsible">${algo.name}</h2>
+            <div class="content">
+                <div class="explanation-card">
+                    <p class="mb-2"><strong>Description:</strong> ${
+                      algo.description
+                    }</p>
+                    <p class="mb-2"><strong>Use Case:</strong> ${
+                      algo.useCase
+                    }</p>
+                    <p class="mb-2"><strong>Complexity:</strong> <span class="complexity">${
+                      algo.complexity
+                    }</span></p>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Code Example:</h3>
+                <pre><code class="language-javascript">${algo.code}</code></pre>
+                <button class="run-code bg-blue-500 text-white px-4 py-2 rounded mt-4">Run Code</button>
+                <pre class="output mt-4 bg-gray-100 p-4 rounded-lg hidden"></pre>
+                <h3 class="text-xl font-bold my-4">Visualization:</h3>
+                <div class="svg-container ${
+                  algo.name === "Breadth-First Search (BFS)" ||
+                  algo.name === "Depth-First Search (DFS)"
+                    ? "graph-svg-container"
+                    : ""
+                }">
+                    <svg id="svg-${index}" class="w-full" height="300"></svg>
+                </div>
+            </div>
+        `;
+          app.appendChild(section);
+
+          // Initialize animation
+          algo.animate(document.getElementById(`svg-${index}`));
+        });
+      }
+
+      // Update the BFS and DFS animate functions
+      const graphAnimate = (svg, order) => {
+        const width = 300,
+          height = 300;
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+        const nodes = [
+          { id: "A", x: 150, y: 50 },
+          { id: "B", x: 75, y: 150 },
+          { id: "C", x: 225, y: 150 },
+          { id: "D", x: 30, y: 250 },
+          { id: "E", x: 120, y: 250 },
+          { id: "F", x: 270, y: 250 },
+        ];
+
+        const edges = [
+          ["A", "B"],
+          ["A", "C"],
+          ["B", "D"],
+          ["B", "E"],
+          ["C", "F"],
+        ];
+
+        // Draw edges
+        edges.forEach(([from, to]) => {
+          const fromNode = nodes.find((n) => n.id === from);
+          const toNode = nodes.find((n) => n.id === to);
+          const line = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+          );
+          line.setAttribute("x1", fromNode.x);
+          line.setAttribute("y1", fromNode.y);
+          line.setAttribute("x2", toNode.x);
+          line.setAttribute("y2", toNode.y);
+          line.setAttribute("stroke", "#4299e1");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        });
+
+        // Draw nodes
+        nodes.forEach((node) => {
+          const circle = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+          );
+          circle.setAttribute("cx", node.x);
+          circle.setAttribute("cy", node.y);
+          circle.setAttribute("r", "20");
+          circle.setAttribute("fill", "#48bb78");
+          svg.appendChild(circle);
+
+          const text = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          text.setAttribute("x", node.x);
+          text.setAttribute("y", node.y);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("dominant-baseline", "central");
+          text.setAttribute("fill", "white");
+          text.textContent = node.id;
+          svg.appendChild(text);
+
+          const orderText = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          orderText.setAttribute("x", node.x + 15);
+          orderText.setAttribute("y", node.y - 25);
+          orderText.setAttribute("fill", "red");
+          orderText.setAttribute("font-size", "14");
+          orderText.textContent = order.indexOf(node.id) + 1;
+          svg.appendChild(orderText);
+        });
+      };
+
+      // Function to toggle dark mode
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        updateSVGColors();
+      }
+
+      // Function to update SVG colors when switching between light and dark modes
+      function updateSVGColors() {
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        document.querySelectorAll("svg text").forEach((text) => {
+          text.setAttribute("fill", isDarkMode ? "white" : "black");
+        });
+      }
+
+      // Function to toggle collapsible sections
+      function toggleCollapsible(event) {
+        if (event.target.classList.contains("collapsible")) {
+          event.target.parentElement.classList.toggle("active");
+        }
+      }
+
+      // Event listeners
+      document
+        .getElementById("darkModeToggle")
+        .addEventListener("click", toggleDarkMode);
+      document
+        .getElementById("app")
+        .addEventListener("click", toggleCollapsible);
+      document.getElementById("app").addEventListener("click", runCode);
+
+      // Initialize the app
+      createAlgorithmSections();
+
+      // Highlight.js initialization (if you decide to use it for syntax highlighting)
+      document.addEventListener("DOMContentLoaded", (event) => {
+        document.querySelectorAll("pre code").forEach((block) => {
+          hljs.highlightBlock(block);
+        });
+      });
+
+      // Update SVG colors on initial load
+      updateSVGColors();
+    </script>
+  </body>
+</html>
