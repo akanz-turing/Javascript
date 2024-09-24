@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Structure & Funding Guide</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* styles.css */
+      body {
+        font-family: "Arial", sans-serif;
+      }
+
+      section {
+        margin-bottom: 40px;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 40vh;
+        width: 80vw;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Business Basics</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#hierarchy">Hierarchy</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#funding">Funding</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#shares">Shares</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#lifecycle">Lifecycle</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#glossary">Glossary</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#calculator">Calculator</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <!-- Content sections will be added here -->
+      <section id="hierarchy">...</section>
+      <section id="funding">...</section>
+      <section id="shares">...</section>
+      <section id="lifecycle">...</section>
+      <section id="glossary">...</section>
+      <section id="calculator">
+        <h2>Equity Dilution Calculator</h2>
+        <form id="equityForm">
+          <!-- Form inputs for funding rounds -->
+        </form>
+        <canvas id="equityChart" width="400" height="400"></canvas>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+    <script>
+      // script.js
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const ctx = document.getElementById("equityChart").getContext("2d");
+        let myChart;
+
+        function updateChart(data) {
+          if (myChart) {
+            myChart.destroy();
+          }
+          myChart = new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: ["Founder", "Investors"],
+              datasets: [
+                {
+                  data: data,
+                  backgroundColor: ["#ff6384", "#36a2eb"],
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+            },
+          });
+        }
+
+        document
+          .getElementById("equityForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            // Logic to calculate dilution based on form inputs
+            let founderShare = 100; // Starting share
+            // Example: for each round, subtract the new investment percentage
+            const newInvestment = parseFloat(
+              document.getElementById("investmentInput").value
+            );
+            founderShare -= newInvestment;
+
+            updateChart([founderShare, 100 - founderShare]);
+          });
+      });
+    </script>
+  </body>
+</html>
