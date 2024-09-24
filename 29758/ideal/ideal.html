@@ -1,1 +1,899 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aircraft Education App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --background-color: #ecf0f1;
+        --text-color: #34495e;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      .container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 250px;
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 20px;
+      }
+
+      .sidebar h2 {
+        margin-bottom: 20px;
+      }
+
+      .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .sidebar li {
+        margin-bottom: 10px;
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        display: block;
+        padding: 5px 0;
+      }
+
+      .content {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .section {
+        background-color: white;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-header {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .section-content {
+        display: none;
+        margin-top: 10px;
+      }
+
+      .card {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .timeline {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .timeline::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        background-color: var(--primary-color);
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -3px;
+      }
+
+      .timeline-item {
+        padding: 10px 40px;
+        position: relative;
+        background-color: inherit;
+        width: 50%;
+      }
+
+      .timeline::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        background-color: var(--primary-color);
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -3px;
+      }
+
+      .timeline-item {
+        padding: 10px 40px;
+        position: relative;
+        background-color: inherit;
+        width: 50%;
+      }
+
+      .timeline-item::after {
+        content: "";
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        right: -17px;
+        background-color: white;
+        border: 4px solid var(--primary-color);
+        top: 15px;
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .left {
+        left: 0;
+      }
+
+      .right {
+        left: 50%;
+      }
+
+      .left::before {
+        content: " ";
+        height: 0;
+        position: absolute;
+        top: 22px;
+        width: 0;
+        z-index: 1;
+        right: 30px;
+        border: medium solid var(--primary-color);
+        border-width: 10px 0 10px 10px;
+        border-color: transparent transparent transparent var(--primary-color);
+      }
+
+      .right::before {
+        content: " ";
+        height: 0;
+        position: absolute;
+        top: 22px;
+        width: 0;
+        z-index: 1;
+        left: 30px;
+        border: medium solid var(--primary-color);
+        border-width: 10px 10px 10px 0;
+        border-color: transparent var(--primary-color) transparent transparent;
+      }
+
+      .right::after {
+        left: -16px;
+      }
+
+      .timeline-content {
+        padding: 20px 30px;
+        background-color: white;
+        position: relative;
+        border-radius: 6px;
+      }
+
+      @media screen and (max-width: 768px) {
+        .timeline::after {
+          left: 31px;
+        }
+
+        .timeline-item {
+          width: 100%;
+          padding-left: 70px;
+          padding-right: 25px;
+        }
+
+        .timeline-item::before {
+          left: 60px;
+          border: medium solid var(--primary-color);
+          border-width: 10px 10px 10px 0;
+          border-color: transparent var(--primary-color) transparent transparent;
+        }
+
+        .left::after,
+        .right::after {
+          left: 15px;
+        }
+
+        .right {
+          left: 0%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <nav class="sidebar">
+        <h2>Aircraft Education</h2>
+        <ul>
+          <li><a href="#takeoff-landing">Takeoff and Landing</a></li>
+          <li><a href="#aircraft-parts">Aircraft Parts</a></li>
+          <li><a href="#assembly-process">Assembly Process</a></li>
+          <li><a href="#aircraft-types">Aircraft Types</a></li>
+          <li><a href="#aviation-terms">Aviation Terms</a></li>
+        </ul>
+      </nav>
+      <main class="content">
+        <section id="takeoff-landing" class="section">
+          <div class="section-header">
+            <h2>Takeoff and Landing</h2>
+            <span class="toggle-icon">+</span>
+          </div>
+          <div class="section-content">
+            <h3>Takeoff Process</h3>
+            <p>
+              During takeoff, the aircraft accelerates down the runway,
+              generating lift through its wings. As it reaches a critical speed
+              called rotation speed (Vr), the pilot pulls back on the control
+              column, raising the nose and increasing the angle of attack. This
+              causes the wings to generate more lift, allowing the plane to
+              become airborne.
+            </p>
+
+            <h3>Landing Process</h3>
+            <p>
+              For landing, the pilot reduces engine power and extends flaps and
+              slats to increase lift at slower speeds. As the plane approaches
+              the runway, the pilot adjusts the aircraft's attitude to maintain
+              a gentle descent. Just before touching down, the pilot performs a
+              maneuver called the flare, raising the nose slightly to reduce the
+              rate of descent and allow the rear wheels to touch down first.
+            </p>
+
+            <h3>Key Aerodynamic Principles</h3>
+            <ul>
+              <li>
+                <strong>Thrust:</strong> The forward force produced by the
+                engines, overcoming drag.
+              </li>
+              <li>
+                <strong>Lift:</strong> The upward force created by the wings as
+                air flows over them, counteracting weight.
+              </li>
+              <li>
+                <strong>Drag:</strong> The resistance of the air to the
+                aircraft's motion.
+              </li>
+              <li>
+                <strong>Weight:</strong> The downward force due to gravity,
+                which lift must overcome for flight.
+              </li>
+            </ul>
+            <p>
+              These four forces work in balance to enable controlled flight.
+              During takeoff, thrust must exceed drag, and lift must exceed
+              weight. In level flight, thrust equals drag, and lift equals
+              weight.
+            </p>
+          </div>
+        </section>
+
+        <section id="aircraft-parts" class="section">
+          <div class="section-header">
+            <h2>Aircraft Parts</h2>
+            <span class="toggle-icon">+</span>
+          </div>
+          <div class="section-content">
+            <div class="card">
+              <h3>Wings</h3>
+              <p>
+                The primary lifting surfaces of an aircraft. Wings are
+                airfoil-shaped structures that generate lift as air flows over
+                them. Key components include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Ailerons:</strong> Located on the trailing edge of the
+                  wings, these control the aircraft's roll.
+                </li>
+                <li>
+                  <strong>Flaps:</strong> Extendable surfaces that increase lift
+                  and drag during takeoff and landing.
+                </li>
+                <li>
+                  <strong>Slats:</strong> Leading edge devices that help
+                  maintain lift at low speeds.
+                </li>
+                <li>
+                  <strong>Winglets:</strong> Vertical extensions at the wingtips
+                  that reduce drag and improve fuel efficiency.
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Fuselage</h3>
+              <p>
+                The main body of the aircraft, which holds the passengers,
+                cargo, and many of the aircraft's systems. The fuselage is
+                designed to:
+              </p>
+              <ul>
+                <li>Provide a streamlined shape to minimize drag</li>
+                <li>House the cockpit, passenger cabin, and cargo holds</li>
+                <li>
+                  Serve as the structural backbone, connecting wings, tail, and
+                  nose
+                </li>
+                <li>
+                  Contain essential systems like hydraulics and electrical
+                  wiring
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Engines</h3>
+              <p>
+                Provide thrust to propel the aircraft forward. Modern commercial
+                aircraft typically use turbofan engines, which consist of:
+              </p>
+              <ul>
+                <li>
+                  <strong>Fan:</strong> Large front fan that accelerates air
+                </li>
+                <li>
+                  <strong>Compressor:</strong> Increases the pressure of
+                  incoming air
+                </li>
+                <li>
+                  <strong>Combustion Chamber:</strong> Where fuel is mixed with
+                  compressed air and ignited
+                </li>
+                <li>
+                  <strong>Turbine:</strong> Extracts energy from hot gases to
+                  drive the fan and compressor
+                </li>
+                <li>
+                  <strong>Exhaust:</strong> Expels hot gases, providing
+                  additional thrust
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Landing Gear</h3>
+              <p>
+                The undercarriage of the aircraft, including wheels, struts, and
+                brakes. It serves several purposes:
+              </p>
+              <ul>
+                <li>Supports the aircraft's weight on the ground</li>
+                <li>Absorbs the shock of landing</li>
+                <li>Enables taxiing, takeoff, and landing operations</li>
+                <li>
+                  Houses the braking system for deceleration after landing
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Cockpit</h3>
+              <p>
+                The control center of the aircraft, where pilots operate the
+                plane's systems and navigate. Key elements include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Flight Controls:</strong> Yoke or sidestick, rudder
+                  pedals, throttle levers
+                </li>
+                <li>
+                  <strong>Instruments:</strong> Altimeter, airspeed indicator,
+                  attitude indicator, etc.
+                </li>
+                <li>
+                  <strong>Avionics:</strong> Navigation systems, communication
+                  equipment, autopilot
+                </li>
+                <li>
+                  <strong>Heads-Up Display (HUD):</strong> Projects critical
+                  flight information onto a transparent screen
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Tail Section</h3>
+              <p>
+                Consists of vertical and horizontal stabilizers, which provide
+                stability and control. Key components include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Vertical Stabilizer:</strong> The upright portion,
+                  which includes the rudder for yaw control
+                </li>
+                <li>
+                  <strong>Horizontal Stabilizer:</strong> The horizontal
+                  surface, which includes elevators for pitch control
+                </li>
+                <li>
+                  <strong>Trim Tabs:</strong> Small, adjustable surfaces that
+                  help maintain the aircraft's attitude without constant input
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="assembly-process" class="section">
+          <div class="section-header">
+            <h2>Assembly Process</h2>
+            <span class="toggle-icon">+</span>
+          </div>
+          <div class="section-content">
+            <div class="timeline">
+              <div class="timeline-item left">
+                <div class="timeline-content">
+                  <h3>1. Fuselage Construction</h3>
+                  <p>
+                    The main body of the aircraft is assembled from
+                    pre-fabricated sections. This includes the cockpit,
+                    passenger cabin, and cargo hold areas.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item right">
+                <div class="timeline-content">
+                  <h3>2. Wing Assembly</h3>
+                  <p>
+                    Wings are constructed separately, including the installation
+                    of fuel tanks, hydraulic systems, and control surfaces like
+                    ailerons and flaps.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item left">
+                <div class="timeline-content">
+                  <h3>3. Joining Wings to Fuselage</h3>
+                  <p>
+                    The completed wings are attached to the fuselage using
+                    strong fasteners and precise alignment techniques.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item right">
+                <div class="timeline-content">
+                  <h3>4. Tail Section Assembly</h3>
+                  <p>
+                    Vertical and horizontal stabilizers are constructed and then
+                    attached to the rear of the fuselage, along with their
+                    control surfaces.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item left">
+                <div class="timeline-content">
+                  <h3>5. Landing Gear Installation</h3>
+                  <p>
+                    The landing gear system, including wheels, struts, and
+                    retraction mechanisms, is fitted to the aircraft structure.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item right">
+                <div class="timeline-content">
+                  <h3>6. Engine Mounting</h3>
+                  <p>
+                    Engines are carefully attached to the wings or fuselage,
+                    depending on the aircraft design. This includes connecting
+                    all necessary systems.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item left">
+                <div class="timeline-content">
+                  <h3>7. Systems Integration</h3>
+                  <p>
+                    Electrical, hydraulic, pneumatic, and avionics systems are
+                    installed and connected throughout the aircraft.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item right">
+                <div class="timeline-content">
+                  <h3>8. Interior Fitting</h3>
+                  <p>
+                    The aircraft interior is outfitted with seats, galleys,
+                    lavatories, overhead bins, and other passenger amenities.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item left">
+                <div class="timeline-content">
+                  <h3>9. Painting and Finishing</h3>
+                  <p>
+                    The aircraft exterior is painted and finished according to
+                    airline specifications, including livery and protective
+                    coatings.
+                  </p>
+                </div>
+              </div>
+              <div class="timeline-item right">
+                <div class="timeline-content">
+                  <h3>10. Final Testing and Certification</h3>
+                  <p>
+                    Rigorous ground and flight tests are conducted to ensure all
+                    systems function properly. The aircraft must pass
+                    certification requirements before delivery.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="aircraft-types" class="section">
+          <div class="section-header">
+            <h2>Aircraft Types</h2>
+            <span class="toggle-icon">+</span>
+          </div>
+          <div class="section-content">
+            <div class="card">
+              <h3>Commercial Jets</h3>
+              <p>
+                Large passenger aircraft used by airlines for transporting
+                people over long distances.
+              </p>
+              <ul>
+                <li>
+                  <strong>Narrow-body:</strong> Single-aisle aircraft for short
+                  to medium-haul flights. <br />Example: Boeing 737, Airbus A320
+                </li>
+                <li>
+                  <strong>Wide-body:</strong> Twin-aisle aircraft for long-haul
+                  flights. <br />Example: Boeing 777, Airbus A350
+                </li>
+                <li>
+                  <strong>Jumbo Jets:</strong> Very large aircraft for
+                  high-capacity long-haul routes. <br />Example: Boeing 747,
+                  Airbus A380
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Regional Aircraft</h3>
+              <p>
+                Smaller commercial aircraft used for shorter routes or to
+                connect smaller airports.
+              </p>
+              <ul>
+                <li>
+                  <strong>Regional Jets:</strong> Small jet-powered aircraft.
+                  <br />Example: Embraer E175, Bombardier CRJ Series
+                </li>
+                <li>
+                  <strong>Turboprops:</strong> Propeller-driven aircraft for
+                  short-haul routes. <br />Example: ATR 72, De Havilland Canada
+                  Dash 8
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Private and Business Aircraft</h3>
+              <p>
+                Smaller aircraft used for personal or business travel, often
+                with luxurious interiors.
+              </p>
+              <ul>
+                <li>
+                  <strong>Light Jets:</strong> Small, efficient jets for short
+                  trips. <br />Example: Cessna Citation CJ4, Embraer Phenom 300
+                </li>
+                <li>
+                  <strong>Midsize to Large Jets:</strong> Larger cabin size for
+                  longer range. <br />Example: Gulfstream G650, Bombardier
+                  Global 7500
+                </li>
+                <li>
+                  <strong>Turboprops:</strong> Efficient for shorter flights or
+                  use at smaller airports. <br />Example: Pilatus PC-12,
+                  Beechcraft King Air
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Military Aircraft</h3>
+              <p>
+                Specialized planes designed for combat, reconnaissance, or
+                support roles in armed forces.
+              </p>
+              <ul>
+                <li>
+                  <strong>Fighters:</strong> High-performance aircraft for
+                  air-to-air combat. <br />Example: Lockheed Martin F-35
+                  Lightning II, Sukhoi Su-57
+                </li>
+                <li>
+                  <strong>Bombers:</strong> Long-range aircraft designed to
+                  attack ground targets. <br />Example: Northrop Grumman B-2
+                  Spirit, Tupolev Tu-160
+                </li>
+                <li>
+                  <strong>Transport:</strong> Large aircraft for moving troops
+                  and equipment. <br />Example: Lockheed C-130 Hercules, Boeing
+                  C-17 Globemaster III
+                </li>
+                <li>
+                  <strong>Reconnaissance:</strong> Aircraft equipped for
+                  surveillance missions. <br />Example: Northrop Grumman RQ-4
+                  Global Hawk (UAV)
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Cargo Planes</h3>
+              <p>
+                Aircraft designed to transport goods and materials over long
+                distances.
+              </p>
+              <ul>
+                <li>
+                  <strong>Dedicated Freighters:</strong> Purpose-built for cargo
+                  transport. <br />Example: Boeing 747 Freighter, Antonov An-124
+                  Ruslan
+                </li>
+                <li>
+                  <strong>Converted Passenger Aircraft:</strong> Passenger
+                  planes modified for cargo use. <br />Example: Boeing
+                  767-300BCF (Boeing Converted Freighter)
+                </li>
+                <li>
+                  <strong>Specialized Cargo Aircraft:</strong> Designed for
+                  unique cargo needs. <br />Example: Airbus Beluga (for aircraft
+                  parts), Antonov An-225 Mriya (for oversized cargo)
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Rotorcraft</h3>
+              <p>
+                Aircraft that use rotating wings (rotors) for lift and
+                propulsion.
+              </p>
+              <ul>
+                <li>
+                  <strong>Helicopters:</strong> Versatile aircraft capable of
+                  vertical takeoff and landing. <br />Example: Sikorsky UH-60
+                  Black Hawk, Bell 407
+                </li>
+                <li>
+                  <strong>Tiltrotors:</strong> Aircraft that can transition
+                  between helicopter and fixed-wing flight. <br />Example: Bell
+                  Boeing V-22 Osprey
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="aviation-terms" class="section">
+          <div class="section-header">
+            <h2>Aviation Terms</h2>
+            <span class="toggle-icon">+</span>
+          </div>
+          <div class="section-content">
+            <div class="card">
+              <h3>Aerodynamics</h3>
+              <p>
+                The study of how air interacts with moving objects, crucial for
+                understanding flight. Key concepts include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Bernoulli's Principle:</strong> Explains how
+                  differences in air pressure create lift
+                </li>
+                <li>
+                  <strong>Angle of Attack:</strong> The angle between an airfoil
+                  and the oncoming air
+                </li>
+                <li>
+                  <strong>Boundary Layer:</strong> The layer of air close to the
+                  surface of an aircraft
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Avionics</h3>
+              <p>
+                Electronic systems used in aircraft for communication,
+                navigation, and various other functions. This includes:
+              </p>
+              <ul>
+                <li>
+                  <strong>Flight Management System (FMS):</strong> Computer
+                  system for flight planning and navigation
+                </li>
+                <li>
+                  <strong>Inertial Navigation System (INS):</strong> Uses motion
+                  sensors for dead reckoning navigation
+                </li>
+                <li>
+                  <strong>Traffic Collision Avoidance System (TCAS):</strong>
+                  Prevents mid-air collisions
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Airspeed</h3>
+              <p>
+                The speed of an aircraft relative to the air through which it is
+                moving. Types include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Indicated Airspeed (IAS):</strong> Speed shown on the
+                  aircraft's airspeed indicator
+                </li>
+                <li>
+                  <strong>True Airspeed (TAS):</strong> Actual speed of the
+                  aircraft through the air mass
+                </li>
+                <li>
+                  <strong>Ground Speed:</strong> Speed of the aircraft relative
+                  to the ground
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Altitude</h3>
+              <p>
+                The height of an aircraft above a given point, usually sea level
+                or ground level. Types include:
+              </p>
+              <ul>
+                <li>
+                  <strong>Absolute Altitude:</strong> Height above the ground
+                  directly below the aircraft
+                </li>
+                <li>
+                  <strong>Pressure Altitude:</strong> Height above the standard
+                  datum plane (29.92 inches of mercury)
+                </li>
+                <li>
+                  <strong>Density Altitude:</strong> Pressure altitude corrected
+                  for non-standard temperature
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Aircraft Attitudes</h3>
+              <p>
+                The orientation of an aircraft relative to the horizon and
+                direction of motion:
+              </p>
+              <ul>
+                <li>
+                  <strong>Pitch:</strong> The up or down angle of the aircraft's
+                  nose relative to the horizon
+                </li>
+                <li>
+                  <strong>Yaw:</strong> The side-to-side movement of an
+                  aircraft's nose around its vertical axis
+                </li>
+                <li>
+                  <strong>Roll:</strong> The rotation of an aircraft around its
+                  longitudinal axis, which runs from nose to tail
+                </li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Flight Controls</h3>
+              <p>
+                The systems and surfaces used to control the aircraft's flight
+                path:
+              </p>
+              <ul>
+                <li>
+                  <strong>Ailerons:</strong> Control roll by altering lift on
+                  the wings
+                </li>
+                <li>
+                  <strong>Elevator:</strong> Controls pitch by changing the
+                  angle of the horizontal stabilizer
+                </li>
+                <li>
+                  <strong>Rudder:</strong> Controls yaw by deflecting airflow at
+                  the tail
+                </li>
+                <li>
+                  <strong>Flaps:</strong> Increase lift and drag, typically used
+                  during takeoff and landing
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const sections = document.querySelectorAll(".section");
+
+        sections.forEach((section) => {
+          const header = section.querySelector(".section-header");
+          const content = section.querySelector(".section-content");
+          const toggleIcon = section.querySelector(".toggle-icon");
+
+          header.addEventListener("click", () => {
+            content.style.display =
+              content.style.display === "block" ? "none" : "block";
+            toggleIcon.textContent = toggleIcon.textContent === "+" ? "-" : "+";
+
+            gsap.from(content, {
+              duration: 0.5,
+              opacity: 0,
+              y: -20,
+              ease: "power2.out",
+            });
+          });
+        });
+
+        // Smooth scrolling for sidebar links
+        const sidebarLinks = document.querySelectorAll(".sidebar a");
+        sidebarLinks.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute("href").substring(1);
+            const targetSection = document.getElementById(targetId);
+            targetSection.scrollIntoView({ behavior: "smooth" });
+          });
+        });
+
+        // Animate timeline on scroll
+        const timelineItems = document.querySelectorAll(".timeline-item");
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                gsap.from(entry.target, {
+                  duration: 0.8,
+                  opacity: 0,
+                  x: entry.target.classList.contains("left") ? -50 : 50,
+                  ease: "power2.out",
+                });
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        timelineItems.forEach((item) => observer.observe(item));
+
+        // Animate cards on scroll
+        const cards = document.querySelectorAll(".card");
+        const cardObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                gsap.from(entry.target, {
+                  duration: 0.5,
+                  opacity: 0,
+                  y: 20,
+                  ease: "power2.out",
+                });
+                cardObserver.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        cards.forEach((card) => cardObserver.observe(card));
+      });
+    </script>
+  </body>
+</html>
