@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aircraft Assembly and Mechanics</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      /* styles.css */
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #f4f4f4;
+      }
+
+      #sideNav {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        background-color: #111;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 60px;
+      }
+
+      #sideNav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
+
+      #sideNav a:hover,
+      #sideNav a:focus {
+        color: #f1f1f1;
+      }
+
+      #main-content {
+        transition: margin-left 0.5s;
+        padding: 16px;
+      }
+
+      #open-btn {
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      @media screen and (max-height: 450px) {
+        #sideNav {
+          padding-top: 15px;
+        }
+        #sideNav a {
+          font-size: 18px;
+        }
+      }
+
+      /* Additional styling for sections, animations, etc. would go here */
+    </style>
+  </head>
+  <body>
+    <nav id="sideNav">
+      <a href="#" class="close-btn">&times;</a>
+      <a href="#intro">Introduction</a>
+      <a href="#parts">Aircraft Parts</a>
+      <a href="#mechanics">Takeoff & Landing</a>
+      <a href="#assembly">Assembly</a>
+      <a href="#classes">Aircraft Classes</a>
+      <a href="#terms">Aviation Terms</a>
+    </nav>
+    <div id="main-content">
+      <button id="open-btn">&#9776; Open Menu</button>
+      <section id="intro">
+        <h2>Introduction to Flight</h2>
+        <!-- Content here -->
+      </section>
+      <!-- More sections follow -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <script>
+      // script.js
+      document
+        .getElementById("open-btn")
+        .addEventListener("click", function () {
+          document.getElementById("sideNav").style.width = "250px";
+          document.getElementById("main-content").style.marginLeft = "250px";
+        });
+
+      document
+        .querySelector(".close-btn")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          document.getElementById("sideNav").style.width = "0";
+          document.getElementById("main-content").style.marginLeft = "0";
+        });
+
+      // GSAP animations would be initialized here, for example:
+      gsap.from("#intro", {
+        duration: 1,
+        x: -100,
+        opacity: 0,
+        ease: "power3.out",
+      });
+    </script>
+  </body>
+</html>

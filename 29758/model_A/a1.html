@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aircraft Education App</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        background: #f4f4f4;
+        display: flex;
+      }
+      .sidebar {
+        width: 250px;
+        background: #333;
+        color: #fff;
+        padding: 20px 0;
+        height: 100vh;
+        position: fixed;
+      }
+      .sidebar ul {
+        list-style: none;
+        padding: 0;
+      }
+      .sidebar ul li {
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .sidebar ul li:hover {
+        background: #555;
+      }
+      .main-content {
+        margin-left: 250px;
+        padding: 20px;
+        width: 100%;
+      }
+      .collapsible {
+        background-color: #fff;
+        color: #444;
+        cursor: pointer;
+        padding: 18px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 15px;
+        margin-top: 5px;
+      }
+      .active,
+      .collapsible:hover {
+        background-color: #e9e9e9;
+      }
+      .content {
+        padding: 0 18px;
+        display: none;
+        overflow: hidden;
+        background-color: #f9f9f9;
+      }
+      .gsap-anim {
+        width: 100%;
+        max-width: 500px;
+        margin: 20px auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <ul>
+        <li data-target="takeoff-landing">Takeoff & Landing</li>
+        <li data-target="aerodynamics">Aerodynamics</li>
+        <li data-target="parts">Aircraft Parts</li>
+        <li data-target="assembly">Assembly Process</li>
+        <li data-target="classes">Aircraft Classes</li>
+        <li data-target="terms">Aviation Terms</li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <!-- Sections will be dynamically filled here -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script>
+      document.querySelectorAll(".sidebar li").forEach((item) => {
+        item.addEventListener("click", function () {
+          const target = this.getAttribute("data-target");
+          document
+            .querySelector(`.collapsible[data-section="${target}"]`)
+            .click();
+        });
+      });
+
+      var coll = document.getElementsByClassName("collapsible");
+      var i;
+
+      for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+          this.classList.toggle("active");
+          var content = this.nextElementSibling;
+          if (content.style.display === "block") {
+            content.style.display = "none";
+          } else {
+            content.style.display = "block";
+          }
+        });
+      }
+
+      // GSAP animations would be defined here for each section's content
+      function animateSection(section) {
+        // Example animation for takeoff and landing
+        if (section === "takeoff-landing") {
+          gsap.from(".gsap-anim", {
+            duration: 1,
+            y: 50,
+            opacity: 0,
+            ease: "power1.out",
+          });
+        }
+        // Add more animations as needed for other sections
+      }
+
+      // Initial content population would go here with dynamic content loading
+    </script>
+  </body>
+</html>
