@@ -1,1 +1,618 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ship Construction and Mechanics</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #e6f3ff;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: #003366;
+        color: #fff;
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        display: flex;
+        justify-content: space-around;
+      }
+
+      nav ul li a {
+        color: #fff;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      nav ul li a:hover {
+        background-color: #005599;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      section {
+        background-color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 2rem;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      h1,
+      h2 {
+        color: #003366;
+      }
+
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+
+      .card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #materials-chart {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      #construction-flowchart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .construction-step {
+        background-color: #f0f8ff;
+        border: 1px solid #b0d4ff;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        width: 80%;
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+
+      .construction-step::before {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        border: 10px solid transparent;
+        border-top-color: #b0d4ff;
+        transform: translateX(-50%);
+      }
+
+      .construction-step:last-child::before {
+        display: none;
+      }
+
+      .step-number {
+        background-color: #003366;
+        color: #fff;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        margin-right: 1rem;
+      }
+
+      .step-content {
+        flex: 1;
+      }
+
+      .ship-part {
+        background-color: #e6f3ff;
+        border: 1px solid #99ccff;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 0.5rem;
+        flex: 1 1 calc(33.333% - 1rem);
+        min-width: 250px;
+      }
+
+      #ship-parts-diagram {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+
+      .propulsion-system {
+        background-color: #f0f8ff;
+        border: 1px solid #b0d4ff;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      #glossary-list {
+        column-count: 2;
+        column-gap: 2rem;
+      }
+
+      .glossary-term {
+        break-inside: avoid-column;
+        margin-bottom: 1rem;
+        background-color: #f0f8ff;
+        border: 1px solid #b0d4ff;
+        border-radius: 5px;
+        padding: 1rem;
+      }
+
+      footer {
+        background-color: #003366;
+        color: #fff;
+        text-align: center;
+        padding: 1rem 0;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        nav ul {
+          flex-direction: column;
+        }
+
+        nav ul li {
+          margin-bottom: 0.5rem;
+        }
+
+        #glossary-list {
+          column-count: 1;
+        }
+
+        .construction-step {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#ship-types">Ship Types</a></li>
+          <li><a href="#materials">Materials</a></li>
+          <li><a href="#construction">Construction</a></li>
+          <li><a href="#ship-parts">Ship Parts</a></li>
+          <li><a href="#operations">Operations</a></li>
+          <li><a href="#glossary">Glossary</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home">
+        <h1>Ship Construction and Mechanics</h1>
+        <p>
+          Welcome to our educational app about ships! Explore the fascinating
+          world of naval architecture, shipbuilding, and maritime technology.
+        </p>
+      </section>
+
+      <section id="ship-types">
+        <h2>Types of Ships</h2>
+        <div class="card-container">
+          <!-- Ship type cards will be dynamically inserted here -->
+        </div>
+      </section>
+
+      <section id="materials">
+        <h2>Shipbuilding Materials</h2>
+        <canvas id="materials-chart"></canvas>
+      </section>
+
+      <section id="construction">
+        <h2>Shipbuilding Process</h2>
+        <div id="construction-flowchart"></div>
+      </section>
+
+      <section id="ship-parts">
+        <h2>Parts of a Ship</h2>
+        <div id="ship-parts-diagram"></div>
+      </section>
+
+      <section id="operations">
+        <h2>Ship Operations</h2>
+        <div id="propulsion-systems"></div>
+      </section>
+
+      <section id="glossary">
+        <h2>Maritime Glossary</h2>
+        <div id="glossary-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Ship Construction and Mechanics App</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+      // Ship Types Data
+      const shipTypes = [
+        {
+          name: "Cargo Ship",
+          purpose: "Transport goods across oceans",
+          size: "Large, typically 100-400 meters long",
+          capacity: "10,000-20,000 TEU (Twenty-foot Equivalent Units)",
+          lifespan: "25-30 years",
+          description:
+            "Cargo ships are the workhorses of the maritime industry, designed to carry large quantities of goods in containers, bulk, or general cargo. They play a crucial role in global trade, transporting everything from consumer goods to raw materials across the world's oceans.",
+        },
+        {
+          name: "Oil Tanker",
+          purpose: "Transport crude oil and petroleum products",
+          size: "Very Large, can exceed 400 meters in length",
+          capacity: "Up to 2 million barrels of oil",
+          lifespan: "20-30 years",
+          description:
+            "Oil tankers are specialized vessels designed to transport large quantities of crude oil or refined petroleum products. They feature multiple tanks and complex piping systems to safely contain and manage their volatile cargo. These ships are critical to the global energy supply chain.",
+        },
+        {
+          name: "Cruise Ship",
+          purpose: "Passenger transportation and leisure",
+          size: "Large, typically 200-360 meters long",
+          capacity: "3,000-5,000 passengers and 1,000-2,000 crew",
+          lifespan: "30-40 years",
+          description:
+            "Cruise ships are floating resorts, designed for passenger comfort and entertainment. They feature numerous amenities such as restaurants, pools, theaters, and cabins. These vessels combine transportation with vacation experiences, sailing to various destinations and offering onboard activities.",
+        },
+        {
+          name: "Submarine",
+          purpose: "Underwater military operations and research",
+          size: "Medium, typically 70-170 meters long",
+          capacity: "Varies, from 40 to 180 personnel",
+          lifespan: "30-40 years",
+          description:
+            "Submarines are specialized vessels designed to operate underwater for extended periods. They are primarily used for military purposes, including surveillance, deterrence, and combat. Some submarines are also used for scientific research and exploration of the deep sea.",
+        },
+        {
+          name: "Warship",
+          purpose: "Naval operations and defense",
+          size: "Varies, from 50 meters (corvettes) to over 300 meters (aircraft carriers)",
+          capacity: "250-6,000 crew, depending on type",
+          lifespan: "30-50 years",
+          description:
+            "Warships are naval vessels designed for military purposes. They come in various types, including destroyers, frigates, cruisers, and aircraft carriers. Each type has specific roles, such as air defense, anti-submarine warfare, or power projection. Warships are equipped with advanced weapons, sensors, and communication systems.",
+        },
+        {
+          name: "Fishing Vessel",
+          purpose: "Commercial fishing operations",
+          size: "Small to Medium, typically 15-100 meters",
+          capacity: "Varies widely based on type and size",
+          lifespan: "20-30 years",
+          description:
+            "Fishing vessels are designed for catching, processing, and sometimes freezing fish and other marine life. They range from small coastal boats to large factory ships. These vessels are equipped with specialized gear for different fishing methods and may include onboard processing facilities.",
+        },
+      ];
+
+      // Materials Data
+      const materials = [
+        {
+          name: "Steel",
+          percentage: 70,
+          description:
+            "The primary material used in shipbuilding due to its strength, durability, and cost-effectiveness. It's used for the hull, decks, and structural components.",
+        },
+        {
+          name: "Aluminum",
+          percentage: 15,
+          description:
+            "Lighter than steel, aluminum is used in superstructures and upper decks to reduce weight and improve stability, particularly in high-speed vessels and naval ships.",
+        },
+        {
+          name: "Composites",
+          percentage: 10,
+          description:
+            "Materials like fiber-reinforced plastics are used for their high strength-to-weight ratio, corrosion resistance, and design flexibility. Common in smaller vessels and specialized components.",
+        },
+        {
+          name: "Fiberglass",
+          percentage: 5,
+          description:
+            "Used primarily in smaller boats and yachts, fiberglass offers a good balance of strength, weight, and ease of maintenance.",
+        },
+      ];
+
+      // Ship Parts
+      const shipParts = [
+        {
+          name: "Hull",
+          description:
+            "The watertight body of a ship, providing buoyancy and supporting the entire structure.",
+        },
+        {
+          name: "Keel",
+          description:
+            "The centerline structure running from bow to stern, serving as the backbone of the ship.",
+        },
+        {
+          name: "Deck",
+          description:
+            "Horizontal structures dividing the ship into levels, providing strength and creating usable spaces.",
+        },
+        {
+          name: "Engine",
+          description:
+            "The power plant of the ship, typically diesel engines for commercial vessels or specialized propulsion for naval ships.",
+        },
+        {
+          name: "Propeller",
+          description:
+            "Rotating blades that convert engine power into thrust, propelling the ship through water.",
+        },
+        {
+          name: "Rudder",
+          description:
+            "A flat structure at the stern used for steering the ship by deflecting water flow.",
+        },
+        {
+          name: "Mast",
+          description:
+            "Vertical spars used to support sails, flags, or various types of equipment and antennas.",
+        },
+        {
+          name: "Bridge",
+          description:
+            "The ship's command center, housing navigation equipment and providing a vantage point for the crew.",
+        },
+      ];
+
+      // Glossary Terms
+      const glossaryTerms = [
+        {
+          term: "Tonnage",
+          definition:
+            "A measure of a ship's carrying capacity or internal volume. There are different types of tonnage measurements, including gross tonnage, net tonnage, and deadweight tonnage.",
+        },
+        {
+          term: "Ballast",
+          definition:
+            "Heavy material, often seawater, taken into dedicated tanks to improve a ship's stability, trim, and immersion. Proper ballast management is crucial for safe and efficient ship operation.",
+        },
+        {
+          term: "Starboard",
+          definition:
+            "The right side of a ship when facing forward. Historically, this was the side where steering oars were mounted, hence the name 'steer-board' side.",
+        },
+        {
+          term: "Port",
+          definition:
+            "The left side of a ship when facing forward. Formerly called 'larboard', the term 'port' was adopted to avoid confusion with 'starboard' in verbal communications.",
+        },
+        {
+          term: "Draft",
+          definition:
+            "The vertical distance between the waterline and the bottom of the hull. It varies based on the ship's load and affects its ability to navigate in shallow waters.",
+        },
+        {
+          term: "Knot",
+          definition:
+            "A unit of speed equal to one nautical mile (1.852 km) per hour. It is used in maritime and air navigation. The term comes from the old method of measuring a ship's speed using a knotted rope.",
+        },
+      ];
+
+      // Function to create ship type cards
+      function createShipTypeCards() {
+        const container = document.querySelector(".card-container");
+        shipTypes.forEach((ship) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+          card.innerHTML = `
+            <h3>${ship.name}</h3>
+            <p><strong>Purpose:</strong> ${ship.purpose}</p>
+            <p><strong>Size:</strong> ${ship.size}</p>
+            <p><strong>Capacity:</strong> ${ship.capacity}</p>
+            <p><strong>Average Lifespan:</strong> ${ship.lifespan}</p>
+            <p>${ship.description}</p>
+        `;
+          container.appendChild(card);
+        });
+      }
+
+      // Function to create materials chart
+      function createMaterialsChart() {
+        const ctx = document.getElementById("materials-chart").getContext("2d");
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: materials.map((m) => m.name),
+            datasets: [
+              {
+                data: materials.map((m) => m.percentage),
+                backgroundColor: ["#003366", "#005599", "#0077CC", "#0099FF"],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: "Shipbuilding Materials",
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    let label = context.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    label += context.formattedValue + "%";
+                    return label;
+                  },
+                  afterLabel: function (context) {
+                    return materials[context.dataIndex].description;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Function to create construction flowchart
+      function createConstructionFlowchart() {
+        const container = document.getElementById("construction-flowchart");
+        const steps = [
+          {
+            name: "Design and Blueprint Creation",
+            description:
+              "Engineers create detailed plans and 3D models of the ship.",
+          },
+          {
+            name: "Laying the Keel",
+            description:
+              "The keel, the ship's backbone, is laid in the shipyard.",
+          },
+          {
+            name: "Hull Construction",
+            description:
+              "The hull is built up from the keel, often in sections.",
+          },
+          {
+            name: "Installing Major Systems",
+            description:
+              "Engines, propulsion systems, and major internal components are installed.",
+          },
+          {
+            name: "Outfitting and Finishing",
+            description:
+              "Interior spaces are completed, and final equipment is installed.",
+          },
+          {
+            name: "Launching and Sea Trials",
+            description:
+              "The ship is launched and undergoes extensive testing at sea.",
+          },
+        ];
+
+        steps.forEach((step, index) => {
+          const stepElement = document.createElement("div");
+          stepElement.classList.add("construction-step");
+          stepElement.innerHTML = `
+            <div class="step-number">${index + 1}</div>
+            <div class="step-content">
+                <h4>${step.name}</h4>
+                <p>${step.description}</p>
+            </div>
+        `;
+          container.appendChild(stepElement);
+        });
+      }
+
+      // Function to create ship parts diagram
+      function createShipPartsDiagram() {
+        const container = document.getElementById("ship-parts-diagram");
+        shipParts.forEach((part) => {
+          const partElement = document.createElement("div");
+          partElement.classList.add("ship-part");
+          partElement.innerHTML = `
+            <h4>${part.name}</h4>
+            <p>${part.description}</p>
+        `;
+          container.appendChild(partElement);
+        });
+      }
+
+      // Function to create ship operations section
+      function createShipOperations() {
+        const container = document.getElementById("propulsion-systems");
+        const propulsionSystems = [
+          {
+            name: "Diesel Engine",
+            description:
+              "Most common type of propulsion for commercial ships. Diesel engines are efficient, reliable, and can run on heavy fuel oil. They work by compressing air in cylinders and injecting fuel, which ignites and drives pistons, converting chemical energy into mechanical power.",
+          },
+          {
+            name: "Steam Turbine",
+            description:
+              "Used in some large ships, particularly LNG carriers. Water is heated to create high-pressure steam, which drives turbine blades connected to the propeller shaft. Steam turbines are smooth and quiet but less fuel-efficient than diesel engines.",
+          },
+          {
+            name: "Gas Turbine",
+            description:
+              "Similar to jet engines, gas turbines are used in naval vessels and some high-speed ferries. They compress air, mix it with fuel, ignite the mixture, and use the expanding gases to drive turbine blades. They provide high power-to-weight ratios but are less fuel-efficient than diesel engines.",
+          },
+          {
+            name: "Nuclear Propulsion",
+            description:
+              "Used in some naval vessels and icebreakers. A nuclear reactor generates heat to produce steam, which drives turbines. Nuclear propulsion allows for long-range operations without refueling but is complex and expensive to implement and maintain.",
+          },
+        ];
+
+        propulsionSystems.forEach((system) => {
+          const systemElement = document.createElement("div");
+          systemElement.classList.add("propulsion-system");
+          systemElement.innerHTML = `
+            <h4>${system.name}</h4>
+            <p>${system.description}</p>
+        `;
+          container.appendChild(systemElement);
+        });
+      }
+
+      // Function to create glossary
+      function createGlossary() {
+        const container = document.getElementById("glossary-list");
+        glossaryTerms.forEach((term) => {
+          const termElement = document.createElement("div");
+          termElement.classList.add("glossary-term");
+          termElement.innerHTML = `
+            <h4>${term.term}</h4>
+            <p>${term.definition}</p>
+            <a href="https://en.wikipedia.org/wiki/${term.term.replace(
+              " ",
+              "_"
+            )}" target="_blank">Learn more</a>
+        `;
+          container.appendChild(termElement);
+        });
+      }
+
+      // Initialize the app
+      function initApp() {
+        createShipTypeCards();
+        createMaterialsChart();
+        createConstructionFlowchart();
+        createShipPartsDiagram();
+        createShipOperations();
+        createGlossary();
+      }
+
+      // Run the app when the DOM is fully loaded
+      document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+  </body>
+</html>
