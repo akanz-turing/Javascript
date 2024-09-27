@@ -290,14 +290,6 @@
             role="radiogroup"
             aria-label="Mood options"
           ></div>
-          <div id="custom-answer-container" class="hidden">
-            <input
-              type="text"
-              id="custom-answer-input"
-              placeholder="Enter your own mood"
-            />
-            <button id="submit-custom-answer">Submit Custom Answer</button>
-          </div>
           <button id="skip-button">Skip</button>
         </div>
 
@@ -322,17 +314,26 @@
     <script>
       // Constants
       const QUIZ_LENGTH = 10;
-      const MOODS = [
-        "Happy",
-        "Sad",
-        "Excited",
-        "Confused",
-        "Angry",
-        "Surprised",
-        "Scared",
-        "Disgusted",
+      const GIPHY_API_KEY = "3MdQ9ghTB0eNm54VP8Zx5oc7gzC0nWIF";
+
+      // Predefined mood list for fallback
+      const FALLBACK_MOODS = [
+        "laughing",
+        "crying",
+        "screaming",
+        "dancing",
+        "jumping",
+        "singing",
+        "running",
+        "sleeping",
+        "thinking",
+        "wondering",
+        "shouting",
+        "whispering",
+        "staring",
+        "smiling",
+        "frowning",
       ];
-      const API_KEY = "Np5q8gQ91MBNr2ntXYF3OOjUM16bXcAO"; // Replace with your actual Giphy API key
 
       // Game state
       let currentQuestion = 0;
@@ -350,13 +351,6 @@
       const memeContainer = document.getElementById("meme-container");
       const timerContainer = document.getElementById("timer-container");
       const optionsContainer = document.getElementById("options-container");
-      const customAnswerContainer = document.getElementById(
-        "custom-answer-container"
-      );
-      const customAnswerInput = document.getElementById("custom-answer-input");
-      const submitCustomAnswer = document.getElementById(
-        "submit-custom-answer"
-      );
       const skipButton = document.getElementById("skip-button");
       const finalScoreSpan = document.getElementById("final-score");
       const restartButton = document.getElementById("restart-button");
@@ -371,21 +365,7 @@
       skipButton.addEventListener("click", skipQuestion);
       restartButton.addEventListener("click", restartQuiz);
       modeToggle.addEventListener("click", toggleDarkMode);
-      submitCustomAnswer.addEventListener("click", () => {
-        const customMood = customAnswerInput.value.trim();
-        if (customMood) {
-          selectAnswer(customMood, true);
-        }
-      });
       resetLeaderboardButton.addEventListener("click", resetLeaderboard);
-      customAnswerInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          const customMood = customAnswerInput.value.trim();
-          if (customMood) {
-            selectAnswer(customMood, true);
-          }
-        }
-      });
 
       // Functions
       async function startQuiz() {
@@ -409,196 +389,96 @@
 
         showLoading();
         try {
-          currentMemeData = await fetchMemeWithMood();
+          currentMemeData = await fetchMemeWithContent();
           memeUrl = currentMemeData.url;
           correctMood = currentMemeData.mood;
-          displayMeme(memeUrl);
-          displayOptions();
-          displayCustomAnswerOption();
+          displayMeme(memeUrl, currentMemeData.description);
+          displayOptions(currentMemeData.moodOptions);
           startTimer();
           hideLoading();
         } catch (error) {
+          console.error("Error loading question:", error);
           hideLoading();
           alert("Failed to load question. Please try again.");
         }
       }
 
-      async function fetchMemeWithMood() {
+      async function fetchMemeWithContent() {
         const response = await fetch(
-          `https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=reaction&rating=g`
+          `https://api.giphy.com/v1/gifs/random?api_key=${GIPHY_API_KEY}&tag=reaction&rating=g`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch meme");
         }
         const data = await response.json();
         const url = data.data.images.original.url;
-
-        const tags = data.data.tags || [];
+        const alt_text = data.data.alt_text || "";
         const title = data.data.title || "";
         const slug = data.data.slug || "";
-        const mood = determineMoodFromTagsAndTitle(tags, title, slug);
 
-        return { url, mood, title, slug };
+        let description = alt_text || title || slug;
+
+        const { mood, moodOptions } = analyzeMemeContent(description);
+
+        return { url, mood, description, moodOptions };
       }
 
-      function determineMoodFromTagsAndTitle(tags, title, slug) {
-        const moodMap = {
-          happy: [
-            "happy",
-            "joy",
-            "excited",
-            "cheerful",
-            "elated",
-            "glad",
-            "delighted",
-          ],
-          sad: [
-            "sad",
-            "depressed",
-            "unhappy",
-            "gloomy",
-            "miserable",
-            "down",
-            "blue",
-          ],
-          excited: [
-            "excited",
-            "thrilled",
-            "enthusiastic",
-            "energetic",
-            "pumped",
-            "stoked",
-          ],
-          confused: [
-            "confused",
-            "perplexed",
-            "puzzled",
-            "baffled",
-            "unsure",
-            "uncertain",
-          ],
-          angry: [
-            "angry",
-            "mad",
-            "furious",
-            "enraged",
-            "irritated",
-            "annoyed",
-            "frustrated",
-          ],
-          surprised: [
-            "surprised",
-            "shocked",
-            "astonished",
-            "amazed",
-            "startled",
-            "stunned",
-          ],
-          scared: [
-            "scared",
-            "frightened",
-            "terrified",
-            "fearful",
-            "afraid",
-            "panicked",
-          ],
-          disgusted: [
-            "disgusted",
-            "repulsed",
-            "revolted",
-            "grossed out",
-            "nauseated",
-          ],
+      function analyzeMemeContent(description) {
+        const words = description.toLowerCase().split(/\s+/);
+
+        // Find verbs (words ending in 'ing', 'ed', or 's', but not 'ous' or 'ss')
+        const verbs = words.filter(
+          (word) =>
+            (word.endsWith("ing") ||
+              word.endsWith("ed") ||
+              (word.endsWith("s") &&
+                !word.endsWith("ous") &&
+                !word.endsWith("ss"))) &&
+            word.length > 2
+        );
+
+        let primaryMood;
+        let moodOptions = [];
+
+        if (verbs.length > 0) {
+          // Use the first verb as the primary mood
+          primaryMood = verbs[0];
+          moodOptions = [...new Set(verbs)]; // Remove duplicates
+        } else {
+          // Fallback to predefined mood list
+          primaryMood =
+            FALLBACK_MOODS[Math.floor(Math.random() * FALLBACK_MOODS.length)];
+          moodOptions = [primaryMood];
+        }
+
+        // Ensure we have at least 4 options
+        while (moodOptions.length < 4) {
+          const randomMood =
+            FALLBACK_MOODS[Math.floor(Math.random() * FALLBACK_MOODS.length)];
+          if (!moodOptions.includes(randomMood)) {
+            moodOptions.push(randomMood);
+          }
+        }
+
+        return {
+          mood: primaryMood,
+          moodOptions: shuffleArray(moodOptions.slice(0, 4)),
         };
-
-        const wordsToCheck = [
-          ...title.toLowerCase().split(" "),
-          ...slug.toLowerCase().split("-"),
-        ];
-
-        for (const [mood, keywords] of Object.entries(moodMap)) {
-          if (wordsToCheck.some((word) => keywords.includes(word))) {
-            return mood;
-          }
-        }
-
-        for (const [mood, keywords] of Object.entries(moodMap)) {
-          if (tags.some((tag) => keywords.includes(tag.toLowerCase()))) {
-            return mood;
-          }
-        }
-
-        return MOODS[Math.floor(Math.random() * MOODS.length)];
       }
 
-      function displayMeme(url) {
-        memeContainer.innerHTML = `<img src="${url}" alt="Reaction meme" class="fade-in">`;
+      function displayMeme(url, description) {
+        memeContainer.innerHTML = `<img src="${url}" alt="${description}" class="fade-in">`;
       }
 
-      function displayOptions() {
+      function displayOptions(moodOptions) {
         optionsContainer.innerHTML = "";
-        const shuffledMoods = shuffleArray([...MOODS]);
-        let displayMoods = [];
-
-        // Helper function for case-insensitive inclusion check
-        const includesMoodCaseInsensitive = (array, mood) => {
-          return array.some(
-            (item) => item.toLowerCase() === mood.toLowerCase()
-          );
-        };
-
-        // Ensure correctMood is included
-        if (!includesMoodCaseInsensitive(shuffledMoods, correctMood)) {
-          displayMoods.push(correctMood);
-        }
-
-        // Fill the rest with unique moods
-        for (let mood of shuffledMoods) {
-          if (
-            displayMoods.length < 4 &&
-            !includesMoodCaseInsensitive(displayMoods, mood)
-          ) {
-            displayMoods.push(mood);
-          }
-          if (displayMoods.length === 4) break;
-        }
-
-        // If we don't have 4 options yet, add more from MOODS
-        while (displayMoods.length < 4) {
-          const remainingMoods = MOODS.filter(
-            (mood) => !includesMoodCaseInsensitive(displayMoods, mood)
-          );
-          if (remainingMoods.length > 0) {
-            displayMoods.push(
-              remainingMoods[Math.floor(Math.random() * remainingMoods.length)]
-            );
-          } else {
-            break; // Break if no more unique moods are available
-          }
-        }
-
-        // Shuffle the final array of moods
-        displayMoods = shuffleArray(displayMoods);
-
-        displayMoods.forEach((mood) => {
+        moodOptions.forEach((mood) => {
           const button = document.createElement("button");
           button.textContent = mood;
           button.classList.add("slide-in");
           button.addEventListener("click", () => selectAnswer(mood));
           optionsContainer.appendChild(button);
         });
-      }
-
-      function displayCustomAnswerOption() {
-        customAnswerContainer.classList.remove("hidden");
-        resetCustomInput();
-      }
-
-      function resetCustomInput() {
-        customAnswerInput.value = "";
-        customAnswerInput.style.backgroundColor = "";
-        customAnswerInput.disabled = false;
-        submitCustomAnswer.disabled = false;
       }
 
       function startTimer() {
@@ -617,69 +497,43 @@
       function updateTimerDisplay(timeLeft) {
         const progress = (timeLeft / 45) * 100;
         timerContainer.innerHTML = `
-        <svg viewBox="0 0 36 36" class="circular-chart">
-            <path class="circle-bg" d="M18 2.0845
-                a 15.9155 15.9155 0 0 1 0 31.831
-                a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <path class="circle" stroke-dasharray="${progress}, 100" d="M18 2.0845
-                a 15.9155 15.9155 0 0 1 0 31.831
-                a 15.9155 15.9155 0 0 1 0 -31.831" />
-            <text x="18" y="20.35" class="percentage">${timeLeft}</text>
-        </svg>
-    `;
+    <svg viewBox="0 0 36 36" class="circular-chart">
+      <path class="circle-bg" d="M18 2.0845
+        a 15.9155 15.9155 0 0 1 0 31.831
+        a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <path class="circle" stroke-dasharray="${progress}, 100" d="M18 2.0845
+        a 15.9155 15.9155 0 0 1 0 31.831
+        a 15.9155 15.9155 0 0 1 0 -31.831" />
+      <text x="18" y="20.35" class="percentage">${timeLeft}</text>
+    </svg>
+  `;
       }
 
-      function selectAnswer(mood, isCustom = false) {
+      function selectAnswer(mood) {
         clearInterval(timer);
-
-        const wordsToCheck = [
-          ...currentMemeData.title.toLowerCase().split(" "),
-          ...currentMemeData.slug.toLowerCase().split("-"),
-        ];
-        const isCustomCorrect =
-          isCustom && wordsToCheck.includes(mood.toLowerCase());
-
-        const isCorrect =
-          isCustomCorrect || mood.toLowerCase() === correctMood.toLowerCase();
-
+        const isCorrect = mood === correctMood;
         if (isCorrect) {
           score++;
         }
-
-        highlightCorrectAnswer(mood, isCustom, isCustomCorrect);
-
+        highlightCorrectAnswer(mood);
         disableAllInputs();
-
         setTimeout(() => {
           nextQuestion();
         }, 1500);
       }
 
-      function highlightCorrectAnswer(selectedMood, isCustom, isCustomCorrect) {
+      function highlightCorrectAnswer(selectedMood) {
         const buttons = optionsContainer.getElementsByTagName("button");
         for (let button of buttons) {
-          if (
-            button.textContent.toLowerCase() === correctMood.toLowerCase() &&
-            !isCustomCorrect
-          ) {
+          if (button.textContent === correctMood) {
             button.style.backgroundColor = "var(--correct-color)";
           } else if (
-            button.textContent.toLowerCase() === selectedMood.toLowerCase() &&
-            !isCustom
+            button.textContent === selectedMood &&
+            selectedMood !== correctMood
           ) {
-            button.style.backgroundColor = isCustomCorrect
-              ? "var(--correct-color)"
-              : "var(--incorrect-color)";
+            button.style.backgroundColor = "var(--incorrect-color)";
           }
           button.disabled = true;
-        }
-
-        if (isCustom) {
-          customAnswerInput.style.backgroundColor = isCustomCorrect
-            ? "var(--correct-color)"
-            : "var(--incorrect-color)";
-          customAnswerInput.disabled = true;
-          submitCustomAnswer.disabled = true;
         }
       }
 
@@ -688,8 +542,6 @@
         for (let button of buttons) {
           button.disabled = true;
         }
-        customAnswerInput.disabled = true;
-        submitCustomAnswer.disabled = true;
       }
 
       function skipQuestion() {
@@ -700,7 +552,6 @@
       async function nextQuestion() {
         currentQuestion++;
         updateProgressBar();
-        resetCustomInput();
         await loadQuestion();
       }
 
