@@ -129,6 +129,9 @@
     </button>
 
     <script>
+      let seasonalChart = null;
+      let regionalDistributionChart = null;
+      let comparisonCharts = [];
       const fruits = [
         {
           name: "Persimmon",
@@ -1049,6 +1052,10 @@
         const comparisonResult = document.getElementById("comparisonResult");
         comparisonResult.innerHTML = "";
 
+        // Destroy existing comparison charts
+        comparisonCharts.forEach((chart) => chart.destroy());
+        comparisonCharts = [];
+
         const createNutritionChart = (fruit, chartId) => {
           const chartContainer = document.createElement("div");
           chartContainer.className = "w-full h-64";
@@ -1057,7 +1064,7 @@
           chartContainer.appendChild(canvas);
           comparisonResult.appendChild(chartContainer);
 
-          new Chart(canvas, {
+          const chart = new Chart(canvas, {
             type: "pie",
             data: {
               labels: Object.keys(fruit.nutritions),
@@ -1094,6 +1101,7 @@
               },
             },
           });
+          comparisonCharts.push(chart);
         };
 
         createNutritionChart(fruit1, "chart1");
@@ -1183,13 +1191,17 @@
 
       // Create seasonal availability chart
       function createSeasonalChart() {
+        if (seasonalChart) {
+          seasonalChart.destroy();
+        }
+
         const seasonalData = seasons.map((season, index) => ({
           season,
           count: fruits.filter((f) => f.seasonal_availability[index]).length,
         }));
 
         const ctx = document.getElementById("seasonalChart");
-        new Chart(ctx, {
+        seasonalChart = new Chart(ctx, {
           type: "bar",
           data: {
             labels: seasons,
@@ -1230,6 +1242,10 @@
 
       // Create regional distribution chart
       function createRegionalDistributionChart() {
+        if (regionalDistributionChart) {
+          regionalDistributionChart.destroy();
+        }
+
         const regionalData = regions.map((region, index) => ({
           region,
           total: fruits.reduce(
@@ -1239,7 +1255,7 @@
         }));
 
         const ctx = document.getElementById("regionalDistribution");
-        new Chart(ctx, {
+        regionalDistributionChart = new Chart(ctx, {
           type: "pie",
           data: {
             labels: regions,
@@ -1327,6 +1343,8 @@
 
       // Redraw charts on window resize
       window.addEventListener("resize", () => {
+        if (seasonalChart) seasonalChart.destroy();
+        if (regionalDistributionChart) regionalDistributionChart.destroy();
         createSeasonalChart();
         createRegionalDistributionChart();
       });
