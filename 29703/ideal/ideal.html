@@ -193,7 +193,6 @@
     </div>
     <script>
       // Algorithm data
-
       const algorithms = [
         {
           name: "Dynamic Programming",
@@ -211,23 +210,27 @@
 
 console.log(fibonacci(10)); // Output: 55`,
           animate: (svg) => {
-            const width = 300,
-              height = 150;
+            const width = 300;
+            const height = 200;
             svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
 
             const fibSequence = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
             const barWidth = width / fibSequence.length;
-            const maxHeight = Math.max(...fibSequence);
+            const maxHeight = height - 40;
+            const maxValue = Math.max(...fibSequence);
 
+            // Create static bars and texts
             fibSequence.forEach((value, index) => {
+              const barHeight = (value / maxValue) * maxHeight;
+
               const rect = document.createElementNS(
                 "http://www.w3.org/2000/svg",
                 "rect"
               );
               rect.setAttribute("x", index * barWidth);
-              rect.setAttribute("y", height - (value / maxHeight) * height);
-              rect.setAttribute("width", barWidth - 1);
-              rect.setAttribute("height", (value / maxHeight) * height);
+              rect.setAttribute("y", height - barHeight);
+              rect.setAttribute("width", barWidth - 2);
+              rect.setAttribute("height", barHeight);
               rect.setAttribute("fill", "#4299e1");
               svg.appendChild(rect);
 
@@ -236,12 +239,16 @@ console.log(fibonacci(10)); // Output: 55`,
                 "text"
               );
               text.setAttribute("x", index * barWidth + barWidth / 2);
-              text.setAttribute("y", height - 5);
+              text.setAttribute("y", height - barHeight - 10);
               text.setAttribute("text-anchor", "middle");
               text.setAttribute("fill", "currentColor");
+              text.setAttribute("font-size", "12px");
               text.textContent = value;
               svg.appendChild(text);
             });
+
+            // No animation functions needed for static visualization
+            return {};
           },
         },
         {
@@ -278,7 +285,7 @@ console.log(maxSubarraySum([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)); // Output: 39`,
             const barWidth = width / arr.length;
             const maxHeight = Math.max(...arr);
 
-            arr.forEach((value, index) => {
+            const bars = arr.map((value, index) => {
               const rect = document.createElementNS(
                 "http://www.w3.org/2000/svg",
                 "rect"
@@ -289,6 +296,7 @@ console.log(maxSubarraySum([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)); // Output: 39`,
               rect.setAttribute("height", (value / maxHeight) * height);
               rect.setAttribute("fill", "#4299e1");
               svg.appendChild(rect);
+              return rect;
             });
 
             const window = document.createElementNS(
@@ -304,13 +312,34 @@ console.log(maxSubarraySum([1, 4, 2, 10, 23, 3, 1, 0, 20], 4)); // Output: 39`,
             window.setAttribute("stroke-width", "2");
             svg.appendChild(window);
 
-            gsap.to(window, {
-              x: width - barWidth * 4,
-              duration: 3,
-              repeat: -1,
-              yoyo: true,
-              ease: "linear",
-            });
+            let currentIndex = 0;
+
+            function animateStep() {
+              if (currentIndex <= arr.length - 4) {
+                gsap.to(window, {
+                  x: currentIndex * barWidth,
+                  duration: 0.5,
+                });
+                bars.forEach((bar, index) => {
+                  if (index >= currentIndex && index < currentIndex + 4) {
+                    gsap.to(bar, { fill: "#f56565", duration: 0.5 });
+                  } else {
+                    gsap.to(bar, { fill: "#4299e1", duration: 0.5 });
+                  }
+                });
+                currentIndex++;
+              }
+            }
+
+            function resetAnimation() {
+              gsap.set(window, { x: 0 });
+              bars.forEach((bar) => {
+                gsap.set(bar, { fill: "#4299e1" });
+              });
+              currentIndex = 0;
+            }
+
+            return { animateStep, resetAnimation };
           },
         },
         {
@@ -344,7 +373,7 @@ console.log(isPalindrome("A man, a plan, a canal: Panama")); // Output: true`,
             const text = "AMANAPLANACANALPANAMA";
             const charWidth = width / text.length;
 
-            text.split("").forEach((char, index) => {
+            const chars = text.split("").map((char, index) => {
               const textEl = document.createElementNS(
                 "http://www.w3.org/2000/svg",
                 "text"
@@ -356,6 +385,7 @@ console.log(isPalindrome("A man, a plan, a canal: Panama")); // Output: true`,
               textEl.setAttribute("fill", "currentColor");
               textEl.textContent = char;
               svg.appendChild(textEl);
+              return textEl;
             });
 
             const leftPointer = document.createElementNS(
@@ -381,14 +411,37 @@ console.log(isPalindrome("A man, a plan, a canal: Panama")); // Output: true`,
             svg.appendChild(leftPointer);
             svg.appendChild(rightPointer);
 
-            gsap.to([leftPointer, rightPointer], {
-              x: (index) =>
-                index === 0 ? width / 2 - charWidth : -width / 2 + charWidth,
-              duration: 3,
-              repeat: -1,
-              yoyo: true,
-              ease: "power1.inOut",
-            });
+            let left = 0;
+            let right = text.length - 1;
+
+            function animateStep() {
+              if (left < right) {
+                gsap.to(leftPointer, {
+                  x: left * charWidth,
+                  duration: 0.5,
+                });
+                gsap.to(rightPointer, {
+                  x: (text.length - right - 1) * charWidth * -1,
+                  duration: 0.5,
+                });
+                gsap.to(chars[left], { fill: "#48bb78", duration: 0.5 });
+                gsap.to(chars[right], { fill: "#48bb78", duration: 0.5 });
+                left++;
+                right--;
+              }
+            }
+
+            function resetAnimation() {
+              gsap.set(leftPointer, { x: 0 });
+              gsap.set(rightPointer, { x: 0 });
+              chars.forEach((char) => {
+                gsap.set(char, { fill: "currentColor" });
+              });
+              left = 0;
+              right = text.length - 1;
+            }
+
+            return { animateStep, resetAnimation };
           },
         },
         {
@@ -426,38 +479,41 @@ console.log(\`Coins needed for \${amount} cents: \${coinChange(coins, amount)}\`
             let x = 10;
             const y = height / 2;
 
-            coins.forEach((coin, index) => {
-              while (remaining >= coin) {
-                const circle = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "circle"
-                );
-                circle.setAttribute("cx", x);
-                circle.setAttribute("cy", y);
-                circle.setAttribute("r", coin / 2);
-                circle.setAttribute(
-                  "fill",
-                  ["#ffd700", "#c0c0c0", "#cd7f32", "#a0a0a0"][index]
-                );
-                svg.appendChild(circle);
+            const coinElements = [];
+            const textElements = [];
 
-                const text = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "text"
-                );
-                text.setAttribute("x", x);
-                text.setAttribute("y", y);
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dominant-baseline", "middle");
-                text.setAttribute("fill", "black");
-                text.setAttribute("font-size", "10");
-                text.textContent = coin;
-                svg.appendChild(text);
+            function addCoin(coin, index) {
+              const circle = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+              );
+              circle.setAttribute("cx", x);
+              circle.setAttribute("cy", y);
+              circle.setAttribute("r", 0);
+              circle.setAttribute(
+                "fill",
+                ["#ffd700", "#c0c0c0", "#cd7f32", "#a0a0a0"][index]
+              );
+              svg.appendChild(circle);
+              coinElements.push(circle);
 
-                x += coin + 5;
-                remaining -= coin;
-              }
-            });
+              const text = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+              );
+              text.setAttribute("x", x);
+              text.setAttribute("y", y);
+              text.setAttribute("text-anchor", "middle");
+              text.setAttribute("dominant-baseline", "middle");
+              text.setAttribute("fill", "black");
+              text.setAttribute("font-size", "0");
+              text.textContent = coin;
+              svg.appendChild(text);
+              textElements.push(text);
+
+              x += coin + 5;
+              remaining -= coin;
+            }
 
             const resultText = document.createElementNS(
               "http://www.w3.org/2000/svg",
@@ -467,8 +523,57 @@ console.log(\`Coins needed for \${amount} cents: \${coinChange(coins, amount)}\`
             resultText.setAttribute("y", height - 10);
             resultText.setAttribute("text-anchor", "middle");
             resultText.setAttribute("fill", "currentColor");
-            resultText.textContent = `Total coins: ${amount - remaining}`;
+            resultText.textContent = `Total coins: 0`;
             svg.appendChild(resultText);
+
+            let currentIndex = 0;
+            let totalCoins = 0;
+
+            while (remaining > 0) {
+              for (let i = 0; i < coins.length; i++) {
+                if (remaining >= coins[i]) {
+                  addCoin(coins[i], i);
+                  break;
+                }
+              }
+            }
+
+            function animateStep() {
+              if (currentIndex < coinElements.length) {
+                gsap.to(coinElements[currentIndex], {
+                  r: coins[Math.floor(currentIndex / 4)] / 2,
+                  duration: 0.5,
+                });
+                gsap.to(textElements[currentIndex], {
+                  fontSize: 10,
+                  duration: 0.5,
+                });
+                totalCoins++;
+                resultText.textContent = `Total coins: ${totalCoins}`;
+                currentIndex++;
+              }
+            }
+
+            function resetAnimation() {
+              coinElements.forEach((coin) => {
+                gsap.to(coin, { r: 0, duration: 0.5 });
+              });
+              textElements.forEach((text) => {
+                gsap.to(text, { fontSize: 0, duration: 0.5 });
+              });
+              gsap.to(resultText, {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                  resultText.textContent = `Total coins: 0`;
+                  gsap.to(resultText, { opacity: 1, duration: 0.5 });
+                },
+              });
+              currentIndex = 0;
+              totalCoins = 0;
+            }
+
+            return { animateStep, resetAnimation };
           },
         },
         {
@@ -486,20 +591,23 @@ console.log(\`Coins needed for \${amount} cents: \${coinChange(coins, amount)}\`
     return n * factorial(n - 1);
 }
 
-console.log(factorial(3)); // Output: 6`,
+console.log(factorial(5)); // Output: 120`,
           animate: (svg) => {
             const width = 300,
               height = 200;
             svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
 
-            function drawTree(x, y, n) {
-              if (n === 0) return;
+            const nodeRadius = 20;
+            const verticalGap = 50;
+            const horizontalGap = 40;
 
-              const nodeRadius = 20;
-              const verticalGap = 50;
-              const horizontalGap = 40;
+            function createNode(x, y, n) {
+              const g = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "g"
+              );
+              g.setAttribute("opacity", 0);
 
-              // Draw current node
               const circle = document.createElementNS(
                 "http://www.w3.org/2000/svg",
                 "circle"
@@ -508,7 +616,7 @@ console.log(factorial(3)); // Output: 6`,
               circle.setAttribute("cy", y);
               circle.setAttribute("r", nodeRadius);
               circle.setAttribute("fill", "#4299e1");
-              svg.appendChild(circle);
+              g.appendChild(circle);
 
               const text = document.createElementNS(
                 "http://www.w3.org/2000/svg",
@@ -520,41 +628,82 @@ console.log(factorial(3)); // Output: 6`,
               text.setAttribute("dominant-baseline", "middle");
               text.setAttribute("fill", "white");
               text.textContent = n;
-              svg.appendChild(text);
+              g.appendChild(text);
+
+              svg.appendChild(g);
+              return g;
+            }
+
+            function createLine(x1, y1, x2, y2) {
+              const line = document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+              );
+              line.setAttribute("x1", x1);
+              line.setAttribute("y1", y1);
+              line.setAttribute("x2", x2);
+              line.setAttribute("y2", y2);
+              line.setAttribute("stroke", "#4299e1");
+              line.setAttribute("stroke-width", "2");
+              line.setAttribute("opacity", 0);
+              svg.appendChild(line);
+              return line;
+            }
+
+            const nodes = [];
+            const lines = [];
+
+            function buildTree(x, y, n) {
+              if (n === 0) return;
+
+              const node = createNode(x, y, n);
+              nodes.push(node);
 
               if (n > 1) {
-                // Draw lines to child nodes
-                const leftLine = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "line"
+                const leftLine = createLine(
+                  x,
+                  y + nodeRadius,
+                  x - horizontalGap,
+                  y + verticalGap - nodeRadius
                 );
-                leftLine.setAttribute("x1", x);
-                leftLine.setAttribute("y1", y + nodeRadius);
-                leftLine.setAttribute("x2", x - horizontalGap);
-                leftLine.setAttribute("y2", y + verticalGap - nodeRadius);
-                leftLine.setAttribute("stroke", "#4299e1");
-                leftLine.setAttribute("stroke-width", "2");
-                svg.appendChild(leftLine);
-
-                const rightLine = document.createElementNS(
-                  "http://www.w3.org/2000/svg",
-                  "line"
+                const rightLine = createLine(
+                  x,
+                  y + nodeRadius,
+                  x + horizontalGap,
+                  y + verticalGap - nodeRadius
                 );
-                rightLine.setAttribute("x1", x);
-                rightLine.setAttribute("y1", y + nodeRadius);
-                rightLine.setAttribute("x2", x + horizontalGap);
-                rightLine.setAttribute("y2", y + verticalGap - nodeRadius);
-                rightLine.setAttribute("stroke", "#4299e1");
-                rightLine.setAttribute("stroke-width", "2");
-                svg.appendChild(rightLine);
+                lines.push(leftLine, rightLine);
 
-                // Draw child nodes
-                drawTree(x - horizontalGap, y + verticalGap, n - 1);
-                drawTree(x + horizontalGap, y + verticalGap, n - 1);
+                buildTree(x - horizontalGap, y + verticalGap, n - 1);
+                buildTree(x + horizontalGap, y + verticalGap, n - 1);
               }
             }
 
-            drawTree(width / 2, 30, 3);
+            buildTree(width / 2, 30, 5);
+
+            let currentIndex = 0;
+
+            function animateStep() {
+              if (currentIndex < nodes.length) {
+                gsap.to(nodes[currentIndex], { opacity: 1, duration: 0.5 });
+                if (currentIndex > 0) {
+                  gsap.to(lines[currentIndex - 1], {
+                    opacity: 1,
+                    duration: 0.5,
+                  });
+                  gsap.to(lines[currentIndex], { opacity: 1, duration: 0.5 });
+                }
+                currentIndex++;
+              }
+            }
+
+            function resetAnimation() {
+              nodes.forEach((node) => gsap.set(node, { opacity: 0 }));
+              lines.forEach((line) => gsap.set(line, { opacity: 0 }));
+              currentIndex = 0;
+            }
+
+            return { animateStep, resetAnimation };
           },
         },
         {
@@ -565,42 +714,42 @@ console.log(factorial(3)); // Output: 6`,
           complexity:
             "Time: O(N!), Space: O(N) for a chess board of size N x N",
           code: `function solveNQueens(n) {
-    const board = Array(n).fill().map(() => Array(n).fill('.'));
-    const solutions = [];
+const board = Array(n).fill().map(() => Array(n).fill('.'));
+const solutions = [];
 
-    function isSafe(row, col) {
-        // Check this row on left side
-        for (let i = 0; i < col; i++)
-            if (board[row][i] === 'Q') return false;
+function isSafe(row, col) {
+// Check this row on left side
+for (let i = 0; i < col; i++)
+    if (board[row][i] === 'Q') return false;
 
-        // Check upper diagonal on left side
-        for (let i = row, j = col; i >= 0 && j >= 0; i--, j--)
-            if (board[i][j] === 'Q') return false;
+// Check upper diagonal on left side
+for (let i = row, j = col; i >= 0 && j >= 0; i--, j--)
+    if (board[i][j] === 'Q') return false;
 
-        // Check lower diagonal on left side
-        for (let i = row, j = col; j >= 0 && i < n; i++, j--)
-            if (board[i][j] === 'Q') return false;
+// Check lower diagonal on left side
+for (let i = row, j = col; j >= 0 && i < n; i++, j--)
+    if (board[i][j] === 'Q') return false;
 
-        return true;
+return true;
+}
+
+function backtrack(col) {
+if (col === n) {
+    solutions.push(board.map(row => row.join('')));
+    return;
+}
+
+for (let i = 0; i < n; i++) {
+    if (isSafe(i, col)) {
+        board[i][col] = 'Q';
+        backtrack(col + 1);
+        board[i][col] = '.';
     }
+}
+}
 
-    function backtrack(col) {
-        if (col === n) {
-            solutions.push(board.map(row => row.join('')));
-            return;
-        }
-
-        for (let i = 0; i < n; i++) {
-            if (isSafe(i, col)) {
-                board[i][col] = 'Q';
-                backtrack(col + 1);
-                board[i][col] = '.';
-            }
-        }
-    }
-
-    backtrack(0);
-    return solutions;
+backtrack(0);
+return solutions;
 }
 
 console.log(solveNQueens(4));`,
@@ -612,7 +761,7 @@ console.log(solveNQueens(4));`,
             const n = 4;
             const cellSize = width / n;
 
-            // Draw the chessboard
+            const board = [];
             for (let i = 0; i < n; i++) {
               for (let j = 0; j < n; j++) {
                 const rect = document.createElementNS(
@@ -628,16 +777,11 @@ console.log(solveNQueens(4));`,
                   (i + j) % 2 === 0 ? "#f0d9b5" : "#b58863"
                 );
                 svg.appendChild(rect);
+                board.push({ rect, queen: null });
               }
             }
 
-            const solution = [
-              [1, 0],
-              [3, 1],
-              [0, 2],
-              [2, 3],
-            ];
-            solution.forEach(([row, col], index) => {
+            function placeQueen(row, col) {
               const queen = document.createElementNS(
                 "http://www.w3.org/2000/svg",
                 "text"
@@ -648,20 +792,41 @@ console.log(solveNQueens(4));`,
               queen.setAttribute("text-anchor", "middle");
               queen.setAttribute("dominant-baseline", "central");
               queen.setAttribute("fill", "black");
+              queen.setAttribute("opacity", 0);
               queen.textContent = "♕";
               svg.appendChild(queen);
+              board[row * n + col].queen = queen;
+              return queen;
+            }
 
-              const number = document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-              );
-              number.setAttribute("x", col * cellSize + 10);
-              number.setAttribute("y", row * cellSize + 20);
-              number.setAttribute("font-size", "16");
-              number.setAttribute("fill", "red");
-              number.textContent = index + 1;
-              svg.appendChild(number);
-            });
+            const solution = [
+              [1, 0],
+              [3, 1],
+              [0, 2],
+              [2, 3],
+            ];
+            let currentStep = 0;
+
+            function animateStep() {
+              if (currentStep < solution.length) {
+                const [row, col] = solution[currentStep];
+                const queen = placeQueen(row, col);
+                gsap.to(queen, { opacity: 1, duration: 0.5 });
+                currentStep++;
+              }
+            }
+
+            function resetAnimation() {
+              board.forEach((cell) => {
+                if (cell.queen) {
+                  cell.queen.remove();
+                  cell.queen = null;
+                }
+              });
+              currentStep = 0;
+            }
+
+            return { animateStep, resetAnimation };
           },
         },
         {
@@ -672,33 +837,35 @@ console.log(solveNQueens(4));`,
           complexity:
             "Time: O(V + E), Space: O(V) where V is the number of vertices and E is the number of edges",
           code: `function bfs(graph, start) {
-    const visited = new Set();
-    const queue = [start];
-    const result = [];
+const visited = new Set();
+const queue = [start];
+const result = [];
 
-    while (queue.length > 0) {
-        const vertex = queue.shift();
-        if (!visited.has(vertex)) {
-            visited.add(vertex);
-            result.push(vertex);
-            queue.push(...(graph[vertex] || []));
-        }
-    }
+while (queue.length > 0) {
+const vertex = queue.shift();
+if (!visited.has(vertex)) {
+    visited.add(vertex);
+    result.push(vertex);
+    queue.push(...(graph[vertex] || []));
+}
+}
 
-    return result;
+return result;
 }
 
 const graph = {
-    'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': [],
-    'F': []
+'A': ['B', 'C'],
+'B': ['D', 'E'],
+'C': ['F'],
+'D': [],
+'E': [],
+'F': []
 };
 
 console.log(bfs(graph, 'A')); // Output: ['A', 'B', 'C', 'D', 'E', 'F']`,
-          animate: (svg) => graphAnimate(svg, ["A", "B", "C", "D", "E", "F"]),
+          animate: (svg) => {
+            return graphAnimate(svg, ["A", "B", "C", "D", "E", "F"], true);
+          },
         },
         {
           name: "Depth-First Search (DFS)",
@@ -708,28 +875,30 @@ console.log(bfs(graph, 'A')); // Output: ['A', 'B', 'C', 'D', 'E', 'F']`,
           complexity:
             "Time: O(V + E), Space: O(V) where V is the number of vertices and E is the number of edges",
           code: `function dfs(graph, start, visited = new Set()) {
-    visited.add(start);
-    console.log(start);
+visited.add(start);
+console.log(start);
 
-    for (let neighbor of graph[start] || []) {
-        if (!visited.has(neighbor)) {
-            dfs(graph, neighbor, visited);
-        }
-    }
+for (let neighbor of graph[start] || []) {
+if (!visited.has(neighbor)) {
+    dfs(graph, neighbor, visited);
+}
+}
 }
 
 const graph = {
-    'A': ['B', 'C'],
-    'B': ['D', 'E'],
-    'C': ['F'],
-    'D': [],
-    'E': [],
-    'F': []
+'A': ['B', 'C'],
+'B': ['D', 'E'],
+'C': ['F'],
+'D': [],
+'E': [],
+'F': []
 };
 
 dfs(graph, 'A');
 // Output: A, B, D, E, C, F`,
-          animate: (svg) => graphAnimate(svg, ["A", "B", "C", "D", "E", "F"]),
+          animate: (svg) => {
+            return graphAnimate(svg, ["A", "B", "D", "E", "C", "F"], false);
+          },
         },
       ];
 
@@ -769,43 +938,94 @@ dfs(graph, 'A');
           const section = document.createElement("div");
           section.className = "algorithm-section mb-8";
           section.innerHTML = `
-            <h2 class="text-2xl font-bold mb-2 collapsible">${algo.name}</h2>
-            <div class="content">
-                <div class="explanation-card">
-                    <p class="mb-2"><strong>Description:</strong> ${
-                      algo.description
-                    }</p>
-                    <p class="mb-2"><strong>Use Case:</strong> ${
-                      algo.useCase
-                    }</p>
-                    <p class="mb-2"><strong>Complexity:</strong> <span class="complexity">${
-                      algo.complexity
-                    }</span></p>
-                </div>
-                <h3 class="text-xl font-bold mb-2">Code Example:</h3>
-                <pre><code class="language-javascript">${algo.code}</code></pre>
-                <button class="run-code bg-blue-500 text-white px-4 py-2 rounded mt-4">Run Code</button>
-                <pre class="output mt-4 bg-gray-100 p-4 rounded-lg hidden"></pre>
-                <h3 class="text-xl font-bold my-4">Visualization:</h3>
-                <div class="svg-container ${
-                  algo.name === "Breadth-First Search (BFS)" ||
-                  algo.name === "Depth-First Search (DFS)"
-                    ? "graph-svg-container"
-                    : ""
-                }">
-                    <svg id="svg-${index}" class="w-full" height="300"></svg>
-                </div>
-            </div>
-        `;
+      <h2 class="text-2xl font-bold mb-2 collapsible">${algo.name}</h2>
+      <div class="content">
+          <div class="explanation-card">
+              <p class="mb-2"><strong>Description:</strong> ${
+                algo.description
+              }</p>
+              <p class="mb-2"><strong>Use Case:</strong> ${algo.useCase}</p>
+              <p class="mb-2"><strong>Complexity:</strong> <span class="complexity">${
+                algo.complexity
+              }</span></p>
+          </div>
+          <h3 class="text-xl font-bold mb-2">Code Example:</h3>
+          <pre><code class="language-javascript">${algo.code}</code></pre>
+          <button class="run-code bg-blue-500 text-white px-4 py-2 rounded mt-4">Run Code</button>
+          <pre class="output mt-4 bg-gray-100 p-4 rounded-lg hidden"></pre>
+          <h3 class="text-xl font-bold my-4">Visualization:</h3>
+          <div class="svg-container ${
+            algo.name === "Breadth-First Search (BFS)" ||
+            algo.name === "Depth-First Search (DFS)"
+              ? "graph-svg-container"
+              : ""
+          }">
+              <svg id="svg-${index}" class="w-full" height="300"></svg>
+          </div>
+          ${
+            algo.name !== "Dynamic Programming"
+              ? `
+          <div class="animation-controls">
+              <button class="step-animation bg-green-500 text-white px-4 py-2 rounded">Step</button>
+              <button class="reset-animation bg-red-500 text-white px-4 py-2 rounded">Reset</button>
+          </div>
+          `
+              : ""
+          }
+      </div>
+    `;
           app.appendChild(section);
 
-          // Initialize animation
-          algo.animate(document.getElementById(`svg-${index}`));
+          // Initialize visualization
+          const svg = document.getElementById(`svg-${index}`);
+          const animationFunctions = algo.animate(svg);
+
+          if (algo.name !== "Dynamic Programming") {
+            // Add event listeners for animation controls for other algorithms
+            const stepButton = section.querySelector(".step-animation");
+            const resetButton = section.querySelector(".reset-animation");
+
+            if (
+              stepButton &&
+              resetButton &&
+              animationFunctions.animateStep &&
+              animationFunctions.resetAnimation
+            ) {
+              stepButton.addEventListener(
+                "click",
+                animationFunctions.animateStep
+              );
+              resetButton.addEventListener(
+                "click",
+                animationFunctions.resetAnimation
+              );
+            }
+          }
+        });
+      }
+      // Function to toggle dark mode
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        updateSVGColors();
+      }
+
+      // Function to update SVG colors when switching between light and dark modes
+      function updateSVGColors() {
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        document.querySelectorAll("svg text").forEach((text) => {
+          text.setAttribute("fill", isDarkMode ? "white" : "black");
         });
       }
 
-      // Update the BFS and DFS animate functions
-      const graphAnimate = (svg, order) => {
+      // Function to toggle collapsible sections
+      function toggleCollapsible(event) {
+        if (event.target.classList.contains("collapsible")) {
+          event.target.parentElement.classList.toggle("active");
+        }
+      }
+
+      // Graph animation function
+      const graphAnimate = (svg, order, isBFS) => {
         const width = 300,
           height = 300;
         svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
@@ -845,7 +1065,9 @@ dfs(graph, 'A');
         });
 
         // Draw nodes
-        nodes.forEach((node) => {
+        const nodeElements = nodes.map((node) => {
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
           const circle = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "circle"
@@ -854,7 +1076,7 @@ dfs(graph, 'A');
           circle.setAttribute("cy", node.y);
           circle.setAttribute("r", "20");
           circle.setAttribute("fill", "#48bb78");
-          svg.appendChild(circle);
+          g.appendChild(circle);
 
           const text = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -866,41 +1088,47 @@ dfs(graph, 'A');
           text.setAttribute("dominant-baseline", "central");
           text.setAttribute("fill", "white");
           text.textContent = node.id;
-          svg.appendChild(text);
+          g.appendChild(text);
 
-          const orderText = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text"
-          );
-          orderText.setAttribute("x", node.x + 15);
-          orderText.setAttribute("y", node.y - 25);
-          orderText.setAttribute("fill", "red");
-          orderText.setAttribute("font-size", "14");
-          orderText.textContent = order.indexOf(node.id) + 1;
-          svg.appendChild(orderText);
+          svg.appendChild(g);
+          return g;
         });
-      };
 
-      // Function to toggle dark mode
-      function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-        updateSVGColors();
-      }
+        let currentStep = 0;
 
-      // Function to update SVG colors when switching between light and dark modes
-      function updateSVGColors() {
-        const isDarkMode = document.body.classList.contains("dark-mode");
-        document.querySelectorAll("svg text").forEach((text) => {
-          text.setAttribute("fill", isDarkMode ? "white" : "black");
-        });
-      }
-
-      // Function to toggle collapsible sections
-      function toggleCollapsible(event) {
-        if (event.target.classList.contains("collapsible")) {
-          event.target.parentElement.classList.toggle("active");
+        function animateStep() {
+          if (currentStep < order.length) {
+            const nodeIndex = nodes.findIndex(
+              (n) => n.id === order[currentStep]
+            );
+            gsap.to(nodeElements[nodeIndex].firstChild, {
+              fill: "#e53e3e",
+              duration: 0.5,
+            });
+            const orderText = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text"
+            );
+            orderText.setAttribute("x", nodes[nodeIndex].x + 15);
+            orderText.setAttribute("y", nodes[nodeIndex].y - 25);
+            orderText.setAttribute("fill", "red");
+            orderText.setAttribute("font-size", "14");
+            orderText.textContent = currentStep + 1;
+            svg.appendChild(orderText);
+            currentStep++;
+          }
         }
-      }
+
+        function resetAnimation() {
+          nodeElements.forEach((node) => {
+            gsap.to(node.firstChild, { fill: "#48bb78", duration: 0.5 });
+          });
+          svg.querySelectorAll("text[fill='red']").forEach((el) => el.remove());
+          currentStep = 0;
+        }
+
+        return { animateStep, resetAnimation };
+      };
 
       // Event listeners
       document
@@ -914,7 +1142,7 @@ dfs(graph, 'A');
       // Initialize the app
       createAlgorithmSections();
 
-      // Highlight.js initialization (if you decide to use it for syntax highlighting)
+      // Highlight.js initialization
       document.addEventListener("DOMContentLoaded", (event) => {
         document.querySelectorAll("pre code").forEach((block) => {
           hljs.highlightBlock(block);

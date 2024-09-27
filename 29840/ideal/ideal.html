@@ -1,1 +1,733 @@
-<!-- ideal.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Architecture Explorer</title>
+    <style>
+      /* styles.css */
+      :root {
+        --primary-color: #00a8ff;
+        --secondary-color: #192a56;
+        --accent-color: #fbc531;
+        --background-color: #f5f6fa;
+        --text-color: #2f3640;
+        --card-bg: #ffffff;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--background-color);
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        background-color: var(--secondary-color);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      nav ul li {
+        margin: 0 1rem;
+      }
+
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+
+      nav ul li a:hover {
+        color: var(--accent-color);
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      section {
+        margin-bottom: 4rem;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--secondary-color);
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .component {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .performance-chart {
+        max-width: 600px;
+        margin: 1rem auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        background-color: var(--card-bg);
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: var(--secondary-color);
+        color: white;
+      }
+
+      #buildSteps ol {
+        padding-left: 20px;
+      }
+
+      #buildSteps li {
+        margin-bottom: 0.5rem;
+      }
+
+      #buildFlowchart svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      .glossary-term {
+        cursor: pointer;
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+
+      .glossary-definition {
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      footer {
+        background-color: var(--secondary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem 0;
+        margin-top: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        nav ul {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        nav ul li {
+          margin: 0.5rem 0;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#components">Components</a></li>
+          <li><a href="#comparison">Comparison</a></li>
+          <li><a href="#building-process">Building Process</a></li>
+          <li><a href="#glossary">Glossary</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section id="home">
+        <h1>Computer Architecture Explorer</h1>
+        <p>
+          Welcome to Computer Architecture Explorer, your comprehensive guide to
+          understanding computer hardware and building your own PC. Dive into
+          the fascinating world of computer components, learn about their
+          functions, and master the art of PC assembly.
+        </p>
+      </section>
+
+      <section id="components">
+        <h2>Core Components</h2>
+        <div class="component" id="cpu">
+          <h3>CPU (Central Processing Unit)</h3>
+          <p>
+            The CPU is the brain of the computer, responsible for executing
+            instructions and performing calculations.
+          </p>
+          <ul>
+            <li>
+              Clock Speed: Measures how many cycles a CPU can execute per
+              second, typically in GHz.
+            </li>
+            <li>
+              Cores: Independent processing units within a CPU. More cores
+              generally allow for better multitasking.
+            </li>
+            <li>
+              Cache: Small, fast memory used to store frequently accessed data.
+            </li>
+          </ul>
+          <div class="performance-chart">
+            <canvas id="cpuPerformanceChart"></canvas>
+          </div>
+        </div>
+        <div class="component" id="gpu">
+          <h3>GPU (Graphics Processing Unit)</h3>
+          <p>
+            The GPU is specialized for rendering images, animations, and video.
+          </p>
+          <ul>
+            <li>
+              CUDA Cores/Stream Processors: Parallel processors for handling
+              multiple tasks simultaneously.
+            </li>
+            <li>VRAM: Dedicated memory for storing graphical data.</li>
+            <li>
+              Render Output Units (ROPs): Responsible for writing pixels to
+              memory.
+            </li>
+          </ul>
+        </div>
+        <div class="component" id="ram">
+          <h3>RAM (Random Access Memory)</h3>
+          <p>
+            RAM is the computer's short-term memory, used to store data that is
+            actively being used or processed.
+          </p>
+          <ul>
+            <li>
+              Capacity: Amount of data that can be stored, measured in GB.
+            </li>
+            <li>
+              Speed: How quickly data can be read or written, measured in MHz.
+            </li>
+            <li>
+              Latency: The delay before a transfer of data begins following an
+              instruction for its transfer.
+            </li>
+          </ul>
+        </div>
+        <div class="component" id="storage">
+          <h3>Storage (HDD/SSD)</h3>
+          <p>Storage devices are used for long-term data retention.</p>
+          <ul>
+            <li>
+              HDD (Hard Disk Drive): Uses magnetic storage to store and retrieve
+              digital information.
+            </li>
+            <li>
+              SSD (Solid State Drive): Uses integrated circuit assemblies as
+              memory to store data persistently.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="processor-architecture">
+        <h2>Processor Architecture and Performance</h2>
+        <div class="processor-overview">
+          <h3>Overview of Processor Architecture</h3>
+          <p id="processor-description"></p>
+        </div>
+        <div class="performance-metrics">
+          <h3>Processor Performance Metrics</h3>
+          <div class="chart-container">
+            <canvas id="clockSpeedChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="coreCountChart"></canvas>
+          </div>
+          <div class="chart-container">
+            <canvas id="powerEfficiencyChart"></canvas>
+          </div>
+        </div>
+      </section>
+      <section id="comparison">
+        <h2>Component Comparisons</h2>
+        <div id="ssdVsHdd"></div>
+        <div id="ramComparison"></div>
+      </section>
+
+      <section id="building-process">
+        <h2>Building a Computer</h2>
+        <div id="buildSteps"></div>
+        <div id="buildFlowchart"></div>
+      </section>
+
+      <section id="glossary">
+        <h2>Glossary</h2>
+        <div id="glossaryEntries"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Computer Architecture Explorer. All rights reserved.</p>
+    </footer>
+
+    <script>
+      // script.js
+      document.addEventListener("DOMContentLoaded", () => {
+        // CPU Performance Chart
+        const ctx = document
+          .getElementById("cpuPerformanceChart")
+          .getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Core i3", "Core i5", "Core i7", "Core i9"],
+            datasets: [
+              {
+                label: "Clock Speed (GHz)",
+                data: [3.6, 3.9, 4.2, 4.5],
+                backgroundColor: "rgba(0, 168, 255, 0.5)",
+                borderColor: "rgba(0, 168, 255, 1)",
+                borderWidth: 1,
+              },
+              {
+                label: "Core Count",
+                data: [4, 6, 8, 10],
+                backgroundColor: "rgba(25, 42, 86, 0.5)",
+                borderColor: "rgba(25, 42, 86, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+
+        // Component Comparisons
+        const ssdVsHdd = [
+          {
+            name: "SSD",
+            features: {
+              speed: "Fast (500+ MB/s)",
+              capacity: "Lower (250GB - 2TB common)",
+              price: "Higher ($.20 - $1/GB)",
+              durability: "No moving parts, more durable",
+              noise: "Silent operation",
+              bootTime: "Fast boot times (10-15 seconds)",
+            },
+          },
+          {
+            name: "HDD",
+            features: {
+              speed: "Slower (80-160 MB/s)",
+              capacity: "Higher (1TB - 18TB common)",
+              price: "Lower ($.02 - $.05/GB)",
+              durability: "Moving parts, more fragile",
+              noise: "Some noise during operation",
+              bootTime: "Slower boot times (30-60 seconds)",
+            },
+          },
+        ];
+
+        const ramComparison = [
+          {
+            name: "DDR4",
+            features: {
+              speed: "2133-3200 MHz",
+              voltage: "1.2V",
+              capacity: "Up to 64GB per stick",
+              latency: "Higher (15-19 clocks)",
+              powerEfficiency: "Good",
+              cost: "More affordable",
+            },
+          },
+          {
+            name: "DDR5",
+            features: {
+              speed: "4800-6400 MHz",
+              voltage: "1.1V",
+              capacity: "Up to 128GB per stick",
+              latency: "Lower (28-40 clocks)",
+              powerEfficiency: "Better",
+              cost: "More expensive",
+            },
+          },
+        ];
+
+        function createComparisonTable(data) {
+          const table = document.createElement("table");
+          table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>${data[0].name}</th>
+                                <th>${data[1].name}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${Object.keys(data[0].features)
+                              .map(
+                                (feature) => `
+                                <tr>
+                                    <td>${feature}</td>
+                                    <td>${data[0].features[feature]}</td>
+                                    <td>${data[1].features[feature]}</td>
+                                </tr>
+                            `
+                              )
+                              .join("")}
+                        </tbody>
+                    `;
+          return table;
+        }
+
+        document
+          .getElementById("ssdVsHdd")
+          .appendChild(createComparisonTable(ssdVsHdd));
+        document
+          .getElementById("ramComparison")
+          .appendChild(createComparisonTable(ramComparison));
+
+        // Processor Architecture Overview
+        const processorDescription = `
+Processor architecture refers to the design and organization of a computer's central processing unit (CPU). Two key aspects of processor architecture are:
+
+1. Core Count:
+   - Single-core: One processing unit, capable of handling one task at a time.
+   - Multi-core: Multiple processing units on a single chip, enabling parallel processing of tasks.
+
+2. Clock Speed:
+   - Measured in Hertz (Hz), typically Gigahertz (GHz).
+   - Represents the number of cycles a CPU can execute per second.
+
+These factors significantly impact computer performance:
+- More cores allow for better multitasking and improved performance in multi-threaded applications.
+- Higher clock speeds generally result in faster processing of individual tasks.
+
+However, performance is also influenced by other factors such as cache size, instruction set architecture, and manufacturing process.
+`;
+
+        document.getElementById("processor-description").innerText =
+          processorDescription;
+
+        // Performance Metrics Charts
+        function createPerformanceChart(chartId, labels, datasets, yAxisLabel) {
+          const ctx = document.getElementById(chartId).getContext("2d");
+          new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: labels,
+              datasets: datasets,
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  title: {
+                    display: true,
+                    text: yAxisLabel,
+                  },
+                },
+              },
+            },
+          });
+        }
+
+        // Clock Speed Chart
+        const clockSpeedLabels = ["Core i3", "Core i5", "Core i7", "Core i9"];
+        const clockSpeedData = [
+          {
+            label: "Base Clock Speed (GHz)",
+            data: [3.6, 3.9, 3.8, 3.7],
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+          },
+          {
+            label: "Boost Clock Speed (GHz)",
+            data: [4.3, 4.6, 5.0, 5.2],
+            backgroundColor: "rgba(153, 102, 255, 0.6)",
+          },
+        ];
+        createPerformanceChart(
+          "clockSpeedChart",
+          clockSpeedLabels,
+          clockSpeedData,
+          "Clock Speed (GHz)"
+        );
+
+        // Core Count Chart
+        const coreCountLabels = ["Core i3", "Core i5", "Core i7", "Core i9"];
+        const coreCountData = [
+          {
+            label: "Core Count",
+            data: [4, 6, 8, 10],
+            backgroundColor: "rgba(255, 159, 64, 0.6)",
+          },
+          {
+            label: "Thread Count",
+            data: [8, 12, 16, 20],
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
+          },
+        ];
+        createPerformanceChart(
+          "coreCountChart",
+          coreCountLabels,
+          coreCountData,
+          "Count"
+        );
+
+        // Power Efficiency Chart
+        const powerEfficiencyLabels = [
+          "Core i3",
+          "Core i5",
+          "Core i7",
+          "Core i9",
+        ];
+        const powerEfficiencyData = [
+          {
+            label: "TDP (Watts)",
+            data: [65, 65, 125, 125],
+            backgroundColor: "rgba(54, 162, 235, 0.6)",
+          },
+          {
+            label: "Performance per Watt (Arbitrary Units)",
+            data: [100, 120, 110, 115],
+            backgroundColor: "rgba(255, 206, 86, 0.6)",
+          },
+        ];
+        createPerformanceChart(
+          "powerEfficiencyChart",
+          powerEfficiencyLabels,
+          powerEfficiencyData,
+          "Value"
+        );
+
+        // Building Process
+        const buildSteps = [
+          {
+            step: "Prepare your workspace",
+            description:
+              "Clear a large, well-lit area. Ground yourself to prevent static electricity damage.",
+          },
+          {
+            step: "Install the CPU",
+            description:
+              "Carefully place the CPU in the socket on the motherboard, matching the alignment indicators.",
+          },
+          {
+            step: "Apply thermal paste and install CPU cooler",
+            description:
+              "Apply a pea-sized amount of thermal paste on the CPU, then securely attach the cooler.",
+          },
+          {
+            step: "Install RAM",
+            description:
+              "Insert RAM modules into the appropriate slots on the motherboard, ensuring they click into place.",
+          },
+          {
+            step: "Mount the motherboard in the case",
+            description:
+              "Place the I/O shield, then carefully mount the motherboard using the provided standoffs and screws.",
+          },
+          {
+            step: "Install the power supply",
+            description:
+              "Mount the PSU in the designated area and connect the main power cables to the motherboard.",
+          },
+          {
+            step: "Connect case fans and front panel connectors",
+            description:
+              "Attach case fans to the motherboard and connect front panel cables (power, reset, LEDs) as per the motherboard manual.",
+          },
+          {
+            step: "Install storage drives",
+            description:
+              "Mount SSDs/HDDs in drive bays or on the case, then connect data and power cables.",
+          },
+          {
+            step: "Install GPU",
+            description:
+              "Insert the graphics card into the appropriate PCIe slot and secure it to the case.",
+          },
+          {
+            step: "Connect all remaining cables",
+            description:
+              "Ensure all components are properly connected to the power supply and motherboard.",
+          },
+          {
+            step: "Close the case and boot",
+            description:
+              "Secure all panels, connect peripherals, and power on the system to test.",
+          },
+          {
+            step: "Install operating system and drivers",
+            description:
+              "Install your chosen OS and ensure all necessary drivers are installed for optimal performance.",
+          },
+        ];
+
+        const buildStepsList = document.createElement("ol");
+        buildSteps.forEach((step) => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${step.step}:</strong> ${step.description}`;
+          buildStepsList.appendChild(li);
+        });
+        document.getElementById("buildSteps").appendChild(buildStepsList);
+
+        // Simple SVG Flowchart
+        const flowchart = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "svg"
+        );
+        flowchart.setAttribute("viewBox", "0 0 400 300");
+        flowchart.innerHTML = `
+                    <rect x="150" y="10" width="100" height="40" rx="5" fill="#00a8ff"/>
+                    <text x="200" y="35" text-anchor="middle" fill="white">Start</text>
+
+                    <rect x="150" y="70" width="100" height="40" rx="5" fill="#fbc531"/>
+                    <text x="200" y="95" text-anchor="middle" fill="#2f3640">Choose Parts</text>
+
+                    <rect x="150" y="130" width="100" height="40" rx="5" fill="#fbc531"/>
+                    <text x="200" y="155" text-anchor="middle" fill="#2f3640">Assemble PC</text>
+
+                    <rect x="150" y="190" width="100" height="40" rx="5" fill="#fbc531"/>
+                    <text x="200" y="215" text-anchor="middle" fill="#2f3640">Install OS</text>
+
+                    <rect x="150" y="250" width="100" height="40" rx="5" fill="#00a8ff"/>
+                    <text x="200" y="275" text-anchor="middle" fill="white">Finish</text>
+
+                    <line x1="200" y1="50" x2="200" y2="70" stroke="#2f3640" stroke-width="2"/>
+                    <line x1="200" y1="110" x2="200" y2="130" stroke="#2f3640" stroke-width="2"/>
+                    <line x1="200" y1="170" x2="200" y2="190" stroke="#2f3640" stroke-width="2"/>
+                    <line x1="200" y1="230" x2="200" y2="250" stroke="#2f3640" stroke-width="2"/>
+          `;
+        document.getElementById("buildFlowchart").appendChild(flowchart);
+
+        // Glossary
+        const glossaryTerms = [
+          {
+            term: "CPU (Central Processing Unit)",
+            definition:
+              "The primary component of a computer that performs most of the processing inside the computer. It executes instructions and processes data for computer programs.",
+            link: "https://www.intel.com/content/www/us/en/products/docs/processors/what-is-a-cpu.html",
+          },
+          {
+            term: "GPU (Graphics Processing Unit)",
+            definition:
+              "A specialized processor originally designed to accelerate graphics rendering. GPUs can process many pieces of data simultaneously, making them useful for machine learning, video editing, and gaming applications.",
+            link: "https://www.nvidia.com/en-us/graphics-cards/",
+          },
+          {
+            term: "RAM (Random Access Memory)",
+            definition:
+              "The main memory in a computer, used to store data that is actively being used or processed. It provides fast read and write access to a computer's processor.",
+            link: "https://www.crucial.com/articles/about-memory/support-what-does-computer-memory-do",
+          },
+          {
+            term: "SSD (Solid State Drive)",
+            definition:
+              "A storage device using integrated circuit assemblies to store data persistently. SSDs are typically faster and more durable than traditional hard drives, as they have no moving parts.",
+            link: "https://www.samsung.com/semiconductor/minisite/ssd/overview/",
+          },
+          {
+            term: "HDD (Hard Disk Drive)",
+            definition:
+              "A data storage device that uses magnetic storage to store and retrieve digital data. HDDs are cheaper per gigabyte than SSDs but are generally slower and more fragile due to their moving parts.",
+            link: "https://www.seagate.com/do-more/everything-you-wanted-to-know-about-hard-drives-master-dm/",
+          },
+          {
+            term: "Motherboard",
+            definition:
+              "The main circuit board of a computer that connects all components together. It distributes power and allows communication between all the computer's components.",
+            link: "https://www.asus.com/motherboards-components/motherboards/what-is-a-motherboard/",
+          },
+          {
+            term: "PSU (Power Supply Unit)",
+            definition:
+              "Converts mains AC to low-voltage regulated DC power for the internal components of a computer. Choosing the right wattage PSU is crucial for system stability.",
+            link: "https://www.corsair.com/us/en/blog/what-power-supply-do-i-need-for-my-pc",
+          },
+          {
+            term: "BIOS (Basic Input/Output System)",
+            definition:
+              "Firmware used to perform hardware initialization during the booting process and to provide runtime services for operating systems and programs.",
+            link: "https://www.intel.com/content/www/us/en/support/articles/000005490/boards-and-kits.html",
+          },
+          {
+            term: "Overclocking",
+            definition:
+              "The practice of increasing a component's clock rate, running it at a higher speed than it was designed to run. This is often done to increase performance.",
+            link: "https://www.intel.com/content/www/us/en/gaming/resources/overclocking-cpu.html",
+          },
+          {
+            term: "PCIe (Peripheral Component Interconnect Express)",
+            definition:
+              "A high-speed serial computer expansion bus standard for attaching hardware devices to a computer. It is commonly used for graphics cards, SSDs, Wi-Fi, and Ethernet cards.",
+            link: "https://pcisig.com/specifications",
+          },
+        ];
+
+        const glossaryEntries = document.getElementById("glossaryEntries");
+        glossaryTerms.forEach((item) => {
+          const termElement = document.createElement("div");
+          termElement.innerHTML = `
+              <h3 class="glossary-term">${item.term}</h3>
+              <p class="glossary-definition">${item.definition}</p>
+              <a href="${item.link}" target="_blank" rel="noopener noreferrer">Learn more</a>
+          `;
+          glossaryEntries.appendChild(termElement);
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll("nav a").forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute("href").substring(1);
+            const targetElement = document.getElementById(targetId);
+            targetElement.scrollIntoView({
+              behavior: "smooth",
+            });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

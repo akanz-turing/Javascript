@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,42 +35,52 @@
       </header>
 
       <main class="flex-grow container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="md:col-span-2">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4">Compare Fruits</h2>
+            <div class="flex flex-wrap gap-4 mb-4">
+              <select
+                id="fruit1"
+                class="p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+              ></select>
+              <select
+                id="fruit2"
+                class="p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+              ></select>
+              <button
+                id="compareBtn"
+                class="bg-primary text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
+              >
+                Compare
+              </button>
+            </div>
             <div
-              class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8"
-            >
-              <h2 class="text-2xl font-semibold mb-4">Compare Fruits</h2>
-              <div class="flex flex-wrap gap-4 mb-4">
-                <select
-                  id="fruit1"
-                  class="p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                ></select>
-                <select
-                  id="fruit2"
-                  class="p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                ></select>
-                <button
-                  id="compareBtn"
-                  class="bg-primary text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
-                >
-                  Compare
-                </button>
-              </div>
-              <div
-                id="comparisonResult"
-                class="grid grid-cols-1 md:grid-cols-2 gap-8"
-              ></div>
+              id="comparisonResult"
+              class="grid grid-cols-1 md:grid-cols-2 gap-8"
+            ></div>
+          </div>
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4">Seasonal Availability</h2>
+            <div class="w-full" style="height: 300px">
+              <canvas id="seasonalChart"></canvas>
             </div>
           </div>
+        </div>
 
-          <div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-              <h2 class="text-2xl font-semibold mb-4">
-                Health Benefits Categories
-              </h2>
-              <div id="categories" class="space-y-4"></div>
-            </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-2xl font-semibold mb-4">
+            Health Benefits Categories
+          </h2>
+          <div
+            id="categories"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          ></div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold mb-4">Regional Distribution</h2>
+          <div class="w-full" style="height: 400px">
+            <canvas id="regionalDistribution"></canvas>
           </div>
         </div>
       </main>
@@ -132,7 +142,11 @@
             sugar: 18,
             carbohydrates: 18,
             protein: 0,
+            fiber: 3.6,
+            vitamin_c: 7.5,
           },
+          seasonal_availability: [0, 0, 70, 30],
+          regional_distribution: [10, 5, 15, 60, 5, 5],
         },
         {
           name: "Strawberry",
@@ -146,7 +160,11 @@
             sugar: 5.4,
             carbohydrates: 5.5,
             protein: 0.8,
+            fiber: 2,
+            vitamin_c: 58.8,
           },
+          seasonal_availability: [40, 50, 10, 0],
+          regional_distribution: [25, 15, 30, 20, 5, 5],
         },
         {
           name: "Banana",
@@ -160,7 +178,11 @@
             sugar: 17.2,
             carbohydrates: 22,
             protein: 1,
+            fiber: 2.6,
+            vitamin_c: 8.7,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [10, 30, 5, 35, 15, 5],
         },
         {
           name: "Tomato",
@@ -174,7 +196,11 @@
             sugar: 2.6,
             carbohydrates: 3.9,
             protein: 0.9,
+            fiber: 1.2,
+            vitamin_c: 14,
           },
+          seasonal_availability: [10, 40, 40, 10],
+          regional_distribution: [20, 15, 25, 25, 10, 5],
         },
         {
           name: "Pear",
@@ -188,7 +214,11 @@
             sugar: 10,
             carbohydrates: 15,
             protein: 0.4,
+            fiber: 3.1,
+            vitamin_c: 4.3,
           },
+          seasonal_availability: [0, 10, 60, 30],
+          regional_distribution: [20, 10, 30, 30, 5, 5],
         },
         {
           name: "Durian",
@@ -202,7 +232,11 @@
             sugar: 6.75,
             carbohydrates: 27.1,
             protein: 1.5,
+            fiber: 3.8,
+            vitamin_c: 19.7,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 5, 5, 80, 3, 2],
         },
         {
           name: "Blackberry",
@@ -216,7 +250,11 @@
             sugar: 4.5,
             carbohydrates: 9,
             protein: 1.3,
+            fiber: 5.3,
+            vitamin_c: 21,
           },
+          seasonal_availability: [0, 40, 60, 0],
+          regional_distribution: [30, 15, 25, 20, 5, 5],
         },
         {
           name: "Lingonberry",
@@ -230,7 +268,11 @@
             sugar: 5.74,
             carbohydrates: 11.3,
             protein: 0.75,
+            fiber: 4.6,
+            vitamin_c: 11,
           },
+          seasonal_availability: [0, 0, 80, 20],
+          regional_distribution: [20, 5, 60, 10, 2, 3],
         },
         {
           name: "Kiwi",
@@ -244,7 +286,11 @@
             sugar: 9,
             carbohydrates: 15,
             protein: 1.1,
+            fiber: 3,
+            vitamin_c: 64,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [15, 10, 20, 25, 5, 25],
         },
         {
           name: "Lychee",
@@ -258,7 +304,11 @@
             sugar: 15,
             carbohydrates: 17,
             protein: 0.8,
+            fiber: 1.3,
+            vitamin_c: 71.5,
           },
+          seasonal_availability: [0, 80, 20, 0],
+          regional_distribution: [5, 10, 5, 75, 3, 2],
         },
         {
           name: "Pineapple",
@@ -272,7 +322,11 @@
             sugar: 9.85,
             carbohydrates: 13.12,
             protein: 0.54,
+            fiber: 1.4,
+            vitamin_c: 47.8,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [15, 30, 10, 30, 10, 5],
         },
         {
           name: "Fig",
@@ -286,7 +340,11 @@
             sugar: 16,
             carbohydrates: 19,
             protein: 0.8,
+            fiber: 2.9,
+            vitamin_c: 2,
           },
+          seasonal_availability: [0, 30, 70, 0],
+          regional_distribution: [15, 10, 30, 30, 10, 5],
         },
         {
           name: "Gooseberry",
@@ -300,7 +358,11 @@
             sugar: 0,
             carbohydrates: 10,
             protein: 0.9,
+            fiber: 4.3,
+            vitamin_c: 27.7,
           },
+          seasonal_availability: [0, 60, 40, 0],
+          regional_distribution: [20, 5, 50, 15, 5, 5],
         },
         {
           name: "Passionfruit",
@@ -314,7 +376,11 @@
             sugar: 11.2,
             carbohydrates: 22.4,
             protein: 2.2,
+            fiber: 10.4,
+            vitamin_c: 30,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [10, 30, 5, 35, 15, 5],
         },
         {
           name: "Plum",
@@ -328,7 +394,11 @@
             sugar: 9.92,
             carbohydrates: 11.4,
             protein: 0.7,
+            fiber: 1.4,
+            vitamin_c: 9.5,
           },
+          seasonal_availability: [0, 30, 70, 0],
+          regional_distribution: [20, 15, 25, 30, 5, 5],
         },
         {
           name: "Orange",
@@ -342,7 +412,11 @@
             sugar: 8.2,
             carbohydrates: 8.3,
             protein: 1,
+            fiber: 2.4,
+            vitamin_c: 53.2,
           },
+          seasonal_availability: [30, 10, 10, 50],
+          regional_distribution: [20, 25, 15, 25, 10, 5],
         },
         {
           name: "GreenApple",
@@ -356,7 +430,11 @@
             sugar: 6.4,
             carbohydrates: 3.1,
             protein: 0.4,
+            fiber: 1.8,
+            vitamin_c: 4.8,
           },
+          seasonal_availability: [0, 0, 60, 40],
+          regional_distribution: [25, 15, 30, 20, 5, 5],
         },
         {
           name: "Raspberry",
@@ -370,7 +448,11 @@
             sugar: 4.4,
             carbohydrates: 12,
             protein: 1.2,
+            fiber: 6.5,
+            vitamin_c: 26.2,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [30, 15, 30, 15, 5, 5],
         },
         {
           name: "Watermelon",
@@ -384,7 +466,11 @@
             sugar: 6,
             carbohydrates: 8,
             protein: 0.6,
+            fiber: 0.4,
+            vitamin_c: 8.1,
           },
+          seasonal_availability: [0, 60, 40, 0],
+          regional_distribution: [20, 15, 20, 25, 15, 5],
         },
         {
           name: "Lemon",
@@ -398,7 +484,11 @@
             sugar: 2.5,
             carbohydrates: 9,
             protein: 1.1,
+            fiber: 2.8,
+            vitamin_c: 53,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [20, 20, 20, 25, 10, 5],
         },
         {
           name: "Mango",
@@ -412,7 +502,11 @@
             sugar: 13.7,
             carbohydrates: 15,
             protein: 0.82,
+            fiber: 1.6,
+            vitamin_c: 36.4,
           },
+          seasonal_availability: [0, 60, 40, 0],
+          regional_distribution: [10, 20, 5, 45, 15, 5],
         },
         {
           name: "Blueberry",
@@ -426,7 +520,11 @@
             sugar: 5.4,
             carbohydrates: 5.5,
             protein: 0,
+            fiber: 2.4,
+            vitamin_c: 9.7,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [40, 15, 25, 15, 2, 3],
         },
         {
           name: "Apple",
@@ -440,7 +538,11 @@
             sugar: 10.3,
             carbohydrates: 11.4,
             protein: 0.3,
+            fiber: 2.4,
+            vitamin_c: 4.6,
           },
+          seasonal_availability: [0, 0, 60, 40],
+          regional_distribution: [25, 15, 30, 20, 5, 5],
         },
         {
           name: "Guava",
@@ -454,7 +556,11 @@
             sugar: 9,
             carbohydrates: 14,
             protein: 2.6,
+            fiber: 5.4,
+            vitamin_c: 228.3,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [10, 25, 5, 40, 15, 5],
         },
         {
           name: "Apricot",
@@ -468,7 +574,11 @@
             sugar: 3.2,
             carbohydrates: 3.9,
             protein: 0.5,
+            fiber: 0.7,
+            vitamin_c: 10,
           },
+          seasonal_availability: [0, 80, 20, 0],
+          regional_distribution: [15, 10, 30, 35, 5, 5],
         },
         {
           name: "Melon",
@@ -482,7 +592,11 @@
             sugar: 8,
             carbohydrates: 8,
             protein: 0,
+            fiber: 0.9,
+            vitamin_c: 36.7,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [20, 15, 25, 25, 10, 5],
         },
         {
           name: "Tangerine",
@@ -496,7 +610,11 @@
             sugar: 9.1,
             carbohydrates: 8.3,
             protein: 0,
+            fiber: 1.8,
+            vitamin_c: 26.7,
           },
+          seasonal_availability: [30, 0, 0, 70],
+          regional_distribution: [20, 20, 15, 30, 10, 5],
         },
         {
           name: "Pitahaya",
@@ -510,7 +628,11 @@
             sugar: 3,
             carbohydrates: 7,
             protein: 1,
+            fiber: 2.5,
+            vitamin_c: 9,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [10, 30, 5, 45, 5, 5],
         },
         {
           name: "Lime",
@@ -524,7 +646,11 @@
             sugar: 1.7,
             carbohydrates: 8.4,
             protein: 0.3,
+            fiber: 2.8,
+            vitamin_c: 29.1,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [15, 25, 10, 35, 10, 5],
         },
         {
           name: "Pomegranate",
@@ -538,7 +664,11 @@
             sugar: 13.7,
             carbohydrates: 18.7,
             protein: 1.7,
+            fiber: 4,
+            vitamin_c: 10.2,
           },
+          seasonal_availability: [0, 0, 60, 40],
+          regional_distribution: [10, 15, 20, 40, 10, 5],
         },
         {
           name: "Dragonfruit",
@@ -552,7 +682,11 @@
             sugar: 8,
             carbohydrates: 9,
             protein: 9,
+            fiber: 1.9,
+            vitamin_c: 3,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 20, 5, 60, 5, 5],
         },
         {
           name: "Grape",
@@ -566,7 +700,11 @@
             sugar: 16,
             carbohydrates: 18.1,
             protein: 0.72,
+            fiber: 0.9,
+            vitamin_c: 3.2,
           },
+          seasonal_availability: [0, 30, 70, 0],
+          regional_distribution: [20, 20, 25, 20, 10, 5],
         },
         {
           name: "Morus",
@@ -580,7 +718,11 @@
             sugar: 8.1,
             carbohydrates: 9.8,
             protein: 1.44,
+            fiber: 1.7,
+            vitamin_c: 36.4,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [15, 10, 30, 35, 5, 5],
         },
         {
           name: "Feijoa",
@@ -594,7 +736,11 @@
             sugar: 3,
             carbohydrates: 8,
             protein: 0.6,
+            fiber: 6.4,
+            vitamin_c: 32.9,
           },
+          seasonal_availability: [0, 0, 80, 20],
+          regional_distribution: [5, 25, 5, 10, 5, 50],
         },
         {
           name: "Avocado",
@@ -608,7 +754,11 @@
             sugar: 0.66,
             carbohydrates: 8.53,
             protein: 2,
+            fiber: 6.7,
+            vitamin_c: 10,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [25, 30, 10, 20, 10, 5],
         },
         {
           name: "Kiwifruit",
@@ -622,7 +772,11 @@
             sugar: 8.9,
             carbohydrates: 14.6,
             protein: 1.14,
+            fiber: 3,
+            vitamin_c: 92.7,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [15, 10, 20, 25, 5, 25],
         },
         {
           name: "Cranberry",
@@ -636,7 +790,11 @@
             sugar: 4,
             carbohydrates: 12.2,
             protein: 0.4,
+            fiber: 4.6,
+            vitamin_c: 13.3,
           },
+          seasonal_availability: [0, 0, 60, 40],
+          regional_distribution: [50, 10, 30, 5, 2, 3],
         },
         {
           name: "Cherry",
@@ -650,7 +808,11 @@
             sugar: 8,
             carbohydrates: 12,
             protein: 1,
+            fiber: 1.6,
+            vitamin_c: 7,
           },
+          seasonal_availability: [0, 80, 20, 0],
+          regional_distribution: [25, 15, 30, 20, 5, 5],
         },
         {
           name: "Peach",
@@ -664,7 +826,11 @@
             sugar: 8.4,
             carbohydrates: 9.5,
             protein: 0.9,
+            fiber: 1.5,
+            vitamin_c: 6.6,
           },
+          seasonal_availability: [0, 60, 40, 0],
+          regional_distribution: [20, 15, 25, 30, 5, 5],
         },
         {
           name: "Jackfruit",
@@ -678,7 +844,11 @@
             sugar: 19.1,
             carbohydrates: 23.2,
             protein: 1.72,
+            fiber: 1.5,
+            vitamin_c: 13.7,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 15, 5, 65, 8, 2],
         },
         {
           name: "Horned Melon",
@@ -692,7 +862,11 @@
             sugar: 0.5,
             carbohydrates: 7.56,
             protein: 1.78,
+            fiber: 1.9,
+            vitamin_c: 5.3,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 10, 5, 20, 55, 5],
         },
         {
           name: "Hazelnut",
@@ -706,7 +880,11 @@
             sugar: 4.3,
             carbohydrates: 17,
             protein: 15,
+            fiber: 9.7,
+            vitamin_c: 6.3,
           },
+          seasonal_availability: [0, 0, 70, 30],
+          regional_distribution: [20, 5, 50, 20, 2, 3],
         },
         {
           name: "Pomelo",
@@ -720,7 +898,11 @@
             sugar: 8.5,
             carbohydrates: 9.67,
             protein: 0.82,
+            fiber: 1,
+            vitamin_c: 61,
           },
+          seasonal_availability: [30, 0, 0, 70],
+          regional_distribution: [10, 15, 10, 55, 5, 5],
         },
         {
           name: "Mangosteen",
@@ -734,7 +916,11 @@
             sugar: 16.11,
             carbohydrates: 17.91,
             protein: 0.41,
+            fiber: 1.8,
+            vitamin_c: 2.9,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 10, 5, 70, 8, 2],
         },
         {
           name: "Pumpkin",
@@ -748,13 +934,17 @@
             sugar: 3.3,
             carbohydrates: 4.6,
             protein: 1.1,
+            fiber: 0.5,
+            vitamin_c: 9,
           },
+          seasonal_availability: [0, 0, 70, 30],
+          regional_distribution: [25, 20, 25, 20, 5, 5],
         },
         {
           name: "Japanese Persimmon",
           id: 101,
-          family: " Ebenaceae",
-          order: " Ericales",
+          family: "Ebenaceae",
+          order: "Ericales",
           genus: "Diospyros",
           nutritions: {
             calories: 70,
@@ -762,7 +952,11 @@
             sugar: 13,
             carbohydrates: 19,
             protein: 0.6,
+            fiber: 3.6,
+            vitamin_c: 7.5,
           },
+          seasonal_availability: [0, 0, 60, 40],
+          regional_distribution: [10, 5, 10, 70, 3, 2],
         },
         {
           name: "Papaya",
@@ -776,7 +970,11 @@
             sugar: 4.4,
             carbohydrates: 5.8,
             protein: 0.5,
+            fiber: 1.8,
+            vitamin_c: 168.1,
           },
+          seasonal_availability: [25, 25, 25, 25],
+          regional_distribution: [15, 25, 5, 40, 10, 5],
         },
         {
           name: "Annona",
@@ -790,7 +988,11 @@
             sugar: 3.4,
             carbohydrates: 19.1,
             protein: 1.5,
+            fiber: 3.8,
+            vitamin_c: 25.6,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [10, 30, 5, 45, 8, 2],
         },
         {
           name: "Ceylon Gooseberry",
@@ -804,8 +1006,22 @@
             sugar: 8.1,
             carbohydrates: 9.6,
             protein: 1.2,
+            fiber: 3.2,
+            vitamin_c: 41.8,
           },
+          seasonal_availability: [0, 50, 50, 0],
+          regional_distribution: [5, 10, 5, 70, 8, 2],
         },
+      ];
+
+      const seasons = ["Spring", "Summer", "Fall", "Winter"];
+      const regions = [
+        "North America",
+        "South America",
+        "Europe",
+        "Asia",
+        "Africa",
+        "Australia",
       ];
 
       // Populate fruit dropdowns
@@ -835,7 +1051,7 @@
 
         const createNutritionChart = (fruit, chartId) => {
           const chartContainer = document.createElement("div");
-          chartContainer.className = "w-full h-64 md:h-80";
+          chartContainer.className = "w-full h-64";
           const canvas = document.createElement("canvas");
           canvas.id = chartId;
           chartContainer.appendChild(canvas);
@@ -907,7 +1123,7 @@
                 ${categoryFruits
                   .map(
                     (f) => `
-                    <li class="fruit-card bg-white dark:bg-gray-600 p-2 rounded shadow-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-500 transition duration-300" onclick="window.showFruitDetails(${f.id})">
+                    <li class="fruit-card bg-white dark:bg-gray-600 p-2 rounded shadow-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-500 transition duration-300" onclick="showFruitDetails(${f.id})">
                         <span class="font-medium">${f.name}</span>
                     </li>
                 `
@@ -943,10 +1159,122 @@
               )
               .join("")}
         </ul>
+        <h3 class="text-xl font-semibold mt-4 mb-2">Seasonal Availability</h3>
+        <ul class="space-y-1">
+            ${seasons
+              .map(
+                (season, index) => `
+                <li class="bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                    <strong class="text-primary dark:text-green-400">${season}:</strong> ${
+                  fruit.seasonal_availability[index]
+                    ? "Available"
+                    : "Not available"
+                }
+                </li>
+            `
+              )
+              .join("")}
+        </ul>
     `;
 
         modal.classList.remove("hidden");
         modal.classList.add("flex");
+      }
+
+      // Create seasonal availability chart
+      function createSeasonalChart() {
+        const seasonalData = seasons.map((season, index) => ({
+          season,
+          count: fruits.filter((f) => f.seasonal_availability[index]).length,
+        }));
+
+        const ctx = document.getElementById("seasonalChart");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: seasons,
+            datasets: [
+              {
+                label: "Number of Available Fruits",
+                data: seasonalData.map((d) => d.count),
+                backgroundColor: "#4CAF50",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: fruits.length,
+                ticks: {
+                  stepSize: 1,
+                  precision: 0,
+                },
+              },
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: "Seasonal Fruit Availability",
+                font: {
+                  size: 16,
+                  weight: "bold",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Create regional distribution chart
+      function createRegionalDistributionChart() {
+        const regionalData = regions.map((region, index) => ({
+          region,
+          total: fruits.reduce(
+            (sum, fruit) => sum + fruit.regional_distribution[index],
+            0
+          ),
+        }));
+
+        const ctx = document.getElementById("regionalDistribution");
+        new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: regions,
+            datasets: [
+              {
+                data: regionalData.map((d) => d.total),
+                backgroundColor: [
+                  "#FF6384",
+                  "#36A2EB",
+                  "#FFCE56",
+                  "#4BC0C0",
+                  "#9966FF",
+                  "#FF9F40",
+                ],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Regional Distribution of Fruits",
+                font: {
+                  size: 16,
+                  weight: "bold",
+                },
+              },
+              legend: {
+                position: "right",
+              },
+            },
+          },
+        });
       }
 
       // Close modal
@@ -959,17 +1287,36 @@
 
       // Toggle dark mode
       function setupDarkModeToggle() {
-        document
-          .getElementById("darkModeToggle")
-          .addEventListener("click", () => {
-            document.documentElement.classList.toggle("dark");
-          });
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        const html = document.documentElement;
+
+        darkModeToggle.addEventListener("click", () => {
+          html.classList.toggle("dark");
+
+          // Save the current mode to localStorage
+          if (html.classList.contains("dark")) {
+            localStorage.setItem("darkMode", "enabled");
+          } else {
+            localStorage.setItem("darkMode", "disabled");
+          }
+
+          // Redraw charts to update colors
+          createSeasonalChart();
+          createRegionalDistributionChart();
+        });
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem("darkMode") === "enabled") {
+          html.classList.add("dark");
+        }
       }
 
       // Initialize app
       function initApp() {
         populateFruitDropdowns();
         categorizeFruits();
+        createSeasonalChart();
+        createRegionalDistributionChart();
         document
           .getElementById("compareBtn")
           .addEventListener("click", compareFruits);
@@ -977,6 +1324,12 @@
         setupDarkModeToggle();
         window.showFruitDetails = showFruitDetails;
       }
+
+      // Redraw charts on window resize
+      window.addEventListener("resize", () => {
+        createSeasonalChart();
+        createRegionalDistributionChart();
+      });
 
       initApp();
     </script>
