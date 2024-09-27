@@ -3,112 +3,239 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aircraft Assembly and Mechanics</title>
+    <title>Aircraft Assembly & Mechanics</title>
     <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
     <style>
-      /* styles.css */
       body {
         font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f4f4f4;
+        background: #f4f4f9;
       }
-
-      #sideNav {
-        height: 100%;
-        width: 0;
-        position: fixed;
-        z-index: 1;
+      .navbar {
+        background-color: #007bff;
+      }
+      .nav-link,
+      .navbar-brand {
+        color: white !important;
+      }
+      .tab-content {
+        margin-top: 20px;
+      }
+      .card {
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: scale(1.02);
+      }
+      .timeline {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .timeline::after {
+        content: "";
+        position: absolute;
+        width: 6px;
+        background-color: #007bff;
         top: 0;
+        bottom: 0;
+        left: 50%;
+        margin-left: -3px;
+      }
+      .container-timeline {
+        padding: 10px 40px;
+        position: relative;
+        width: 50%;
+      }
+      .container-timeline::after {
+        content: "";
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        right: -17px;
+        background-color: white;
+        border: 4px solid #007bff;
+        top: 15px;
+        border-radius: 50%;
+        z-index: 1;
+      }
+      .left {
         left: 0;
-        background-color: #111;
-        overflow-x: hidden;
-        transition: 0.5s;
-        padding-top: 60px;
       }
-
-      #sideNav a {
-        padding: 8px 8px 8px 32px;
-        text-decoration: none;
-        font-size: 25px;
-        color: #818181;
-        display: block;
-        transition: 0.3s;
+      .right {
+        left: 50%;
       }
-
-      #sideNav a:hover,
-      #sideNav a:focus {
-        color: #f1f1f1;
+      .right::after {
+        left: -16px;
       }
-
-      #main-content {
-        transition: margin-left 0.5s;
-        padding: 16px;
-      }
-
-      #open-btn {
-        font-size: 20px;
-        cursor: pointer;
-      }
-
-      @media screen and (max-height: 450px) {
-        #sideNav {
-          padding-top: 15px;
-        }
-        #sideNav a {
-          font-size: 18px;
-        }
-      }
-
-      /* Additional styling for sections, animations, etc. would go here */
     </style>
   </head>
   <body>
-    <nav id="sideNav">
-      <a href="#" class="close-btn">&times;</a>
-      <a href="#intro">Introduction</a>
-      <a href="#parts">Aircraft Parts</a>
-      <a href="#mechanics">Takeoff & Landing</a>
-      <a href="#assembly">Assembly</a>
-      <a href="#classes">Aircraft Classes</a>
-      <a href="#terms">Aviation Terms</a>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Aircraft Edu</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#takeoffLanding">Takeoff & Landing</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#aircraftParts">Aircraft Parts</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#assemblyProcess">Assembly</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#aircraftTypes">Types</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#aviationTerms">Terms</a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </nav>
-    <div id="main-content">
-      <button id="open-btn">&#9776; Open Menu</button>
-      <section id="intro">
-        <h2>Introduction to Flight</h2>
-        <!-- Content here -->
-      </section>
-      <!-- More sections follow -->
+
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="list-group" id="list-tab" role="tablist">
+            <a
+              class="list-group-item list-group-item-action active"
+              id="list-takeoff-list"
+              data-bs-toggle="list"
+              href="#takeoffLanding"
+              role="tab"
+              >Takeoff & Landing</a
+            >
+            <a
+              class="list-group-item list-group-item-action"
+              id="list-parts-list"
+              data-bs-toggle="list"
+              href="#aircraftParts"
+              role="tab"
+              >Aircraft Parts</a
+            >
+            <a
+              class="list-group-item list-group-item-action"
+              id="list-assembly-list"
+              data-bs-toggle="list"
+              href="#assemblyProcess"
+              role="tab"
+              >Assembly Process</a
+            >
+            <a
+              class="list-group-item list-group-item-action"
+              id="list-types-list"
+              data-bs-toggle="list"
+              href="#aircraftTypes"
+              role="tab"
+              >Aircraft Types</a
+            >
+            <a
+              class="list-group-item list-group-item-action"
+              id="list-terms-list"
+              data-bs-toggle="list"
+              href="#aviationTerms"
+              role="tab"
+              >Aviation Terms</a
+            >
+          </div>
+        </div>
+        <div class="col-md-9">
+          <div class="tab-content" id="nav-tabContent">
+            <!-- Takeoff and Landing Section -->
+            <div
+              class="tab-pane fade show active"
+              id="takeoffLanding"
+              role="tabpanel"
+            >
+              <h2>Takeoff and Landing Mechanics</h2>
+              <p>
+                Explanation of how thrust, lift, drag, and weight interact
+                during takeoff and landing...
+              </p>
+              <div id="takeoffAnimation"></div>
+            </div>
+            <!-- Aircraft Parts Section -->
+            <div class="tab-pane fade" id="aircraftParts" role="tabpanel">
+              <h2>Aircraft Parts</h2>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="card"><div class="card-body">Wings...</div></div>
+                </div>
+                <!-- Add more parts here -->
+              </div>
+            </div>
+            <!-- Assembly Process Section -->
+            <div class="tab-pane fade" id="assemblyProcess" role="tabpanel">
+              <h2>Aircraft Assembly Process</h2>
+              <div class="timeline">
+                <!-- Timeline content here -->
+              </div>
+            </div>
+            <!-- Aircraft Types Section -->
+            <div class="tab-pane fade" id="aircraftTypes" role="tabpanel">
+              <h2>Types of Aircraft</h2>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="card">
+                    <div class="card-body">Commercial Jets - Boeing 747...</div>
+                  </div>
+                </div>
+                <!-- Add more types here -->
+              </div>
+            </div>
+            <!-- Aviation Terms Section -->
+            <div class="tab-pane fade" id="aviationTerms" role="tabpanel">
+              <h2>Aviation Terms</h2>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="card">
+                    <div class="card-body">Aerodynamics...</div>
+                  </div>
+                </div>
+                <!-- Add more terms here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-      // script.js
-      document
-        .getElementById("open-btn")
-        .addEventListener("click", function () {
-          document.getElementById("sideNav").style.width = "250px";
-          document.getElementById("main-content").style.marginLeft = "250px";
+      document.addEventListener("DOMContentLoaded", (event) => {
+        // GSAP animations for takeoff and landing
+        gsap.from("#takeoffAnimation", {
+          duration: 2,
+          y: 100,
+          opacity: 0,
+          ease: "power2.out",
         });
 
-      document
-        .querySelector(".close-btn")
-        .addEventListener("click", function (e) {
-          e.preventDefault();
-          document.getElementById("sideNav").style.width = "0";
-          document.getElementById("main-content").style.marginLeft = "0";
+        // Example of a simple timeline animation for assembly
+        const timeline = gsap.timeline({ defaults: { duration: 1 } });
+        timeline.from(".container-timeline", {
+          x: -100,
+          opacity: 0,
+          stagger: 0.5,
         });
-
-      // GSAP animations would be initialized here, for example:
-      gsap.from("#intro", {
-        duration: 1,
-        x: -100,
-        opacity: 0,
-        ease: "power3.out",
       });
     </script>
   </body>
